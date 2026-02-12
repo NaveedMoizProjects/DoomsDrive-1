@@ -6,9 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/MainMenu.unity
+    path: Assets/naveed madni/Scenes/MainMenu.unity
     guid: aa5e101b4602f6e4c82f9b6d45d7f720
   - enabled: 1
-    path: Assets/Scenes/MAP1_DESERT.unity
+    path: Assets/naveed madni/Scenes/MAP1_DESERT.unity
     guid: 99c9720ab356a0642a771bea13969a05
   m_configObjects: {}

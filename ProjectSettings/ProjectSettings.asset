@@ -754,7 +754,24 @@ PlayerSettings:
   webGLMemoryGeometricGrowthStep: 0.2
   webGLMemoryGeometricGrowthCap: 96
   webGLPowerPreference: 2
-  scriptingDefineSymbols: {}
+  scriptingDefineSymbols:
+    Android: BCG_RCC
+    EmbeddedLinux: BCG_RCC
+    GameCoreScarlett: BCG_RCC
+    GameCoreXboxOne: BCG_RCC
+    LinuxHeadlessSimulation: BCG_RCC
+    Nintendo Switch: BCG_RCC
+    PS4: BCG_RCC
+    PS5: BCG_RCC
+    QNX: BCG_RCC
+    Stadia: BCG_RCC
+    Standalone: BCG_RCC
+    VisionOS: BCG_RCC
+    WebGL: BCG_RCC
+    Windows Store Apps: BCG_RCC
+    XboxOne: BCG_RCC
+    iPhone: BCG_RCC
+    tvOS: BCG_RCC
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend: {}
@@ -861,7 +878,7 @@ PlayerSettings:
   hmiLogStartupTiming: 0
   hmiCpuConfiguration: 
   apiCompatibilityLevel: 6
-  activeInputHandler: 0
+  activeInputHandler: 2
   windowsGamepadBackendHint: 0
   cloudProjectId: 935fb68c-261c-4759-8bce-0a23545fe2f4
   framebufferDepthMemorylessMode: 0
