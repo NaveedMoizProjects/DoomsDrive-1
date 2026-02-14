@@ -27,22 +27,10 @@ public class CarEngineSound : MonoBehaviour
 
     void EngineSound()
     {
-        currentSpeed = carRb.velocity.magnitude;
-        pitchFromCar = carRb.velocity.magnitude / 50f;
+        // Normalizes speed between 0 and 1
+        float speedPercentage = carRb.velocity.magnitude / maxSpeed;
 
-        if (currentSpeed < minSpeed)
-        {
-            carAudio.pitch = minPitch;
-        }
-
-        if (currentSpeed >= minSpeed && currentSpeed < maxSpeed)
-        {
-            carAudio.pitch = minPitch + pitchFromCar;
-        }
-
-        if (currentSpeed >= maxSpeed)
-        {
-            carAudio.pitch = maxPitch;
-        }
+        // Smoothly moves pitch between min and max based on speed
+        carAudio.pitch = Mathf.Lerp(minPitch, maxPitch, speedPercentage);
     }
 }
