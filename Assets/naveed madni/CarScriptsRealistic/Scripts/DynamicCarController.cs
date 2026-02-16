@@ -10,11 +10,11 @@ public class DynamicCarController : MonoBehaviour
     [System.Serializable]
     public struct Wheel
     {
-        public string wheelName; // e.g., "FrontLeft"
+        public string wheelName;
         public WheelCollider wheelCollider;
         public GameObject wheelModel;
         public Axel axel;
-        public float health; // New: 100 is healthy, 0 is destroyed
+        public float health; // 100 = Healthy, 0 = Pop out
     }
 
     // --- Configuration ---
@@ -26,6 +26,7 @@ public class DynamicCarController : MonoBehaviour
     public float baseMotorTorque = 1500f;
     public float maxSteerAngle = 30f;
     public float brakeForce = 3000f;
+    public float scrapingFriction = 500f; // Drag applied when a wheel is missing
 
     private Rigidbody carRb;
 
@@ -33,76 +34,82 @@ public class DynamicCarController : MonoBehaviour
     {
         carRb = GetComponent<Rigidbody>();
 
-        // Safety check for the Singleton we created earlier
         if (CarSettings.Instance == null)
         {
             Debug.LogError("CarSettings Singleton missing! Please add a CarSettings script to the scene.");
         }
 
-        // Move the weight way down to prevent flipping
-        // Adjust the -1.0f value. Lower = more stable.
+        // Initial Center of Mass setup
         carRb.centerOfMass = new Vector3(0, -1.0f, 0);
     }
 
     void FixedUpdate()
     {
-        // This allows you to adjust how "flippable" the car is from your UI sliders
-        carRb.centerOfMass = new Vector3(0, -CarSettings.Instance.stabilityExtra, 0);
+        // Keep car stable based on UI Settings
+        if (CarSettings.Instance != null)
+        {
+            carRb.centerOfMass = new Vector3(0, -CarSettings.Instance.stabilityExtra, 0);
+        }
+
         HandlePhysics();
         ApplyAirDrag();
+        ApplyScrapingDrag(); // NEW: Handle dragging on the ground for missing wheels
     }
 
     void HandlePhysics()
     {
-        // 1. Get Inputs
         float moveInput = Input.GetAxis("Vertical");
         float steerInput = Input.GetAxis("Horizontal");
         bool isBraking = Input.GetKey(KeyCode.Space);
 
-        foreach (var wheel in wheels)
+        for (int i = 0; i < wheels.Count; i++)
         {
-            // REQUIREMENT: Dynamic check for missing/broken wheels
-            if (wheel.wheelCollider == null) continue;
+            // Skip logic if wheel is already gone
+            if (wheels[i].wheelCollider == null) continue;
 
-            // 2. Handle Steering
-            if (wheel.axel == Axel.Front)
+            // --- TIRE DAMAGE CHECK ---
+            // If health drops to 0, trigger physical disconnect automatically
+            if (wheels[i].health <= 0)
             {
-                // Smoothly steer
-                wheel.wheelCollider.steerAngle = steerInput * maxSteerAngle;
+                DisconnectWheel(wheels[i].wheelName);
+                continue;
             }
 
-            // 3. Handle Acceleration (Based on Drive Mode)
+            // Steering
+            if (wheels[i].axel == Axel.Front)
+            {
+                wheels[i].wheelCollider.steerAngle = steerInput * maxSteerAngle;
+            }
+
+            // Drive Power
             bool isPowered = false;
             if (driveMode == DriveType.AllWheelDrive) isPowered = true;
-            else if (driveMode == DriveType.FrontWheelDrive && wheel.axel == Axel.Front) isPowered = true;
-            else if (driveMode == DriveType.RearWheelDrive && wheel.axel == Axel.Rear) isPowered = true;
+            else if (driveMode == DriveType.FrontWheelDrive && wheels[i].axel == Axel.Front) isPowered = true;
+            else if (driveMode == DriveType.RearWheelDrive && wheels[i].axel == Axel.Rear) isPowered = true;
 
             if (isPowered)
             {
-                wheel.wheelCollider.motorTorque = moveInput * baseMotorTorque * CarSettings.Instance.globalAccelerationMultiplier;
+                wheels[i].wheelCollider.motorTorque = moveInput * baseMotorTorque * CarSettings.Instance.globalAccelerationMultiplier;
             }
             else
             {
-                wheel.wheelCollider.motorTorque = 0;
+                wheels[i].wheelCollider.motorTorque = 0;
             }
 
-            // 4. Handle Braking
-            wheel.wheelCollider.brakeTorque = isBraking ? brakeForce : 0;
+            wheels[i].wheelCollider.brakeTorque = isBraking ? brakeForce : 0;
 
-            // 5. OPTIONAL: Hydraulics (Suspension Height)
-            // Note: targetPosition 0 = Fully Extended, 1 = Fully Compressed
-            var spring = wheel.wheelCollider.suspensionSpring;
+            // Suspension/Hydraulics
+            var spring = wheels[i].wheelCollider.suspensionSpring;
             spring.targetPosition = CarSettings.Instance.suspensionHeight;
-            wheel.wheelCollider.suspensionSpring = spring;
+            wheels[i].wheelCollider.suspensionSpring = spring;
 
-            // 6. REQUIREMENT: Update Visuals (Make the 3D model match the physics)
-            UpdateVisuals(wheel);
+            UpdateVisuals(wheels[i]);
         }
     }
 
     void UpdateVisuals(Wheel wheel)
     {
-        if (wheel.wheelModel == null) return;
+        if (wheel.wheelModel == null || wheel.wheelCollider == null) return;
 
         Vector3 pos;
         Quaternion rot;
@@ -112,71 +119,96 @@ public class DynamicCarController : MonoBehaviour
         wheel.wheelModel.transform.rotation = rot;
     }
 
-    // for testing now
-    public void DestroySpecificWheel(string targetName)
+    // Call this from UI to simulate damage
+    public void ApplyDamageToWheel(string targetName, float amount)
     {
         for (int i = 0; i < wheels.Count; i++)
         {
             if (wheels[i].wheelName == targetName)
             {
-                // 1. Disable Physics
-                if (wheels[i].wheelCollider != null) wheels[i].wheelCollider.enabled = false;
+                Wheel w = wheels[i];
+                w.health -= amount;
+                wheels[i] = w; // Update the list
 
-                // 2. Hide Mesh
-                if (wheels[i].wheelModel != null) wheels[i].wheelModel.SetActive(false);
-
-                Debug.Log($"Relational Link Success: {targetName} is now offline.");
+                // The FixedUpdate will see this health change 
+                // and call DisconnectWheel() on the next frame!
                 return;
             }
         }
     }
+
     public void DisconnectWheel(string targetName)
     {
         for (int i = 0; i < wheels.Count; i++)
         {
-            // 1. Find the wheel in our list
             if (wheels[i].wheelName == targetName)
             {
                 Wheel wheel = wheels[i];
-
                 if (wheel.wheelCollider == null) return;
 
-                // 2. Disable the physics 'logic' (so the car stops powered this corner)
+                // Disable physics logic on the car
                 wheel.wheelCollider.enabled = false;
 
-                // 3. Make the visual mesh a physical object in the world
                 if (wheel.wheelModel != null)
                 {
-                    // Disconnect from the car parent
+                    // POPCORN PREVENTION: Unparent first
                     wheel.wheelModel.transform.SetParent(null);
 
-                    // Add physics to the loose wheel
+                    // Physical Tire Setup
                     Rigidbody wheelRb = wheel.wheelModel.AddComponent<Rigidbody>();
-                    MeshCollider wheelCol = wheel.wheelModel.AddComponent<MeshCollider>();
-                    wheelCol.convex = true; // Required for physics
+                    wheelRb.mass = 20f; // Heavy tire
+                    wheelRb.velocity = carRb.velocity; // Inherit car speed
 
-                    // Give it a little "pop" force so it flies away from the car
-                    wheelRb.AddForce(transform.right * 5f + Vector3.up * 2f, ForceMode.Impulse);
-                    wheelRb.AddRelativeTorque(Vector3.right * 10f, ForceMode.Impulse);
+                    MeshCollider wheelCol = wheel.wheelModel.AddComponent<MeshCollider>();
+                    wheelCol.convex = true;
+
+                    // Stop the wheel from exploding away from the car body
+                    // FIX: Find ALL colliders on the car (body, other wheels, etc.)
+                    Collider[] carColliders = GetComponentsInChildren<Collider>();
+                    foreach (var carCol in carColliders)
+                    {
+                        // Don't ignore itself if it's still there, but ignore everything else
+                        if (carCol != wheelCol)
+                            Physics.IgnoreCollision(wheelCol, carCol);
+                    }
+                    // Add Friction/Rubber material
+                    PhysicMaterial tireMat = new PhysicMaterial();
+                    tireMat.dynamicFriction = 0.8f;
+                    tireMat.bounciness = 0.2f;
+                    wheelCol.material = tireMat;
+
+                    // Small side-pop
+                    Vector3 sideDir = (wheel.axel == Axel.Front) ? transform.right : -transform.right;
+                    wheelRb.AddForce(sideDir * 3f, ForceMode.Impulse);
                 }
 
-                Debug.Log($"Wheel {targetName} has been disconnected and is now physics-active!");
-
-                // 4. Important: Set references to null so the Controller loop skips this wheel
-                // We use a local variable to update the struct then put it back
+                // Null out collider to signal 'Missing Wheel' to the rest of the script
                 wheel.wheelCollider = null;
                 wheels[i] = wheel;
-
                 return;
             }
         }
     }
+
+    void ApplyScrapingDrag()
+    {
+        foreach (var wheel in wheels)
+        {
+            // If the wheel is missing, apply drag at that specific corner
+            if (wheel.wheelCollider == null && wheel.wheelModel != null)
+            {
+                // Pull the car down on the broken side
+                carRb.AddForceAtPosition(Vector3.down * 1000f, wheel.wheelModel.transform.position);
+                // Apply drag based on speed
+                Vector3 dragDir = -carRb.velocity.normalized;
+                carRb.AddForceAtPosition(dragDir * (carRb.velocity.magnitude * scrapingFriction), wheel.wheelModel.transform.position);
+            }
+        }
+    }
+
     void ApplyAirDrag()
     {
-        // REQUIREMENT: Custom Damping/Air Resistance
-        // Applying force opposite to velocity based on the square of speed
         if (CarSettings.Instance == null) return;
-
         float speed = carRb.velocity.magnitude;
         Vector3 dragForce = -carRb.velocity * (speed * CarSettings.Instance.airDamping);
         carRb.AddForce(dragForce);
