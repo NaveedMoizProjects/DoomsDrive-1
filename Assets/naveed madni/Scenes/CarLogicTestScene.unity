@@ -14482,7 +14482,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1685752955aca341b2075b94bba5fb8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  driveMode: 2
+  driveMode: 0
   wheels:
   - wheelName: FR
     wheelCollider: {fileID: 4848755333225219896}
@@ -14520,9 +14520,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87d0e1b64867b499f83bdb49c87cc3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damageThreshold: 5
-  damageMultiplier: 2
-  impactRadius: 3
+  damageThreshold: 15
+  damageMultiplier: 0.5
+  impactRadius: 1.5
 --- !u!114 &101530672364119235
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16602,7 +16602,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   partName: Body
-  health: 150
+  health: 200
   isInvincible: 0
   type: 3
   isPlayer: 1
@@ -16642,7 +16642,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxDeform: 8
-  deformRadius: 20
+  deformRadius: 10
 --- !u!4 &3591762381118924147
 Transform:
   m_ObjectHideFlags: 0
