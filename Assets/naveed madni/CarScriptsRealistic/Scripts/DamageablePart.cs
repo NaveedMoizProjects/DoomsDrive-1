@@ -19,7 +19,7 @@ public class DamageablePart : MonoBehaviour
             Debug.LogError($"{gameObject.name} can't find DynamicCarController!");
         if (DamageManager.Instance != null)
         {
-            DamageManager.Instance.UpdateHealth(partName, health);
+            DamageManager.Instance.UpdateHealth(partName, health, type);
         }
     }
 
@@ -37,12 +37,20 @@ public class DamageablePart : MonoBehaviour
 
         if (DamageManager.Instance != null)
         {
-            DamageManager.Instance.UpdateHealth(partName, health);
+            //DamageManager.Instance.UpdateHealth(partName, health);
+            DamageManager.Instance.UpdateHealth(partName, health, type);
         }
         // Only send to the HUD if this is the Player's car
         if (isPlayer && DamageManager.Instance != null)
         {
-            DamageManager.Instance.UpdateHealth(partName, health);
+            //DamageManager.Instance.UpdateHealth(partName, health);
+            DamageManager.Instance.UpdateHealth(partName, health, type);
+        }
+
+        CarEffectsManager effects = GetComponentInParent<CarEffectsManager>();
+        if (effects != null)
+        {
+            effects.RefreshEffects();
         }
 
         if (health <= 0)

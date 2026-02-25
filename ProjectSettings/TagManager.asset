@@ -13,8 +13,8 @@ TagManager:
   - 
   - Water
   - UI
-  - 
-  - 
+  - CarCam
+  - PlayerCam
   - RCC
   - RCC_WheelCollider
   - RCC_DetachablePart
