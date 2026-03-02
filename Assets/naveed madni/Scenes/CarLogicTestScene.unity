@@ -7750,7 +7750,7 @@ MonoBehaviour:
   playerTransform: {fileID: 1496424985}
   turretBase: {fileID: 1172233840}
   camTargetPoint: {fileID: 1245677434}
-  sensitivity: 2
+  sensitivity: 1
   radius: 0.37
   heightOffset: 0.768
   minVertical: -30
