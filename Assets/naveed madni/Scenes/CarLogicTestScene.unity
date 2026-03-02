@@ -15507,7 +15507,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1286571742}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f1b76255e829761499675a885b5343e7, type: 3}
   m_Name: 
@@ -15517,9 +15517,9 @@ MonoBehaviour:
   frontRight: {fileID: 423385258}
   rearLeft: {fileID: 248919314}
   rearRight: {fileID: 171534705}
-  motorTorque: 2500
+  motorTorque: 2000
   maxSteerAngle: 30
-  maxSpeed: 45
+  maxSpeed: 35
 --- !u!54 &1286571744
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -15556,7 +15556,7 @@ Transform:
   m_GameObject: {fileID: 1286571742}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -5.48, y: 1.0000048, z: 16.88}
+  m_LocalPosition: {x: 0.08, y: 1.0000048, z: 1.18}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
