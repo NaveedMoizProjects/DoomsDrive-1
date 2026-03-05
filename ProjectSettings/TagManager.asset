@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Track
   - Checkpoint
+  - CinemachineTarget
   layers:
   - Default
   - TransparentFX
@@ -20,8 +21,8 @@ TagManager:
   - RCC_DetachablePart
   - RCC_Trailer
   - RCC_Crasher
-  - 
-  - 
+  - Ground
+  - ShooterUI
   - 
   - 
   - 
