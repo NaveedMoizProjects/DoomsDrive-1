@@ -4,9 +4,9 @@ public class DamageablePart : MonoBehaviour
 {
     public string partName;
     public float health = 100f;
-    public bool isInvincible = false; // Toggle for parts that show damage but don't break
+    public bool isInvincible = false;
 
-    public enum PartType { Wheel, Door, Body, Core } // Added Core
+    public enum PartType { Wheel, Door, Body, Core }
     public PartType type;
 
     private DynamicCarController controller;
@@ -15,11 +15,11 @@ public class DamageablePart : MonoBehaviour
     void Start()
     {
         controller = GetComponentInParent<DynamicCarController>();
-        if (controller == null)
-            Debug.LogError($"{gameObject.name} can't find DynamicCarController!");
+
+        // Register using InstanceID to prevent data collision between AI and Player
         if (DamageManager.Instance != null)
         {
-            DamageManager.Instance.UpdateHealth(partName, health, type);
+            DamageManager.Instance.UpdateHealth(gameObject.GetInstanceID(), health, type, transform.root.gameObject);
         }
     }
 
@@ -29,24 +29,19 @@ public class DamageablePart : MonoBehaviour
 
         health -= amount;
 
-        // SYNC: Tell the controller to update the health in its internal list
+        // 1. Sync with Physics Controller (if it's a wheel)
         if (type == PartType.Wheel && controller != null)
         {
             controller.ApplyDamageToWheel(partName, amount);
         }
 
+        // 2. Sync with Global Manager using UNIQUE ID
         if (DamageManager.Instance != null)
         {
-            //DamageManager.Instance.UpdateHealth(partName, health);
-            DamageManager.Instance.UpdateHealth(partName, health, type);
-        }
-        // Only send to the HUD if this is the Player's car
-        if (isPlayer && DamageManager.Instance != null)
-        {
-            //DamageManager.Instance.UpdateHealth(partName, health);
-            DamageManager.Instance.UpdateHealth(partName, health, type);
+            DamageManager.Instance.UpdateHealth(gameObject.GetInstanceID(), health, type, transform.root.gameObject);
         }
 
+        // 3. Trigger effects ONLY on the car this part belongs to
         CarEffectsManager effects = GetComponentInParent<CarEffectsManager>();
         if (effects != null)
         {
@@ -64,37 +59,31 @@ public class DamageablePart : MonoBehaviour
     {
         if (type == PartType.Core)
         {
-            Debug.Log("<color=red><b>CORE DESTROYED</b></color>");
+            Debug.Log($"<color=red><b>CORE DESTROYED ON {transform.root.name}</b></color>");
             return;
         }
 
+        // If it's a wheel, we usually handle that in the CarController, 
+        // but if you want it to fall off, remove the 'return' below.
         if (type == PartType.Wheel) return;
 
-        Debug.Log($"Breaking Joint for: {gameObject.name}");
-
-        // 1. DISCONNECT THE JOINT (This is the "Glue")
+        // DISCONNECT Logic
         ConfigurableJoint joint = GetComponent<ConfigurableJoint>();
-        if (joint != null)
-        {
-            Destroy(joint);
-        }
+        if (joint != null) Destroy(joint);
 
-        // 2. Unparent so it is no longer a child of the Jeep
-        transform.SetParent(null);
+        transform.SetParent(null); // Separate from the car
 
-        // 3. Ensure it has physics to fall
         Rigidbody rb = GetComponent<Rigidbody>();
         if (rb == null) rb = gameObject.AddComponent<Rigidbody>();
 
         rb.isKinematic = false;
         rb.useGravity = true;
 
-        // Ensure the collider is active and physical
         Collider col = GetComponent<Collider>();
         if (col != null) col.isTrigger = false;
 
-        // 4. Give it a push so it doesn't get stuck in the car's frame
-        rb.AddForce(-transform.forward * 5f, ForceMode.Impulse);
+        // Pop it outward so it doesn't collide with the car frame
+        rb.AddForce((transform.position - transform.root.position).normalized * 5f, ForceMode.Impulse);
 
         this.enabled = false;
     }

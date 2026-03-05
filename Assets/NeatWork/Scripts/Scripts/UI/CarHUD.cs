@@ -14,19 +14,23 @@ public class CarHUD : MonoBehaviour
     {
         if (DamageManager.Instance == null) return;
 
-        // Loop through the 4 types you defined in the Enum
         foreach (DamageablePart.PartType t in System.Enum.GetValues(typeof(DamageablePart.PartType)))
         {
             if (!uiEntries.ContainsKey(t)) CreateNewRow(t);
 
-            // Filter registry by Type
-            var partsOfType = DamageManager.Instance.carHealthRegistry.Values
-                .Where(x => x.type == t);
+            // FIX: Filter registry to ONLY include parts belonging to the Player's car
+            var playerPartsOfType = DamageManager.Instance.carHealthRegistry.Values
+                .Where(x => x.type == t && x.ownerCar.CompareTag("Player")); // Check for Player tag
 
-            if (partsOfType.Any())
+            if (playerPartsOfType.Any())
             {
-                float avg = partsOfType.Average(x => x.health);
+                float avg = playerPartsOfType.Average(x => x.health);
                 UpdateRowVisuals(t, avg);
+            }
+            else
+            {
+                // If no player parts exist for this type (e.g. all doors fell off), show 0
+                UpdateRowVisuals(t, 0f);
             }
         }
     }

@@ -4,62 +4,39 @@ using System.Collections.Generic;
 public class DamageManager : MonoBehaviour
 {
     public static DamageManager Instance { get; private set; }
+    public int currentLap = 0;
+    public int lapsToWin = 3;
 
-    // Store the health AND the type
     public struct PartData
     {
         public float health;
         public DamageablePart.PartType type;
+        public GameObject ownerCar;
     }
 
-    // This dictionary stores: PartName -> HealthValue and Type(along part data but type used)
-    public Dictionary<string, PartData> carHealthRegistry = new Dictionary<string, PartData>();
+    // Key is now the unique InstanceID of the GameObject
+    public Dictionary<int, PartData> carHealthRegistry = new Dictionary<int, PartData>();
 
-    [Header("Race Settings")]
-    public int lapsToWin = 3;
-    public int currentLap = 0;
-    public int currentCheckpoint = 0;
+    void Awake()
+    {
+        if (Instance == null) { Instance = this; DontDestroyOnLoad(gameObject); }
+        else { Destroy(gameObject); }
+    }
+
+    public void UpdateHealth(int partID, float health, DamageablePart.PartType type, GameObject owner)
+    {
+        PartData data = new PartData { health = health, type = type, ownerCar = owner };
+        carHealthRegistry[partID] = data;
+    }
 
     public void DeclareWinner()
     {
-        Debug.Log("Race Finished! Security System: Vehicle Lockdown Engaged.");
-    }
-    void Awake()
-    {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        Debug.Log("We have a winner! Total Laps: " + currentLap);
+        // Implement win logic here (e.g., show UI)
     }
 
-    //// Call this whenever a part takes damage
-    //public void UpdateHealth(string partName, float health)
-    //{
-    //    if (carHealthRegistry.ContainsKey(partName))
-    //        carHealthRegistry[partName] = health;
-    //    else
-    //        carHealthRegistry.Add(partName, health);
-
-    //    // Security check: You can trigger a "Security Alert" here if health < 20
-    //    if (health <= 0) Debug.Log($"Warning: {partName} has been breached!");
-    //}
-    public void UpdateHealth(string partName, float health, DamageablePart.PartType type)
+    public float GetPartHealth(int partID)
     {
-        PartData data = new PartData { health = health, type = type };
-
-        if (carHealthRegistry.ContainsKey(partName))
-            carHealthRegistry[partName] = data;
-        else
-            carHealthRegistry.Add(partName, data);
-    }
-
-    public float GetPartHealth(string partName)
-    {
-        return carHealthRegistry.ContainsKey(partName) ? (carHealthRegistry[partName].health)  : 000 ;
+        return carHealthRegistry.ContainsKey(partID) ? carHealthRegistry[partID].health : 100f;
     }
 }
