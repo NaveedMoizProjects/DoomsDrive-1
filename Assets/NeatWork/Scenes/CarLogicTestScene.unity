@@ -11542,13 +11542,12 @@ GameObject:
   m_Component:
   - component: {fileID: 188884958}
   - component: {fileID: 188884957}
-  - component: {fileID: 188884956}
-  - component: {fileID: 188884955}
   - component: {fileID: 188884954}
   - component: {fileID: 188884953}
   - component: {fileID: 188884952}
   - component: {fileID: 188884951}
   - component: {fileID: 188884950}
+  - component: {fileID: 188884959}
   m_Layer: 8
   m_Name: jeep-AI2
   m_TagString: AI
@@ -11720,83 +11719,6 @@ MonoBehaviour:
   maxSpeed: 200
   minPitch: 0.8
   maxPitch: 2
---- !u!114 &188884955
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 188884949}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 25c249fc00035c04cb4ea91b970ae177, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  control: 0
-  maxAcceleration: 50
-  brakeAcceleration: 100
-  turnSensitivity: 1
-  maxSteerAngle: 30
-  _centerOfMass: {x: 0, y: 0, z: 0}
-  wheels:
-  - wheelModel: {fileID: 1961206431}
-    wheelCollider: {fileID: 1987153074}
-    wheelEffectObj: {fileID: 694793886}
-    smokeParticle: {fileID: 0}
-    axel: 0
-  - wheelModel: {fileID: 652057507}
-    wheelCollider: {fileID: 1320932989}
-    wheelEffectObj: {fileID: 1430979494}
-    smokeParticle: {fileID: 0}
-    axel: 0
-  - wheelModel: {fileID: 572873706}
-    wheelCollider: {fileID: 1168942176}
-    wheelEffectObj: {fileID: 238320590}
-    smokeParticle: {fileID: 0}
-    axel: 1
-  - wheelModel: {fileID: 1213421360}
-    wheelCollider: {fileID: 945084620}
-    wheelEffectObj: {fileID: 637915843}
-    smokeParticle: {fileID: 0}
-    axel: 1
---- !u!114 &188884956
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 188884949}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a1685752955aca341b2075b94bba5fb8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  driveMode: 0
-  wheels:
-  - wheelName: FR
-    wheelCollider: {fileID: 1320932989}
-    wheelModel: {fileID: 652057507}
-    axel: 0
-    health: 100
-  - wheelName: FL
-    wheelCollider: {fileID: 1987153074}
-    wheelModel: {fileID: 1961206431}
-    axel: 0
-    health: 100
-  - wheelName: RR
-    wheelCollider: {fileID: 945084620}
-    wheelModel: {fileID: 1213421360}
-    axel: 1
-    health: 100
-  - wheelName: RL
-    wheelCollider: {fileID: 1168942176}
-    wheelModel: {fileID: 572873706}
-    axel: 1
-    health: 100
-  baseMotorTorque: 1500
-  maxSteerAngle: 30
-  brakeForce: 3000
-  scrapingFriction: 500
 --- !u!54 &188884957
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -11833,7 +11755,7 @@ Transform:
   m_GameObject: {fileID: 188884949}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 25.2, y: 1.28, z: 13.3}
+  m_LocalPosition: {x: -3.76, y: 1.28, z: 13.3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -11849,6 +11771,26 @@ Transform:
   - {fileID: 715320560}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &188884959
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 188884949}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1b76255e829761499675a885b5343e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerCar: {fileID: 101530672364119229}
+  frontLeft: {fileID: 1987153074}
+  frontRight: {fileID: 1320932989}
+  rearLeft: {fileID: 1168942176}
+  rearRight: {fileID: 945084620}
+  motorTorque: 2500
+  maxSteerAngle: 30
+  maxSpeed: 45
 --- !u!1 &201114183
 GameObject:
   m_ObjectHideFlags: 0
@@ -12214,11 +12156,6 @@ PrefabInstance:
 --- !u!4 &238320589 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3204320211461214854, guid: 7308b5f3111b2654dbea70a27e3bc5b0, type: 3}
-  m_PrefabInstance: {fileID: 238320588}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &238320590 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8320197386923102124, guid: 7308b5f3111b2654dbea70a27e3bc5b0, type: 3}
   m_PrefabInstance: {fileID: 238320588}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &238848548
@@ -12587,7 +12524,7 @@ Transform:
   m_GameObject: {fileID: 273974663}
   serializedVersion: 2
   m_LocalRotation: {x: 0.069235735, y: 0.000000022513946, z: -0.0000000015625192, w: 0.9976003}
-  m_LocalPosition: {x: -2.08, y: 2.93, z: 1.1000133}
+  m_LocalPosition: {x: -8.630001, y: 2.93, z: 9.830013}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -12820,7 +12757,7 @@ ConfigurableJoint:
   m_Anchor: {x: 0.55, y: 0, z: 0}
   m_Axis: {x: 1, y: 0, z: 0}
   m_AutoConfigureConnectedAnchor: 1
-  m_ConnectedAnchor: {x: 0.55, y: -0.3038996, z: 1.8644446}
+  m_ConnectedAnchor: {x: 0.54999995, y: -0.3038996, z: 1.8644447}
   serializedVersion: 3
   m_SecondaryAxis: {x: 0, y: 1, z: 0}
   m_XMotion: 0
@@ -24365,11 +24302,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7308b5f3111b2654dbea70a27e3bc5b0, type: 3}
---- !u!1 &637915843 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8320197386923102124, guid: 7308b5f3111b2654dbea70a27e3bc5b0, type: 3}
-  m_PrefabInstance: {fileID: 637915842}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &637915844 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3204320211461214854, guid: 7308b5f3111b2654dbea70a27e3bc5b0, type: 3}
@@ -25159,11 +25091,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3204320211461214854, guid: 7308b5f3111b2654dbea70a27e3bc5b0, type: 3}
   m_PrefabInstance: {fileID: 694793884}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &694793886 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8320197386923102124, guid: 7308b5f3111b2654dbea70a27e3bc5b0, type: 3}
-  m_PrefabInstance: {fileID: 694793884}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &714809843
 GameObject:
   m_ObjectHideFlags: 0
@@ -25439,6 +25366,9 @@ MonoBehaviour:
   bulletPrefab: {fileID: 7514638984237532278, guid: 2ec8430466f614b4eaa954ad38013be5, type: 3}
   firePoint: {fileID: 1881121313}
   fireRate: 5
+  launchForce: 50
+  muzzleFlash: {fileID: 0}
+  gunAudioSource: {fileID: 0}
 --- !u!136 &739591446
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -31874,7 +31804,7 @@ MonoBehaviour:
   spawnPoint: {fileID: 1857341682}
   muzzleFlash: {fileID: 1239455569}
   gunAudioSource: {fileID: 1318250122}
-  launchForce: 50
+  launchForce: 5
   fireRate: 0.2
 --- !u!1 &977419487
 GameObject:
@@ -32119,7 +32049,7 @@ ConfigurableJoint:
   m_Anchor: {x: 0, y: 0, z: 0}
   m_Axis: {x: 1, y: 0, z: 0}
   m_AutoConfigureConnectedAnchor: 1
-  m_ConnectedAnchor: {x: 0, y: -0.038614392, z: -1.8369113}
+  m_ConnectedAnchor: {x: 0, y: -0.038614392, z: -1.8369122}
   serializedVersion: 3
   m_SecondaryAxis: {x: 0, y: 1, z: 0}
   m_XMotion: 0
@@ -43357,7 +43287,7 @@ ConfigurableJoint:
   m_Anchor: {x: 0, y: 0, z: 0}
   m_Axis: {x: 0, y: 1, z: 0}
   m_AutoConfigureConnectedAnchor: 1
-  m_ConnectedAnchor: {x: 0.73156977, y: 0.23754227, z: 0.7187412}
+  m_ConnectedAnchor: {x: 0.73156977, y: 0.23754227, z: 0.71874046}
   serializedVersion: 3
   m_SecondaryAxis: {x: 0, y: 1, z: 0}
   m_XMotion: 0
@@ -48874,7 +48804,7 @@ Transform:
   m_GameObject: {fileID: 1251966171}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 26.5, z: 43}
+  m_LocalPosition: {x: 0, y: 26.5, z: 31.4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -49631,7 +49561,7 @@ ConfigurableJoint:
   m_Anchor: {x: 0, y: 0, z: 0}
   m_Axis: {x: 1, y: 0, z: 0}
   m_AutoConfigureConnectedAnchor: 1
-  m_ConnectedAnchor: {x: 0, y: 0.37140822, z: 0.8936547}
+  m_ConnectedAnchor: {x: 0, y: 0.37140822, z: 0.89365387}
   serializedVersion: 3
   m_SecondaryAxis: {x: 0, y: 1, z: 0}
   m_XMotion: 0
@@ -50959,11 +50889,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3204320211461214854, guid: 7308b5f3111b2654dbea70a27e3bc5b0, type: 3}
   m_PrefabInstance: {fileID: 1430979492}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1430979494 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8320197386923102124, guid: 7308b5f3111b2654dbea70a27e3bc5b0, type: 3}
-  m_PrefabInstance: {fileID: 1430979492}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1437154041
 GameObject:
   m_ObjectHideFlags: 0
@@ -51941,6 +51866,7 @@ GameObject:
   - component: {fileID: 1551667165}
   - component: {fileID: 1551667164}
   - component: {fileID: 1551667163}
+  - component: {fileID: 1551667166}
   m_Layer: 8
   m_Name: Turret
   m_TagString: Untagged
@@ -52038,6 +51964,27 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1551667161}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1551667166
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1551667161}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd35ed1273628b646bde562498f771ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerTarget: {fileID: 1496424985}
+  aimSpeed: 5
+  aimOnlyYAxis: 1
+  bulletPrefab: {fileID: 3061659519377401537, guid: d993ea6d1465eea4a8512c40318801de, type: 3}
+  firePoint: {fileID: 1251966172}
+  fireRate: 5
+  launchForce: 5
+  muzzleFlash: {fileID: 1239455569}
+  gunAudioSource: {fileID: 1318250122}
 --- !u!1 &1557072919
 GameObject:
   m_ObjectHideFlags: 0
@@ -67754,7 +67701,7 @@ ConfigurableJoint:
   m_Anchor: {x: 0, y: 0, z: 0}
   m_Axis: {x: 0, y: 1, z: 0}
   m_AutoConfigureConnectedAnchor: 1
-  m_ConnectedAnchor: {x: -0.7887091, y: 0.23754227, z: 0.7187412}
+  m_ConnectedAnchor: {x: -0.78870916, y: 0.23754227, z: 0.71874046}
   serializedVersion: 3
   m_SecondaryAxis: {x: 0, y: 1, z: 0}
   m_XMotion: 0
@@ -73461,7 +73408,7 @@ Transform:
   m_GameObject: {fileID: 1884095061}
   serializedVersion: 2
   m_LocalRotation: {x: 0.05919448, y: -0.1271059, z: 0.00759926, w: 0.99009216}
-  m_LocalPosition: {x: -1.4799999, y: 2.6113925, z: 3.288556}
+  m_LocalPosition: {x: -8.030001, y: 2.6113925, z: 12.018557}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -84219,7 +84166,7 @@ ConfigurableJoint:
   m_Anchor: {x: 0.55, y: 0, z: 0}
   m_Axis: {x: 1, y: 0, z: 0}
   m_AutoConfigureConnectedAnchor: 1
-  m_ConnectedAnchor: {x: 0.55, y: -0.23599666, z: -1.9280684}
+  m_ConnectedAnchor: {x: 0.54999995, y: -0.23599666, z: -1.9280682}
   serializedVersion: 3
   m_SecondaryAxis: {x: 0, y: 1, z: 0}
   m_XMotion: 0
@@ -104589,7 +104536,7 @@ Transform:
   m_GameObject: {fileID: 101530672364119226}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.08, y: 1.28, z: 5.93}
+  m_LocalPosition: {x: -8.630001, y: 1.28, z: 14.66}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -105678,7 +105625,7 @@ MonoBehaviour:
   spawnPoint: {fileID: 215144186}
   muzzleFlash: {fileID: 6600029448878731049}
   gunAudioSource: {fileID: 493379418}
-  launchForce: 50
+  launchForce: 5
   fireRate: 0.2
 --- !u!4 &304790971186882183
 Transform:
@@ -114503,7 +114450,7 @@ GameObject:
   - component: {fileID: 5905450973450967459}
   - component: {fileID: 5905450973450967462}
   m_Layer: 8
-  m_Name: Jeep
+  m_Name: JeepsimpleRace
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

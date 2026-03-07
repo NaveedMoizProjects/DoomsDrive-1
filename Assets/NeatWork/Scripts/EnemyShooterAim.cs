@@ -13,6 +13,11 @@ public class EnemyShooterAim : MonoBehaviour
     public GameObject bulletPrefab;
     public Transform firePoint;
     public float fireRate = 5f;
+    public float launchForce = 50f;
+
+    [Header("Effects")]
+    public ParticleSystem muzzleFlash;
+    public AudioSource gunAudioSource;
 
     private float nextFireTime;
 
@@ -46,6 +51,20 @@ public class EnemyShooterAim : MonoBehaviour
 
         nextFireTime = Time.time + 1f / fireRate;
 
-        Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
+        if (muzzleFlash != null) muzzleFlash.Play();
+        if (gunAudioSource != null) gunAudioSource.Play();
+
+        // Same rotation fix as player gun
+        Quaternion bulletRotation = firePoint.rotation * Quaternion.Euler(90, 0, 0);
+
+        GameObject bullet = Instantiate(bulletPrefab, firePoint.position, bulletRotation);
+
+        Rigidbody rb = bullet.GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.AddForce(firePoint.forward * launchForce, ForceMode.VelocityChange);
+        }
+
+        Destroy(bullet, 2f);
     }
 }
