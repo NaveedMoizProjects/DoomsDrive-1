@@ -6,31 +6,33 @@ public class GameplayManager : MonoBehaviour
 {
     public GameObject[] Levels;
     public int levelNo;
-
     void Start()
     {
-        levelNo = PlayerPrefs.GetInt("levelIndex", 0);
+
+        levelNo = PlayerPrefs.GetInt("levelIndex");
+
 
         for (int i = 0; i < Levels.Length; i++)
         {
+
             if (levelNo == i)
             {
-                Debug.Log("This is Level No: " + levelNo);
+                print("This Is the Level No" + levelNo);
                 Levels[i].SetActive(true);
             }
             else
             {
+
+                print("This Is the Level No" + levelNo);
                 Levels[i].SetActive(false);
             }
+
         }
     }
 
     public void CompleteLevel()
     {
-        int current = PlayerPrefs.GetInt("unlockedLevels", 1);
-        PlayerPrefs.SetInt("unlockedLevels", current + 1);
-        PlayerPrefs.Save();
-
-        Debug.Log("Next Level Unlocked");
+        PlayerPrefs.SetInt(("unlockedLevels"), +1);
     }
+
 }
