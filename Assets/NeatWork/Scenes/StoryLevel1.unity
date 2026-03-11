@@ -18664,7 +18664,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7834d19337b7b0a42b969a64bf020b8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxDeform: 3
+  maxDeform: 0.99
   deformRadius: 5
 --- !u!64 &279371148
 MeshCollider:
@@ -139393,8 +139393,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damageThreshold: 5
-  damageMultiplier: 0.5
-  impactRadius: 1.5
+  damageMultiplier: 0.01
+  impactRadius: 1.19
   impactSparkPrefab: {fileID: 151174, guid: e3c9439885f011549a6460a1f4da82dc, type: 3}
   audioSource: {fileID: 0}
   crunchSound: {fileID: 0}

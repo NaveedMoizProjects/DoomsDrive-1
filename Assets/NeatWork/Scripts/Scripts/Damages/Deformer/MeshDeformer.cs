@@ -4,46 +4,55 @@ public class MeshDeformer : MonoBehaviour
 {
     private Mesh mesh;
     private Vector3[] originalVertices, displacedVertices;
-    private float sqrDeformRadius;
 
     [Header("Deformation Settings")]
-    public float maxDeform = 0.4f;
-    public float deformRadius = 1.5f;
+    public float maxDeformDepth = 0.2f; // How deep the dent can go
+    public float globalFalloffPower = 2.0f; // Higher = sharper dent, Lower = softer crater
 
     void Start()
     {
-        // Important: Get a LOCAL instance of the mesh so we don't deform the original file
+        // Get the mesh instance
         mesh = GetComponent<MeshFilter>().mesh;
         originalVertices = mesh.vertices;
-        displacedVertices = new Vector3[originalVertices.Length];
-        System.Array.Copy(originalVertices, displacedVertices, originalVertices.Length);
-
-        sqrDeformRadius = deformRadius * deformRadius;
+        displacedVertices = (Vector3[])originalVertices.Clone();
     }
 
-    public void DeformMesh(Vector3 worldPoint, float radius, float power)
+    public void DeformMesh(Vector3 worldPoint, float worldRadius, float power, Vector3 hitNormal)
     {
+        // 1. Convert world impact point to local space
         Vector3 localPoint = transform.InverseTransformPoint(worldPoint);
-        float localSqrRadius = radius * radius;
+
+        // 2. Adjust radius for local scale to prevent "spreading"
+        // We take the average scale to keep it simple
+        float averageScale = (transform.lossyScale.x + transform.lossyScale.y + transform.lossyScale.z) / 3f;
+        float localRadius = worldRadius / averageScale;
+
+        // 3. Convert the hit normal to local space so we know which way is "in"
+        Vector3 localNormal = transform.InverseTransformDirection(hitNormal);
+
         bool hasChanged = false;
 
         for (int i = 0; i < displacedVertices.Length; i++)
         {
-            float sqrMag = (displacedVertices[i] - localPoint).sqrMagnitude;
+            float distance = Vector3.Distance(localPoint, displacedVertices[i]);
 
-            if (sqrMag < localSqrRadius)
+            if (distance < localRadius)
             {
-                float distance = Mathf.Sqrt(sqrMag);
-                float falloff = 1f - (distance / radius);
+                // Calculate Falloff (0 to 1)
+                float normalizedDist = distance / localRadius;
+                float falloff = Mathf.Pow(1f - normalizedDist, globalFalloffPower);
 
-                // Push the vertex inward relative to the hit point
-                Vector3 deformMove = (displacedVertices[i] - localPoint).normalized * (power * falloff);
-                Vector3 newPos = displacedVertices[i] + deformMove;
+                // Calculate the potential new position
+                // We push ALONG the hit normal (inward) rather than away from the point
+                Vector3 deformation = localNormal * (power * falloff);
+                Vector3 targetPos = displacedVertices[i] + deformation;
 
-                // Only apply if the total dent is within maxDeform limit
-                if (Vector3.Distance(originalVertices[i], newPos) < maxDeform)
+                // SAFETY: Check distance from original vertex to prevent infinite deforming
+                float currentDepth = Vector3.Distance(originalVertices[i], targetPos);
+
+                if (currentDepth < maxDeformDepth)
                 {
-                    displacedVertices[i] = newPos;
+                    displacedVertices[i] = targetPos;
                     hasChanged = true;
                 }
             }
@@ -52,8 +61,9 @@ public class MeshDeformer : MonoBehaviour
         if (hasChanged)
         {
             mesh.vertices = displacedVertices;
-            mesh.RecalculateNormals(); // Crucial for showing the "dent" in the light
-            // Optional: RecalculateBounds(); 
+            mesh.RecalculateNormals();
+            // Crucial if your mesh has a MeshCollider!
+            if (GetComponent<MeshCollider>()) GetComponent<MeshCollider>().sharedMesh = mesh;
         }
     }
 }
