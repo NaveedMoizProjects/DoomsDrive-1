@@ -12,10 +12,13 @@ public class DD1_LapHandler : MonoBehaviour
     public TextMeshProUGUI checkpointText;
     public TextMeshProUGUI lapText;
 
+    [Header("Objective Marker")]
+    public UI_CheckpointMarker marker; // Assign your UI Marker Image here
+
     private void Start()
     {
-        // Initialize UI using data from our Safe Path (DamageManager)
         UpdateUI();
+        UpdateMarkerTarget(); // Set initial target
     }
 
     private void OnTriggerEnter(Collider other)
@@ -28,16 +31,15 @@ public class DD1_LapHandler : MonoBehaviour
             Debug.Log("Reached Checkpoint: " + nextCPIndex);
             nextCPIndex++;
             UpdateUI();
+            UpdateMarkerTarget(); // Update marker to next CP
         }
 
         // 2. Logic for Finishing a Lap (Returning to checkpoints[0])
-        // Must have hit all other checkpoints first
         else if (nextCPIndex == checkpoints.Count && other.transform == checkpoints[0])
         {
             DamageManager.Instance.currentLap++;
             Debug.Log("Lap Completed: " + DamageManager.Instance.currentLap);
 
-            // Check Win Condition
             if (DamageManager.Instance.currentLap >= DamageManager.Instance.lapsToWin)
             {
                 DamageManager.Instance.DeclareWinner();
@@ -46,6 +48,23 @@ public class DD1_LapHandler : MonoBehaviour
             // Reset for next lap
             nextCPIndex = 1;
             UpdateUI();
+            UpdateMarkerTarget(); // Point back to the first checkpoint
+        }
+    }
+
+    private void UpdateMarkerTarget()
+    {
+        if (marker == null) return;
+
+        // If we still have checkpoints left, point to the next one
+        if (nextCPIndex < checkpoints.Count)
+        {
+            marker.target = checkpoints[nextCPIndex];
+        }
+        else
+        {
+            // If all intermediate checkpoints are hit, point to the Finish Line (0)
+            marker.target = checkpoints[0];
         }
     }
 
@@ -55,7 +74,6 @@ public class DD1_LapHandler : MonoBehaviour
 
         if (checkpointText != null)
         {
-            // Shows "Checkpoint: 1 / 5" etc.
             checkpointText.text = $"Checkpoint: {nextCPIndex - 1} / {checkpoints.Count - 1}";
         }
 
