@@ -14,7 +14,8 @@ public class DynamicCarController : MonoBehaviour
         public WheelCollider wheelCollider;
         public GameObject wheelModel;
         public Axel axel;
-        public float health; // 100 = Healthy, 0 = Pop out
+        public float health;
+        public ParticleSystem sandParticles; // Each wheel still needs its own dust
     }
 
     // --- Configuration ---

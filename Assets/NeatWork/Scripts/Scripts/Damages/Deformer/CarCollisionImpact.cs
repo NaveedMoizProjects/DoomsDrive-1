@@ -6,6 +6,10 @@ public class CarCollisionImpact : MonoBehaviour
     public float damageMultiplier = 2f;
     public float impactRadius = 2.5f;
 
+    [Header("Optimization")]
+    public float impactCooldown = 0.15f; // Stops the "machine gun" sound effect
+    private float lastImpactTime;
+
     [Header("Furnishing: Sound & Visuals")]
     public GameObject impactSparkPrefab;
     public AudioSource audioSource;
@@ -13,16 +17,17 @@ public class CarCollisionImpact : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
+        // 1. Check if enough time has passed since the last big hit
+        if (Time.time < lastImpactTime + impactCooldown) return;
+
         float impactForce = collision.relativeVelocity.magnitude;
 
         if (impactForce > damageThreshold)
         {
-            // The exact point of contact
+            lastImpactTime = Time.time; // Reset cooldown
+
             ContactPoint contact = collision.contacts[0];
             Vector3 hitPoint = contact.point;
-
-            // The direction of the hit (Normal)
-            // We use -contact.normal to push the metal "in" towards the car's body
             Vector3 punchDir = -contact.normal;
 
             // --- FURNISHING ---
@@ -30,13 +35,16 @@ public class CarCollisionImpact : MonoBehaviour
                 Instantiate(impactSparkPrefab, hitPoint, Quaternion.LookRotation(contact.normal));
 
             if (audioSource && crunchSound)
-                audioSource.PlayOneShot(crunchSound, Mathf.Clamp01(impactForce / 20f));
+            {
+                // 2. Randomize pitch slightly so it sounds more "natural"
+                audioSource.pitch = Random.Range(0.85f, 1.15f);
+                audioSource.PlayOneShot(crunchSound, Mathf.Clamp01(impactForce / 25f));
+            }
 
             // --- DEFORMATION & DAMAGE ---
             Collider[] hitColliders = Physics.OverlapSphere(hitPoint, impactRadius);
             foreach (var col in hitColliders)
             {
-                // Damage Logic
                 DamageablePart part = col.GetComponentInParent<DamageablePart>();
                 if (part != null)
                 {
@@ -44,14 +52,10 @@ public class CarCollisionImpact : MonoBehaviour
                     part.TakeDamage(finalDamage);
                 }
 
-                // Mesh Deformation Logic
                 MeshDeformer deformer = col.GetComponent<MeshDeformer>();
                 if (deformer != null)
                 {
-                    // Scale power by impact force so faster hits = bigger dents
                     float power = Mathf.Min(0.3f, impactForce * 0.01f);
-
-                    // FIXED: Added the punchDir (Normal) argument
                     deformer.DeformMesh(hitPoint, impactRadius, power, punchDir);
                 }
             }
