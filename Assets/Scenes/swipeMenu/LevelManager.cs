@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -35,4 +36,8 @@ public class GameplayManager : MonoBehaviour
         PlayerPrefs.SetInt(("unlockedLevels"), +1);
     }
 
+    public static implicit operator GameplayManager(GameplayManagerMine v)
+    {
+        throw new NotImplementedException();
+    }
 }
