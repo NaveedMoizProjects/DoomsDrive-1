@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class CarCollisionImpact : MonoBehaviour
@@ -17,46 +18,48 @@ public class CarCollisionImpact : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
-        // 1. Check if enough time has passed since the last big hit
         if (Time.time < lastImpactTime + impactCooldown) return;
 
         float impactForce = collision.relativeVelocity.magnitude;
 
         if (impactForce > damageThreshold)
         {
-            lastImpactTime = Time.time; // Reset cooldown
+            lastImpactTime = Time.time;
 
             ContactPoint contact = collision.contacts[0];
             Vector3 hitPoint = contact.point;
-            Vector3 punchDir = -contact.normal;
+            Vector3 punchDir = -contact.normal; // Direction the dent goes IN
 
-            // --- FURNISHING ---
+            // --- VISUALS & SOUND ---
             if (impactSparkPrefab)
                 Instantiate(impactSparkPrefab, hitPoint, Quaternion.LookRotation(contact.normal));
 
             if (audioSource && crunchSound)
             {
-                // 2. Randomize pitch slightly so it sounds more "natural"
                 audioSource.pitch = Random.Range(0.85f, 1.15f);
                 audioSource.PlayOneShot(crunchSound, Mathf.Clamp01(impactForce / 25f));
             }
 
-            // --- DEFORMATION & DAMAGE ---
+            // --- DAMAGE DISTRIBUTION ---
+            // Find all parts near the impact zone
             Collider[] hitColliders = Physics.OverlapSphere(hitPoint, impactRadius);
+
+            // We use a List to make sure we don't damage the same part twice in one frame
+            List<DamageablePart> processedParts = new List<DamageablePart>();
+
             foreach (var col in hitColliders)
             {
-                DamageablePart part = col.GetComponentInParent<DamageablePart>();
-                if (part != null)
+                DamageablePart part = col.GetComponent<DamageablePart>();
+
+                if (part != null && !processedParts.Contains(part))
                 {
                     float finalDamage = impactForce * damageMultiplier;
-                    part.TakeDamage(finalDamage);
-                }
 
-                MeshDeformer deformer = col.GetComponent<MeshDeformer>();
-                if (deformer != null)
-                {
-                    float power = Mathf.Min(0.3f, impactForce * 0.01f);
-                    deformer.DeformMesh(hitPoint, impactRadius, power, punchDir);
+                    // --- THE LINK ---
+                    // We pass the hitPoint and normal so the part can dent itself!
+                    part.TakeDamage(finalDamage, hitPoint, contact.normal);
+
+                    processedParts.Add(part);
                 }
             }
         }

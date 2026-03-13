@@ -7,7 +7,6 @@ public class CarHUD : MonoBehaviour
 {
     public Transform container;
     public GameObject rowPrefab;
-
     private Dictionary<DamageablePart.PartType, TextMeshProUGUI> uiEntries = new Dictionary<DamageablePart.PartType, TextMeshProUGUI>();
 
     void Update()
@@ -18,29 +17,28 @@ public class CarHUD : MonoBehaviour
         {
             if (!uiEntries.ContainsKey(t)) CreateNewRow(t);
 
-            // FIX: Filter registry to ONLY include parts belonging to the Player's car
-            var playerPartsOfType = DamageManager.Instance.carHealthRegistry.Values
-                .Where(x => x.type == t && x.ownerCar.CompareTag("Player")); // Check for Player tag
+            // Filter the Manager's registry for Player-owned parts of this type
+            var playerParts = DamageManager.Instance.carHealthRegistry.Values
+                .Where(x => x.type == t && x.ownerCar != null && x.ownerCar.CompareTag("Player"))
+                .ToList();
 
-            if (playerPartsOfType.Any())
+            if (playerParts.Any())
             {
-                float avg = playerPartsOfType.Average(x => x.health);
-                UpdateRowVisuals(t, avg);
-            }
-            else
-            {
-                // If no player parts exist for this type (e.g. all doors fell off), show 0
-                UpdateRowVisuals(t, 0f);
+                // Average health for this category (e.g., Average of all 4 wheels)
+                float avgHealth = playerParts.Average(x => x.health);
+                UpdateRowVisuals(t, avgHealth);
             }
         }
     }
 
     void UpdateRowVisuals(DamageablePart.PartType type, float health)
     {
-        var text = uiEntries[type];
-        text.text = $"{Mathf.CeilToInt(health)}";
+        if (!uiEntries.ContainsKey(type)) return;
 
-        // Color based on health
+        var text = uiEntries[type];
+        text.text = $"{Mathf.CeilToInt(health)}%";
+
+        // Dynamic Color
         if (health < 25) text.color = Color.red;
         else if (health < 60) text.color = Color.yellow;
         else text.color = Color.white;
@@ -50,11 +48,9 @@ public class CarHUD : MonoBehaviour
     {
         GameObject newRow = Instantiate(rowPrefab, container);
         TextMeshProUGUI[] texts = newRow.GetComponentsInChildren<TextMeshProUGUI>();
-
         if (texts.Length >= 2)
         {
-            // Use the Enum name as the Label (Wheel, Door, Body, Core)
-            texts[0].text = type.ToString();
+            texts[0].text = type.ToString().ToUpper();
             uiEntries.Add(type, texts[1]);
         }
     }

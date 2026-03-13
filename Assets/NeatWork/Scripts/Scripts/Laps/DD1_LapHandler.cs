@@ -42,7 +42,7 @@ public class DD1_LapHandler : MonoBehaviour
 
             if (DamageManager.Instance.currentLap >= DamageManager.Instance.lapsToWin)
             {
-                DamageManager.Instance.DeclareWinner();
+                DamageManager.Instance.FinalizeGame("RACE COMPLETED: VICTORY!");
             }
 
             // Reset for next lap

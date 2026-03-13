@@ -1,11 +1,20 @@
-using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class DamageManager : MonoBehaviour
 {
     public static DamageManager Instance { get; private set; }
-    public int currentLap = 0;
+
+    [Header("Game State")]
+    public bool isGameOver = false;
+    public int currentLap = 1;
     public int lapsToWin = 3;
+
+    [Header("Health Settings")]
+    private float maxPlayerHealth = 0f;
+    private bool healthInitialized = false;
 
     public struct PartData
     {
@@ -14,7 +23,6 @@ public class DamageManager : MonoBehaviour
         public GameObject ownerCar;
     }
 
-    // Key is now the unique InstanceID of the GameObject
     public Dictionary<int, PartData> carHealthRegistry = new Dictionary<int, PartData>();
 
     void Awake()
@@ -23,20 +31,65 @@ public class DamageManager : MonoBehaviour
         else { Destroy(gameObject); }
     }
 
+    // --- LAP LOGIC ---
+    public void OnLapComplete(GameObject car)
+    {
+        if (isGameOver) return;
+
+        if (car.CompareTag("Player"))
+        {
+            if (currentLap >= lapsToWin)
+            {
+                FinalizeGame("VICTORY: RACE FINISHED!");
+            }
+            else
+            {
+                currentLap++;
+                Debug.Log($"<color=green>Lap {currentLap} Started!</color>");
+            }
+        }
+    }
+
+    // --- HEALTH LOGIC ---
     public void UpdateHealth(int partID, float health, DamageablePart.PartType type, GameObject owner)
     {
-        PartData data = new PartData { health = health, type = type, ownerCar = owner };
-        carHealthRegistry[partID] = data;
+        if (isGameOver) return;
+
+        float clampedHealth = Mathf.Max(0, health);
+        carHealthRegistry[partID] = new PartData { health = clampedHealth, type = type, ownerCar = owner };
+
+        if (!healthInitialized && Time.timeSinceLevelLoad > 1f && owner.CompareTag("Player"))
+        {
+            maxPlayerHealth = carHealthRegistry.Values
+                .Where(p => p.ownerCar != null && p.ownerCar.CompareTag("Player"))
+                .Sum(p => p.health);
+            healthInitialized = true;
+        }
+
+        if (type == DamageablePart.PartType.Core && clampedHealth <= 0 && owner.CompareTag("Player"))
+        {
+            FinalizeGame("MISSION FAILED: CORE DESTROYED");
+        }
     }
 
-    public void DeclareWinner()
+    public float GetPlayerHealthPercentage()
     {
-        Debug.Log("We have a winner! Total Laps: " + currentLap);
-        // Implement win logic here (e.g., show UI)
+        if (!healthInitialized || maxPlayerHealth <= 0) return 100f;
+
+        float currentTotal = carHealthRegistry.Values
+            .Where(p => p.ownerCar != null && p.ownerCar.CompareTag("Player"))
+            .Sum(p => p.health);
+
+        return Mathf.Clamp((currentTotal / maxPlayerHealth) * 100f, 0f, 100f);
     }
 
-    public float GetPartHealth(int partID)
+    public void FinalizeGame(string reason)
     {
-        return carHealthRegistry.ContainsKey(partID) ? carHealthRegistry[partID].health : 100f;
+        if (isGameOver) return;
+        isGameOver = true;
+
+        Debug.Log($"<color=red><b>{reason}</b></color>");
+
+        // SceneManager.LoadScene("StatsScene");
     }
 }

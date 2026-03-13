@@ -8,6 +8,9 @@ public class UI_CheckpointMarker : MonoBehaviour
     public Vector3 offset = new Vector3(0, 2f, 0);
     public TextMeshProUGUI distanceText;
 
+    [Header("Camera Assignment")]
+    public Camera playerCam; // Drag the specific player's camera here!
+
     [Header("Edge Arrows")]
     public GameObject arrowUp;
     public GameObject arrowDown;
@@ -15,65 +18,59 @@ public class UI_CheckpointMarker : MonoBehaviour
     public GameObject arrowRight;
 
     [Header("Settings")]
-    public float margin = 50f; // How far from the edge to stay
-
-    private Camera cam;
-    private RectTransform rectTransform;
+    public float margin = 50f;
 
     void Start()
     {
-        cam = Camera.main;
-        rectTransform = GetComponent<RectTransform>();
+        if (playerCam == null) playerCam = Camera.main;
     }
 
     void LateUpdate()
     {
-        if (target == null) return;
+        if (target == null || playerCam == null) return;
 
-        // 1. Get Screen Position
-        Vector3 screenPos = cam.WorldToScreenPoint(target.position + offset);
+        // 1. Get Screen Position relative to the FULL screen
+        Vector3 screenPos = playerCam.WorldToScreenPoint(target.position + offset);
 
         // 2. Handle "Behind" Logic
-        // If screenPos.z is negative, the target is behind the camera.
         if (screenPos.z < 0)
         {
             screenPos *= -1f;
         }
 
-        // 3. Clamp to Screen Edges
-        // We restrict the icon to stay within the screen resolution minus our margin
-        float minX = margin;
-        float maxX = Screen.width - margin;
-        float minY = margin;
-        float maxY = Screen.height - margin;
+        // 3. DEFINE THE HALF-SCREEN BOUNDARIES
+        // playerCam.pixelRect gives us the exact box on the screen for this camera
+        Rect camRect = playerCam.pixelRect;
 
-        // Check if we are touching edges to trigger arrows
-        bool isOffScreenX = screenPos.x <= minX || screenPos.x >= maxX;
-        bool isOffScreenY = screenPos.y <= minY || screenPos.y >= maxY;
+        float minX = camRect.xMin + margin;
+        float maxX = camRect.xMax - margin;
+        float minY = camRect.yMin + margin;
+        float maxY = camRect.yMax - margin;
 
+        // 4. Clamp to the Camera's Viewport specifically
         screenPos.x = Mathf.Clamp(screenPos.x, minX, maxX);
         screenPos.y = Mathf.Clamp(screenPos.y, minY, maxY);
 
-        // 4. Set Position
-        transform.position = screenPos;
+        // 5. Apply Position
+        transform.position = new Vector3(screenPos.x, screenPos.y, 0);
 
-        // 5. Arrow Logic
+        // 6. Arrow Logic (Using the new clamped bounds)
         UpdateArrows(screenPos, minX, maxX, minY, maxY);
 
-        // 6. Distance Text
+        // 7. Distance Text
         if (distanceText != null)
         {
-            float dist = Vector3.Distance(cam.transform.position, target.position);
+            float dist = Vector3.Distance(playerCam.transform.position, target.position);
             distanceText.text = Mathf.FloorToInt(dist) + "m";
         }
     }
 
     void UpdateArrows(Vector3 pos, float minX, float maxX, float minY, float maxY)
     {
-        // Only show arrows if the marker is at the very edge
-        if (arrowLeft) arrowLeft.SetActive(pos.x <= minX);
-        if (arrowRight) arrowRight.SetActive(pos.x >= maxX);
-        if (arrowUp) arrowUp.SetActive(pos.y >= maxY);
-        if (arrowDown) arrowDown.SetActive(pos.y <= minY);
+        // Arrows trigger when touching the boundary of the HALF-screen
+        if (arrowLeft) arrowLeft.SetActive(pos.x <= minX + 1f);
+        if (arrowRight) arrowRight.SetActive(pos.x >= maxX - 1f);
+        if (arrowUp) arrowUp.SetActive(pos.y >= maxY - 1f);
+        if (arrowDown) arrowDown.SetActive(pos.y <= minY + 1f);
     }
 }

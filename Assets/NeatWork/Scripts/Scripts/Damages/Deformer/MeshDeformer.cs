@@ -1,5 +1,4 @@
 using UnityEngine;
-
 public class MeshDeformer : MonoBehaviour
 {
     private Mesh mesh;

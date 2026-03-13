@@ -8,6 +8,7 @@ TagManager:
   - Checkpoint
   - CinemachineTarget
   - AI
+  - Terrain
   layers:
   - Default
   - TransparentFX

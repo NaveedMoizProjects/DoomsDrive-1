@@ -4,87 +4,97 @@ public class DamageablePart : MonoBehaviour
 {
     public string partName;
     public float health = 100f;
-    public bool isInvincible = false;
-
     public enum PartType { Wheel, Door, Body, Core }
     public PartType type;
 
-    private DynamicCarController controller;
-    public bool isPlayer = false;
+    private GameObject rootCar;
+    private bool isBroken = false; // Prevents double-triggering BreakPart
 
     void Start()
     {
-        controller = GetComponentInParent<DynamicCarController>();
-
-        // Register using InstanceID to prevent data collision between AI and Player
-        if (DamageManager.Instance != null)
-        {
-            DamageManager.Instance.UpdateHealth(gameObject.GetInstanceID(), health, type, transform.root.gameObject);
-        }
+        rootCar = transform.root.gameObject;
+        SyncWithManager();
     }
 
-    public void TakeDamage(float amount)
+    public void TakeDamage(float amount, Vector3 hitPoint, Vector3 hitNormal)
     {
-        if (isInvincible || health <= 0) return;
+        // 1. If already dead or broken, stop everything
+        if (health <= 0 || isBroken) return;
 
         health -= amount;
 
-        // 1. Sync with Physics Controller (if it's a wheel)
-        if (type == PartType.Wheel && controller != null)
+        // 2. Sync with the Global Manager (Laps/HUD/Total %)
+        SyncWithManager();
+
+        // 3. Handle specific part logic
+        if (type == PartType.Wheel)
         {
-            controller.ApplyDamageToWheel(partName, amount);
+            DynamicCarController controller = GetComponentInParent<DynamicCarController>();
+            if (controller != null)
+            {
+                // We ONLY update the number here. 
+                // We do NOT let the controller decide to disconnect.
+                controller.ApplyDamageToWheel(partName, amount);
+            }
+        }
+        else
+        {
+            // Visual denting for non-wheel parts
+            MeshDeformer deformer = GetComponent<MeshDeformer>();
+            if (deformer != null) deformer.DeformMesh(hitPoint, 1.5f, 0.2f, -hitNormal);
         }
 
-        // 2. Sync with Global Manager using UNIQUE ID
-        if (DamageManager.Instance != null)
-        {
-            DamageManager.Instance.UpdateHealth(gameObject.GetInstanceID(), health, type, transform.root.gameObject);
-        }
-
-        // 3. Trigger effects ONLY on the car this part belongs to
-        CarEffectsManager effects = GetComponentInParent<CarEffectsManager>();
-        if (effects != null)
-        {
-            effects.RefreshEffects();
-        }
-
+        // 4. Check for death
         if (health <= 0)
         {
-            health = 0;
             BreakPart();
         }
     }
 
     void BreakPart()
     {
-        if (type == PartType.Core)
+        if (isBroken) return; // Hard safety lock
+        isBroken = true;
+
+        if (type == PartType.Core) return;
+
+        if (type == PartType.Wheel)
         {
-            Debug.Log($"<color=red><b>CORE DESTROYED ON {transform.root.name}</b></color>");
+            DynamicCarController controller = GetComponentInParent<DynamicCarController>();
+            if (controller != null)
+            {
+                // This is now the ONLY place in the whole project 
+                // that triggers the wheel pop.
+                controller.DisconnectWheel(partName);
+            }
+            this.enabled = false;
             return;
         }
 
-        // If it's a wheel, we usually handle that in the CarController, 
-        // but if you want it to fall off, remove the 'return' below.
-        if (type == PartType.Wheel) return;
-
-        // DISCONNECT Logic
-        ConfigurableJoint joint = GetComponent<ConfigurableJoint>();
-        if (joint != null) Destroy(joint);
-
-        transform.SetParent(null); // Separate from the car
+        // --- Logic for Doors/Bumpers/Body Parts ---
+        transform.SetParent(null);
 
         Rigidbody rb = GetComponent<Rigidbody>();
         if (rb == null) rb = gameObject.AddComponent<Rigidbody>();
 
         rb.isKinematic = false;
         rb.useGravity = true;
+        rb.mass = 5f;
 
-        Collider col = GetComponent<Collider>();
-        if (col != null) col.isTrigger = false;
-
-        // Pop it outward so it doesn't collide with the car frame
-        rb.AddForce((transform.position - transform.root.position).normalized * 5f, ForceMode.Impulse);
+        // Apply ejection force relative to the car's position
+        Vector3 explosionSource = transform.position - Vector3.up;
+        rb.AddForce((transform.position - explosionSource).normalized * 15f, ForceMode.Impulse);
 
         this.enabled = false;
+    }
+
+    void SyncWithManager()
+    {
+        if (DamageManager.Instance != null)
+        {
+            // Ensure health is clamped at 0 for the HUD registry
+            float clampedHealth = Mathf.Max(0, health);
+            DamageManager.Instance.UpdateHealth(gameObject.GetInstanceID(), clampedHealth, type, rootCar);
+        }
     }
 }
