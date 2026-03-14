@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56c965aab9951e14a8b8e6407eeaeacb, type: 3}
+  m_Name: EffectsLibrary
+  m_EditorClassIdentifier: 
+  impactEffects:
+  - surfaceTag: Terrain
+    poolTag: TerrainPool
+    prefab: {fileID: 151174, guid: e3c9439885f011549a6460a1f4da82dc, type: 3}
+    poolSize: 12
+  defaultPoolTag: DefaultImpact
+  defaultPrefab: {fileID: 186004, guid: df6885b13dec8be4582be8c2c2219da2, type: 3}
+  defaultPoolSize: 10

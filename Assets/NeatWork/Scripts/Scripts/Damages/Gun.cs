@@ -3,19 +3,20 @@ using UnityEngine;
 public class Gun : MonoBehaviour
 {
     [Header("Assignments")]
-    public GameObject projectilePrefab; // The bullet/rocket object
-    public Transform spawnPoint;         // Empty object at the end of the barrel
+    public string bulletPoolTag = "Bullet"; // Matches the tag in ObjectPooler
+    public string ownerTag = "Player";    // Tag to ignore (e.g., "Player" or "AI")
+    public Transform spawnPoint;
     public ParticleSystem muzzleFlash;
     public AudioSource gunAudioSource;
 
     [Header("Settings")]
-    public float launchForce = 50f;     // Speed of the projectile
-    public float fireRate = 0.5f;       // Seconds between shots
+    public float launchForce = 50f;
+    public float fireRate = 0.5f;
     private float nextTimeToShoot = 0f;
 
     void Update()
     {
-        // Check for 'F' key or Mouse Left Click
+        // Support for both Keyboard and Mouse
         if ((Input.GetKey(KeyCode.F) || Input.GetMouseButton(0)) && Time.time >= nextTimeToShoot)
         {
             nextTimeToShoot = Time.time + fireRate;
@@ -28,21 +29,37 @@ public class Gun : MonoBehaviour
         if (muzzleFlash != null) muzzleFlash.Play();
         if (gunAudioSource != null) gunAudioSource.Play();
 
-        // 1. Rotation Fix: 
-        // Hum spawnPoint ki rotation letay hain aur usay X-axis par 90 degrees rotate kar detay hain.
+        // 90-degree offset often needed for cylinder/capsule bullet meshes
         Quaternion bulletRotation = spawnPoint.rotation * Quaternion.Euler(90, 0, 0);
 
-        // 2. Create the projectile with the NEW rotation
-        GameObject projectile = Instantiate(projectilePrefab, spawnPoint.position, bulletRotation);
+        // Pull from Pool
+        GameObject projectile = ObjectPooler.Instance.SpawnFromPool(bulletPoolTag, spawnPoint.position, bulletRotation);
 
-        // 3. Add physics force
-        Rigidbody rb = projectile.GetComponent<Rigidbody>();
-        if (rb != null)
+        if (projectile != null)
         {
-            // Force hamesha spawnPoint.forward ki taraf hi lagni chahiye
-            rb.AddForce(spawnPoint.forward * launchForce, ForceMode.VelocityChange);
-        }
+            // --- THE LINK: Tell the bullet to ignore the shooter ---
+            UniversalHazard hazard = projectile.GetComponent<UniversalHazard>();
+            if (hazard != null)
+            {
+                hazard.SetupIgnoreTag(ownerTag);
+            }
 
-        Destroy(projectile, 2f);
+            Collider bulletCol = projectile.GetComponent<Collider>();
+            Collider carCol = GetComponentInParent<Collider>(); // Assumes Gun is on a car
+
+            if (bulletCol != null && carCol != null)
+            {
+                Physics.IgnoreCollision(bulletCol, carCol, true);
+            }
+
+            Rigidbody rb = projectile.GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                // Reset velocity for pooling accuracy
+                rb.velocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
+                rb.AddForce(spawnPoint.forward * launchForce, ForceMode.VelocityChange);
+            }
+        }
     }
 }

@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 7145166005705953514}
   - component: {fileID: 6726970485743205945}
   - component: {fileID: 3394016523930281602}
+  - component: {fileID: 4739023484413296382}
   m_Layer: 0
   m_Name: bulletMoiz
   m_TagString: Untagged
@@ -111,6 +112,25 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.07, y: 0.07, z: 0.07}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &4739023484413296382
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3061659519377401537}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a0e15cc8b81cd9449cf006bf04c7158, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  type: 0
+  effectLibrary: {fileID: 11400000, guid: 202b5e72f1d69ed4bbbd326846d53528, type: 2}
+  directDamage: 12
+  explosionRadius: 0
+  explosionForce: 0
+  delay: 0
+  effectLifeTime: 1
 --- !u!1 &4674007439880974894
 GameObject:
   m_ObjectHideFlags: 0

@@ -8,11 +8,13 @@ public class CarCollisionImpact : MonoBehaviour
     public float impactRadius = 2.5f;
 
     [Header("Optimization")]
-    public float impactCooldown = 0.15f; // Stops the "machine gun" sound effect
+    public float impactCooldown = 0.15f;
     private float lastImpactTime;
 
-    [Header("Furnishing: Sound & Visuals")]
-    public GameObject impactSparkPrefab;
+    [Header("Data Source (Unified)")]
+    public SurfaceEffectData effectLibrary; // Use the same asset as UniversalHazard
+
+    [Header("Sound")]
     public AudioSource audioSource;
     public AudioClip crunchSound;
 
@@ -25,15 +27,21 @@ public class CarCollisionImpact : MonoBehaviour
         if (impactForce > damageThreshold)
         {
             lastImpactTime = Time.time;
-
             ContactPoint contact = collision.contacts[0];
             Vector3 hitPoint = contact.point;
-            Vector3 punchDir = -contact.normal; // Direction the dent goes IN
+            string hitTag = collision.collider.tag;
 
-            // --- VISUALS & SOUND ---
-            if (impactSparkPrefab)
-                Instantiate(impactSparkPrefab, hitPoint, Quaternion.LookRotation(contact.normal));
+            // --- ALIGNED VISUALS (Pooling) ---
+            if (effectLibrary != null)
+            {
+                string poolTag = effectLibrary.GetPoolTagForSurface(hitTag);
+                GameObject fx = ObjectPooler.Instance.SpawnFromPool(poolTag, hitPoint, Quaternion.LookRotation(contact.normal));
 
+                // Return to pool after 2 seconds (matching your hazard logic)
+                if (fx != null) StartCoroutine(DisableAfterDelay(fx, 2f));
+            }
+
+            // --- SOUND ---
             if (audioSource && crunchSound)
             {
                 audioSource.pitch = Random.Range(0.85f, 1.15f);
@@ -41,27 +49,25 @@ public class CarCollisionImpact : MonoBehaviour
             }
 
             // --- DAMAGE DISTRIBUTION ---
-            // Find all parts near the impact zone
             Collider[] hitColliders = Physics.OverlapSphere(hitPoint, impactRadius);
-
-            // We use a List to make sure we don't damage the same part twice in one frame
             List<DamageablePart> processedParts = new List<DamageablePart>();
 
             foreach (var col in hitColliders)
             {
                 DamageablePart part = col.GetComponent<DamageablePart>();
-
                 if (part != null && !processedParts.Contains(part))
                 {
                     float finalDamage = impactForce * damageMultiplier;
-
-                    // --- THE LINK ---
-                    // We pass the hitPoint and normal so the part can dent itself!
                     part.TakeDamage(finalDamage, hitPoint, contact.normal);
-
                     processedParts.Add(part);
                 }
             }
         }
+    }
+
+    private System.Collections.IEnumerator DisableAfterDelay(GameObject obj, float t)
+    {
+        yield return new WaitForSeconds(t);
+        obj.SetActive(false);
     }
 }

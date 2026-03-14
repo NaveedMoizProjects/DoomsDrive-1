@@ -7,111 +7,156 @@ public class UniversalHazard : MonoBehaviour
     public enum HazardType { Bullet, Explosive, LandMine }
     public HazardType type;
 
+    [Header("Data Source")]
+    public SurfaceEffectData effectLibrary;
+
     [Header("Damage Settings")]
     public float directDamage = 50f;
     public float explosionRadius = 5f;
     public float explosionForce = 1000f;
-    public float delay = 0.0f;
-    public GameObject explosionEffect; // Assign in Inspector
+    public float effectLifeTime = 2.0f;
 
-    void Start()
+    private bool hasExploded = false;
+    private string currentIgnoreTag = "";
+    private Rigidbody rb;
+    private Collider col;
+    private Renderer rend;
+
+    void Awake()
     {
-        Rigidbody rb = GetComponent<Rigidbody>();
-
-        if (type == HazardType.LandMine)
-        {
-            // 1. Let it fall initially
-            rb.useGravity = true;
-            rb.isKinematic = false;
-
-            // 2. Start as a physical object so it hits the floor
-            Collider col = GetComponent<Collider>();
-            if (col != null) col.isTrigger = false;
-        }
+        rb = GetComponent<Rigidbody>();
+        col = GetComponent<Collider>();
+        rend = GetComponent<Renderer>();
     }
 
-    // --- TRIGGER LOGIC (For LandMines) ---
+    // Called by the Gun right after spawning
+    public void SetupIgnoreTag(string tagToIgnore)
+    {
+        currentIgnoreTag = tagToIgnore;
+    }
+
+    void OnEnable()
+    {
+        hasExploded = false;
+        currentIgnoreTag = ""; // Reset tag so it doesn't carry over in the pool
+
+        if (col != null)
+        {
+            col.enabled = true;
+            col.isTrigger = false;
+        }
+
+        if (rb != null)
+        {
+            rb.isKinematic = false;
+            rb.useGravity = true;
+            rb.velocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+        }
+
+        if (col != null)
+        {
+            col.enabled = true;
+            col.isTrigger = false; // Reset to physical collision for the "Landing" hit
+        }
+
+        if (rend != null) rend.enabled = true;
+    }
+
+    // --- LANDMINE PROXIMITY DETECTION ---
     private void OnTriggerEnter(Collider other)
     {
-        if (type == HazardType.LandMine)
+        if (type == HazardType.LandMine && !hasExploded)
         {
+            // Ignore the shooter even in trigger mode
+            if (!string.IsNullOrEmpty(currentIgnoreTag) && other.CompareTag(currentIgnoreTag)) return;
+
             if (other.CompareTag("Player") || other.CompareTag("AI"))
             {
-                // FIX: Triggers don't have 'contacts'. Use the mine's position.
-                Vector3 impactPoint = transform.position;
-
-                Explode(impactPoint);
-                StartCoroutine(EndAfterDelay(other.gameObject));
-
-                // Disable visual and collider immediately so it doesn't double-trigger
-                GetComponent<Collider>().enabled = false;
-                if (GetComponent<Renderer>()) GetComponent<Renderer>().enabled = false;
+                TriggerExplosion(transform.position, other.tag, Vector3.up);
             }
         }
     }
 
-    // --- COLLISION LOGIC (For Bullets & Rockets) ---
+    // --- IMPACT LOGIC ---
     void OnCollisionEnter(Collision collision)
     {
-        if (type == HazardType.LandMine && collision.collider.CompareTag("Terrain"))
+        if (hasExploded) return;
+
+        // 1. Dynamic Ignore Check (Prevents shooting yourself)
+        if (!string.IsNullOrEmpty(currentIgnoreTag) && collision.collider.CompareTag(currentIgnoreTag))
         {
-            Rigidbody rb = GetComponent<Rigidbody>();
-            rb.useGravity = false; // Stop pulling down
-            rb.isKinematic = true; // Lock it in place
-
-            // Switch to Trigger mode so the car can "overlap" it to explode
-            GetComponent<Collider>().isTrigger = true;
-
-            return; // Don't explode yet!
+            return;
         }
 
-        Vector3 impactPoint = collision.contacts[0].point;
+        // 2. Landmine "Stick to Terrain" Logic
+        if (type == HazardType.LandMine && collision.collider.CompareTag("Terrain"))
+        {
+            rb.useGravity = false;
+            rb.isKinematic = true;
+            col.isTrigger = true; // Switch to proximity trigger mode
+            return;
+        }
+
+        // 3. Standard Impact Logic
+        Vector3 point = collision.contacts[0].point;
+        Vector3 normal = collision.contacts[0].normal;
+        string hitTag = collision.collider.tag;
 
         if (type == HazardType.Bullet)
         {
+            hasExploded = true;
+            SpawnEffect(point, normal, hitTag);
+
             DamageablePart part = collision.collider.GetComponent<DamageablePart>();
-            if (part != null) 
-                part.TakeDamage(directDamage, collision.contacts[0].point, collision.contacts[0].normal);
+            if (part != null) part.TakeDamage(directDamage, point, normal);
+
+            gameObject.SetActive(false); // Return to pool
         }
         else if (type == HazardType.Explosive)
         {
-            Explode(impactPoint);
-        }
-
-        // Bullets and Explosives destroy themselves on impact
-        if (type != HazardType.LandMine)
-        {
-            Destroy(gameObject);
+            TriggerExplosion(point, hitTag, normal);
         }
     }
 
-    void Explode(Vector3 impactPoint)
+    void TriggerExplosion(Vector3 point, string tag, Vector3 normal)
     {
-        if (explosionEffect != null)
-            Instantiate(explosionEffect, impactPoint, Quaternion.identity);
+        hasExploded = true;
+        SpawnEffect(point, normal, tag);
 
-        // Create the Visual Sphere Shockwave
-        GameObject waveObj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        waveObj.transform.position = impactPoint;
-        waveObj.transform.localScale = Vector3.zero;
+        // Create invisible logic object for the explosion shockwave
+        GameObject explosionLogic = new GameObject("ExplosionLogic");
+        explosionLogic.transform.position = point;
+        explosionLogic.AddComponent<ExplosionShockwave>().Setup(explosionRadius, directDamage, explosionForce);
 
-        Destroy(waveObj.GetComponent<Collider>());
-
-        Renderer ren = waveObj.GetComponent<Renderer>();
-        ren.material = new Material(Shader.Find("Transparent/Diffuse"));
-        ren.material.color = new Color(1, 0, 0, 0.4f);
-
-        // Attach Logic
-        ExplosionShockwave wave = waveObj.AddComponent<ExplosionShockwave>();
-        wave.Setup(explosionRadius, directDamage, explosionForce);
+        if (type == HazardType.LandMine)
+        {
+            if (col != null) col.enabled = false;
+            if (rend != null) rend.enabled = false;
+            StartCoroutine(ReturnToPool(gameObject, 0.1f));
+        }
+        else
+        {
+            gameObject.SetActive(false);
+        }
     }
 
-    IEnumerator EndAfterDelay(GameObject car)
+    void SpawnEffect(Vector3 point, Vector3 normal, string tag)
+    {
+        if (effectLibrary == null) return;
+
+        // Fetch pool tag from Surface Settings
+        string poolTag = effectLibrary.GetPoolTagForSurface(tag);
+
+        // Request from Object Pooler
+        GameObject fx = ObjectPooler.Instance.SpawnFromPool(poolTag, point, Quaternion.LookRotation(normal));
+
+        if (fx != null) StartCoroutine(ReturnToPool(fx, effectLifeTime));
+    }
+
+    IEnumerator ReturnToPool(GameObject obj, float delay)
     {
         yield return new WaitForSeconds(delay);
-        Debug.Log($"<color=red><b>CAR DESTROYED BY {type}!</b></color>");
-
-        // If it's a LandMine, we destroy the mine object after the delay
-        if (type == HazardType.LandMine) Destroy(gameObject);
+        obj.SetActive(false);
     }
 }

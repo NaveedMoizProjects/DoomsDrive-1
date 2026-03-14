@@ -147,8 +147,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   type: 2
+  effectLibrary: {fileID: 11400000, guid: 202b5e72f1d69ed4bbbd326846d53528, type: 2}
   directDamage: 300
   explosionRadius: 4
   explosionForce: 3000
   delay: 2
-  explosionEffect: {fileID: 8412119539380938052, guid: 24a0addfe07d69947b598f0a7d65a2a9, type: 3}
+  effectLifeTime: 2
