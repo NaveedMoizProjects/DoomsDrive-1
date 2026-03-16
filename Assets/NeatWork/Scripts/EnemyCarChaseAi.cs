@@ -13,9 +13,13 @@ public class EnemyCarChaseAI : MonoBehaviour
     public WheelCollider rearRight;
 
     [Header("Chase Settings")]
-    public float motorTorque = 2500f;
+    public float motorTorque = 2000f;
     public float maxSteerAngle = 30f;
-    public float maxSpeed = 45f;
+    public float maxSpeed = 40f;
+
+    [Header("Distance Settings")]
+    public float followDistance = 8f;   // AI kitna distance maintain kare
+    public float slowDistance = 12f;    // is distance par slow hona start kare
 
     private Rigidbody rb;
 
@@ -34,6 +38,8 @@ public class EnemyCarChaseAI : MonoBehaviour
 
     void ChasePlayer()
     {
+        float distance = Vector3.Distance(transform.position, playerCar.position);
+
         Vector3 localTarget = transform.InverseTransformPoint(playerCar.position);
 
         float steer = (localTarget.x / localTarget.magnitude) * maxSteerAngle;
@@ -41,15 +47,47 @@ public class EnemyCarChaseAI : MonoBehaviour
         frontLeft.steerAngle = steer;
         frontRight.steerAngle = steer;
 
-        if (rb.velocity.magnitude < maxSpeed)
+        // ----- SPEED CONTROL -----
+
+        if (distance > slowDistance)
         {
-            rearLeft.motorTorque = motorTorque;
-            rearRight.motorTorque = motorTorque;
+            // Full speed chase
+            ApplyMotor(motorTorque);
+        }
+        else if (distance > followDistance)
+        {
+            // Slow chase
+            ApplyMotor(motorTorque * 0.4f);
         }
         else
         {
-            rearLeft.motorTorque = 0;
-            rearRight.motorTorque = 0;
+            // Maintain distance
+            ApplyMotor(0);
+            ApplyBrake(1500f);
         }
+
+        // Max speed limiter
+        if (rb.velocity.magnitude > maxSpeed)
+        {
+            ApplyMotor(0);
+        }
+    }
+
+    void ApplyMotor(float torque)
+    {
+        rearLeft.motorTorque = torque;
+        rearRight.motorTorque = torque;
+
+        rearLeft.brakeTorque = 0;
+        rearRight.brakeTorque = 0;
+    }
+
+    void ApplyBrake(float brake)
+    {
+        rearLeft.brakeTorque = brake;
+        rearRight.brakeTorque = brake;
+
+        rearLeft.motorTorque = 0;
+        rearRight.motorTorque = 0;
     }
 }
