@@ -12,30 +12,15 @@ EditorBuildSettings:
     path: Assets/NeatWork/Scenes/MainMenu 1.unity
     guid: 4769ad2be1dff6b4e999e882d0c83019
   - enabled: 1
-    path: Assets/NeatWork/Scenes/ModeSelection 1.unity
+    path: Assets/NeatWork/Scenes/ModeSelection.unity
     guid: f6560d41e4186a24ab72ee389a60ecb9
   - enabled: 1
-    path: Assets/NeatWork/Scenes/LevelSelection 1.unity
+    path: Assets/NeatWork/Scenes/LevelSelection.unity
     guid: 520434e35672c104ba32c441d0a82a43
   - enabled: 1
-    path: Assets/NeatWork/Scenes/SimpleRace 1.unity
+    path: Assets/NeatWork/Scenes/SimpleRace.unity
     guid: 5c8e9a368ef2af642b29befc5c5c1d03
   - enabled: 1
-    path: Assets/NeatWork/Scenes/!!!!WORK!!!!.unity
+    path: Assets/NeatWork/Scenes/Work.unity
     guid: 99c9720ab356a0642a771bea13969a05
-  - enabled: 1
-    path: Assets/NeatWork/Scenes/StoryLv1 1.unity
-    guid: 8580ecd9d58983e4d9e128aca2d3d7af
-  - enabled: 1
-    path: Assets/NeatWork/Scenes/StoryLv1 2.unity
-    guid: 705ef06cfc8ef4d438e493e29148bd78
-  - enabled: 1
-    path: Assets/NeatWork/Scenes/StoryLv1 3.unity
-    guid: b985abe270eb1a24a89da6066a1d780d
-  - enabled: 1
-    path: Assets/NeatWork/Scenes/StoryLv1 4.unity
-    guid: a0b5ad4fcd11acc4dba570c6dff34532
-  - enabled: 1
-    path: Assets/NeatWork/Scenes/StoryLv1 5.unity
-    guid: aa716d979056dd94f8a4fdd6bc69dd45
   m_configObjects: {}
