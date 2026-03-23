@@ -9,7 +9,7 @@ EditorBuildSettings:
     path: Assets/NeatWork/Scenes/Splash.unity
     guid: 094c975c11940d64dbba07467690bdc5
   - enabled: 1
-    path: Assets/NeatWork/Scenes/MainMenu 1.unity
+    path: Assets/NeatWork/Scenes/MainMenu.unity
     guid: 4769ad2be1dff6b4e999e882d0c83019
   - enabled: 1
     path: Assets/NeatWork/Scenes/ModeSelection.unity

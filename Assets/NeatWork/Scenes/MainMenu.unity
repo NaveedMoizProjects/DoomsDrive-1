@@ -4158,7 +4158,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 772f409e71cd1b3438d1135da5be21bb, type: 3}
+  m_Sprite: {fileID: 21300000, guid: cf41bfa5460e93a4ba624b77f01b5271, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -6458,8 +6458,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4236de192c16fd340a0b7fd86c75e5bc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  levelToLoad: 2
-  loadingSlidor: {fileID: 7447004579932604995}
+  sceneName: ModeSelection
+  loadingSlider: {fileID: 7447004579932604995}
   loadingScreen: {fileID: 1275968042497849550}
 --- !u!114 &8650271762346505134
 MonoBehaviour:
