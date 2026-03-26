@@ -10586,7 +10586,7 @@ WheelCollider:
     m_ExtremumValue: 1.05
     m_AsymptoteSlip: 0.5
     m_AsymptoteValue: 0.8
-    m_Stiffness: 1
+    m_Stiffness: 1.5
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -100809,10 +100809,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1524651712}
   - component: {fileID: 1524651711}
-  - component: {fileID: 1524651710}
   - component: {fileID: 1524651709}
-  - component: {fileID: 1524651713}
-  - component: {fileID: 1524651714}
   m_Layer: 0
   m_Name: GameManagers
   m_TagString: Untagged
@@ -100836,20 +100833,6 @@ MonoBehaviour:
   airDamping: 0.1
   suspensionHeight: 1
   stabilityExtra: 0.3
---- !u!114 &1524651710
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1524651707}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea1e7360ebf9c6e4fa227d37442a6735, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  container: {fileID: 2309366294999954516}
-  rowPrefab: {fileID: 641376566754456276, guid: 608dcc80eb45f3b428272032f7606dc8, type: 3}
 --- !u!114 &1524651711
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -100882,40 +100865,6 @@ Transform:
   - {fileID: 1043585636}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1524651713
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1524651707}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c04e6ea2a38bfbc40b3259f061b5f014, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  effectLibrary: {fileID: 11400000, guid: 202b5e72f1d69ed4bbbd326846d53528, type: 2}
-  customPools:
-  - tag: TerrainPool
-    prefab: {fileID: 0}
-    size: 13
-  - tag: bullet
-    prefab: {fileID: 3061659519377401537, guid: d993ea6d1465eea4a8512c40318801de, type: 3}
-    size: 12
---- !u!114 &1524651714
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1524651707}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d4f979461a9593145b942562e8aa7af9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  uiText: {fileID: 686998200}
-  uiPanel: {fileID: 318840098}
 --- !u!1 &1528551080
 GameObject:
   m_ObjectHideFlags: 0
@@ -115524,7 +115473,7 @@ WheelCollider:
     m_ExtremumValue: 1.05
     m_AsymptoteSlip: 0.5
     m_AsymptoteValue: 0.8
-    m_Stiffness: 1
+    m_Stiffness: 1.5
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -117811,6 +117760,8 @@ GameObject:
   - component: {fileID: 1979104985}
   - component: {fileID: 1979104984}
   - component: {fileID: 1979104983}
+  - component: {fileID: 1979104987}
+  - component: {fileID: 1979104988}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -117907,6 +117858,34 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &1979104987
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1979104982}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea1e7360ebf9c6e4fa227d37442a6735, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  container: {fileID: 2309366294999954516}
+  rowPrefab: {fileID: 641376566754456276, guid: 608dcc80eb45f3b428272032f7606dc8, type: 3}
+--- !u!114 &1979104988
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1979104982}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4f979461a9593145b942562e8aa7af9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  uiText: {fileID: 686998200}
+  uiPanel: {fileID: 318840098}
 --- !u!1001 &1979130239
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -120858,6 +120837,58 @@ Transform:
   - {fileID: 1660676858}
   - {fileID: 275592025}
   m_Father: {fileID: 1558431918}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2092166027
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2092166029}
+  - component: {fileID: 2092166028}
+  m_Layer: 0
+  m_Name: Pooler
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2092166028
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2092166027}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c04e6ea2a38bfbc40b3259f061b5f014, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  effectLibrary: {fileID: 11400000, guid: 202b5e72f1d69ed4bbbd326846d53528, type: 2}
+  customPools:
+  - tag: TerrainPool
+    prefab: {fileID: 108086, guid: 6a9b33e8118a4fe4c88521b97e3261f0, type: 3}
+    size: 13
+  - tag: bullet
+    prefab: {fileID: 3061659519377401537, guid: d993ea6d1465eea4a8512c40318801de, type: 3}
+    size: 12
+--- !u!4 &2092166029
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2092166027}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 206.7416, y: 14.652262, z: 229.16037}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2092983533 stripped
 GameObject:
@@ -174183,3 +174214,4 @@ SceneRoots:
   - {fileID: 592721868}
   - {fileID: 989500345}
   - {fileID: 1608336777446528132}
+  - {fileID: 2092166029}
