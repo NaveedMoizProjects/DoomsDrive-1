@@ -4,20 +4,47 @@ public class DamageablePart : MonoBehaviour
 {
     public string partName;
     public float health = 100f;
+    public float maxHealth = 100f; // explicit per-part baseline
     public enum PartType { Wheel, Door, Body, Core }
     public PartType type;
 
     private GameObject rootCar;
     private bool isBroken = false; // Prevents double-triggering BreakPart
 
+    void OnEnable()
+    {
+        // Ensure owner is current when enabled
+        rootCar = transform.root != null ? transform.root.gameObject : null;
+        SyncWithManager();
+    }
+
     void Start()
     {
-        rootCar = transform.root.gameObject;
+        // initialize owner and values
+        rootCar = transform.root != null ? transform.root.gameObject : null;
+
+        // ensure maxHealth is set from initial health on start
+        if (maxHealth <= 0f)
+            maxHealth = health;
+        else
+            health = Mathf.Min(health, maxHealth);
+
+        SyncWithManager();
+    }
+
+    // Called by Unity when the transform's parent changes at runtime (e.g., reattach)
+    void OnTransformParentChanged()
+    {
+        rootCar = transform.root != null ? transform.root.gameObject : null;
         SyncWithManager();
     }
 
     public void TakeDamage(float amount, Vector3 hitPoint, Vector3 hitNormal)
     {
+        // If owner is player and damage disabled globally, skip
+        if (rootCar != null && rootCar.CompareTag("Player") && DamageManager.Instance != null && !DamageManager.Instance.allowPlayerDamage)
+            return;
+
         // 1. If already dead or broken, stop everything
         if (health <= 0 || isBroken) return;
 
@@ -86,14 +113,52 @@ public class DamageablePart : MonoBehaviour
         rb.AddForce((transform.position - explosionSource).normalized * 15f, ForceMode.Impulse);
 
         this.enabled = false;
+
+        // Update owner immediately (detached => no owner)
+        rootCar = transform.root != null ? transform.root.gameObject : null;
+        SyncWithManager();
+    }
+
+    // Public repair API used by RespawnManager
+    public void RepairPart()
+    {
+        // Reset broken flag and restore health to max
+        isBroken = false;
+        health = Mathf.Max(1f, maxHealth); // ensure > 0
+        this.enabled = true;
+
+        // Update owner in case parent changed
+        rootCar = transform.root != null ? transform.root.gameObject : null;
+
+        // Re-sync with manager
+        SyncWithManager();
+    }
+
+    // Called from RespawnManager when a detached part is reparented to a new car instance
+    public void SetOwnerAndSync(GameObject newOwner)
+    {
+        rootCar = newOwner;
+        // If reparent wasn't done by caller, ensure transform root matches owner
+        if (rootCar != null && transform.root != rootCar.transform)
+        {
+            transform.SetParent(rootCar.transform, true);
+        }
+
+        // Update manager registry with new owner
+        SyncWithManager();
     }
 
     void SyncWithManager()
     {
         if (DamageManager.Instance != null)
         {
+            // Ensure rootCar reference is up to date
+            rootCar = transform.root != null ? transform.root.gameObject : rootCar;
+
             // Ensure health is clamped at 0 for the HUD registry
             float clampedHealth = Mathf.Max(0, health);
+
+            // Use the object's instance id as registry key (registry will be replaced/updated on reattach/spawn)
             DamageManager.Instance.UpdateHealth(gameObject.GetInstanceID(), clampedHealth, type, rootCar);
         }
     }

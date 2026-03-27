@@ -13,6 +13,9 @@ public class CarHUD : MonoBehaviour
     {
         if (DamageManager.Instance == null) return;
 
+        // Respect hudPaused flag (freeze HUD while respawn prompt / pause is active)
+        if (DamageManager.Instance.hudPaused) return;
+
         foreach (DamageablePart.PartType t in System.Enum.GetValues(typeof(DamageablePart.PartType)))
         {
             if (!uiEntries.ContainsKey(t)) CreateNewRow(t);

@@ -65,4 +65,19 @@ public class MeshDeformer : MonoBehaviour
             if (GetComponent<MeshCollider>()) GetComponent<MeshCollider>().sharedMesh = mesh;
         }
     }
+
+    // Public helper to restore the original mesh state (used by respawn)
+    public void ResetDeformation()
+    {
+        if (mesh == null)
+            mesh = GetComponent<MeshFilter>()?.mesh;
+
+        if (mesh == null || originalVertices == null)
+            return;
+
+        displacedVertices = (Vector3[])originalVertices.Clone();
+        mesh.vertices = (Vector3[])originalVertices.Clone();
+        mesh.RecalculateNormals();
+        if (GetComponent<MeshCollider>()) GetComponent<MeshCollider>().sharedMesh = mesh;
+    }
 }

@@ -3761,9 +3761,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   startPoint: {fileID: 0}
+  currentCheckpoint: {fileID: 0}
   respawnDelay: 2
   trackTag: Track
   checkpointTag: Checkpoint
+  rb: {fileID: 0}
+  isOffTrack: 0
+  offTrackTimer: 0
   playerID: 1
 --- !u!65 &92375072
 BoxCollider:
@@ -3998,7 +4002,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &95894074
 Transform:
   m_ObjectHideFlags: 0
@@ -18132,7 +18136,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &251602241
 Transform:
   m_ObjectHideFlags: 0
@@ -23742,7 +23746,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &279371146
 Transform:
   m_ObjectHideFlags: 0
@@ -46805,7 +46809,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &729697643
 Transform:
   m_ObjectHideFlags: 0
@@ -114514,7 +114518,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1432767887
 Transform:
   m_ObjectHideFlags: 0
@@ -126250,6 +126254,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   uiText: {fileID: 686998200}
   uiPanel: {fileID: 318840098}
+  promptConfirmKey: 114
+  promptCancelKey: 27
 --- !u!1 &1525171846
 GameObject:
   m_ObjectHideFlags: 0
@@ -140430,13 +140436,14 @@ GameObject:
   - component: {fileID: 1681372052}
   - component: {fileID: 1681372051}
   - component: {fileID: 1681372057}
+  - component: {fileID: 1681372059}
   m_Layer: 8
   m_Name: Jeep-Player
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1681372048
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -140599,7 +140606,7 @@ AudioSource:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1681372047}
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: dcb993f668bf93148ad743f466152036, type: 3}
@@ -140779,6 +140786,23 @@ MonoBehaviour:
   globalSkidAudio: {fileID: 1751992146}
   minSpeedForVFX: 2
   slipThreshold: 0.2
+--- !u!114 &1681372059
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1681372047}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abce793769a4dde478b1bed9c9980d72, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lapHandler: {fileID: 1681372052}
+  promptType: 5
+  promptTimeout: 20
+  maxRespawns: 20
+  cancelKey: 27
 --- !u!1 &1686116369
 GameObject:
   m_ObjectHideFlags: 0
@@ -142348,7 +142372,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1728327949
 Transform:
   m_ObjectHideFlags: 0
@@ -152022,7 +152046,7 @@ GameObject:
   m_Icon: {fileID: 2974397684917235467, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1879009364
 Transform:
   m_ObjectHideFlags: 0
@@ -155339,7 +155363,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2001467439
 Transform:
   m_ObjectHideFlags: 0
@@ -157866,7 +157890,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2093065646
 Transform:
   m_ObjectHideFlags: 0
@@ -171541,9 +171565,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   startPoint: {fileID: 0}
+  currentCheckpoint: {fileID: 0}
   respawnDelay: 2
   trackTag: Track
   checkpointTag: Checkpoint
+  rb: {fileID: 0}
+  isOffTrack: 0
+  offTrackTimer: 0
   playerID: 0
 --- !u!114 &3097436405598177734
 MonoBehaviour:

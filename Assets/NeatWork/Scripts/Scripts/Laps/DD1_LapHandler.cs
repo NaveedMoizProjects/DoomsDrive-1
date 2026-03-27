@@ -82,4 +82,14 @@ public class DD1_LapHandler : MonoBehaviour
             lapText.text = $"Lap: {DamageManager.Instance.currentLap} / {DamageManager.Instance.lapsToWin}";
         }
     }
+
+    // New utility: return the last checkpoint the player passed (safe access)
+    public Transform GetLastPassedCheckpoint()
+    {
+        if (checkpoints == null || checkpoints.Count == 0)
+            return null;
+
+        int lastIndex = Mathf.Clamp(nextCPIndex - 1, 0, checkpoints.Count - 1);
+        return checkpoints[lastIndex];
+    }
 }

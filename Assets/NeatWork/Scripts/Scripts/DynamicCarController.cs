@@ -1,5 +1,5 @@
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class DynamicCarController : MonoBehaviour
 {
@@ -26,30 +26,34 @@ public class DynamicCarController : MonoBehaviour
     public float baseMotorTorque = 1500f;
     public float maxSteerAngle = 30f;
     public float brakeForce = 3000f;
-    public float scrapingFriction = 500f; 
+    public float scrapingFriction = 500f;
 
     private Rigidbody carRb;
+    private CarSettings carSettings; // cached reference to avoid repeated Instance calls and to allow null-checks
 
     void Start()
     {
         carRb = GetComponent<Rigidbody>();
-        if (CarSettings.Instance == null)
-            Debug.LogError("CarSettings Singleton missing!");
+        carSettings = CarSettings.Instance;
 
+        if (carSettings == null)
+            Debug.LogWarning("CarSettings Singleton missing! Using fallback defaults.");
+
+        // a conservative initial CoM, will be smoothed toward settings if available
         carRb.centerOfMass = new Vector3(0, -1.0f, 0);
     }
 
     void FixedUpdate()
     {
-        if (CarSettings.Instance != null)
+        if (carSettings != null)
         {
-            Vector3 targetCoM = new Vector3(0, -CarSettings.Instance.stabilityExtra, 0.1f);
+            Vector3 targetCoM = new Vector3(0, -carSettings.stabilityExtra, 0.1f);
             carRb.centerOfMass = Vector3.Lerp(carRb.centerOfMass, targetCoM, Time.fixedDeltaTime * 3f);
         }
 
         HandlePhysics();
         ApplyAirDrag();
-        ApplyScrapingDrag(); 
+        ApplyScrapingDrag();
     }
 
     void HandlePhysics()
@@ -57,6 +61,10 @@ public class DynamicCarController : MonoBehaviour
         float moveInput = Input.GetAxis("Vertical");
         float steerInput = Input.GetAxis("Horizontal");
         bool isBraking = Input.GetKey(KeyCode.Space);
+
+        // read settings once with safe fallbacks
+        float accelMultiplier = carSettings != null ? carSettings.globalAccelerationMultiplier : 1f;
+        float suspHeight = carSettings != null ? carSettings.suspensionHeight : 0.2f;
 
         for (int i = 0; i < wheels.Count; i++)
         {
@@ -74,15 +82,15 @@ public class DynamicCarController : MonoBehaviour
             else if (driveMode == DriveType.RearWheelDrive && wheels[i].axel == Axel.Rear) isPowered = true;
 
             if (isPowered)
-                wheels[i].wheelCollider.motorTorque = moveInput * baseMotorTorque * CarSettings.Instance.globalAccelerationMultiplier;
+                wheels[i].wheelCollider.motorTorque = moveInput * baseMotorTorque * accelMultiplier;
             else
                 wheels[i].wheelCollider.motorTorque = 0;
 
             wheels[i].wheelCollider.brakeTorque = isBraking ? brakeForce : 0;
 
-            // Suspension
+            // Suspension - safely apply targetPosition
             var spring = wheels[i].wheelCollider.suspensionSpring;
-            spring.targetPosition = CarSettings.Instance.suspensionHeight;
+            spring.targetPosition = suspHeight;
             wheels[i].wheelCollider.suspensionSpring = spring;
 
             UpdateVisuals(wheels[i]);
@@ -112,7 +120,7 @@ public class DynamicCarController : MonoBehaviour
                 wheel.health -= amount;
                 wheels[i] = wheel;
 
-                
+
                 return;
             }
         }
@@ -127,8 +135,16 @@ public class DynamicCarController : MonoBehaviour
                 Wheel wheel = wheels[i];
 
                 // SAFETY: If already disconnected, exit
-                if (wheel.wheelCollider == null) 
+                if (wheel.wheelCollider == null)
                     return;
+
+                // Rename collider to a predictable name so respawn can find it later
+                try
+                {
+                    if (wheel.wheelCollider.gameObject != null && !string.IsNullOrEmpty(wheel.wheelName))
+                        wheel.wheelCollider.gameObject.name = wheel.wheelName + "_Collider";
+                }
+                catch { /* ignore editor/runtime rename issues */ }
 
                 // 2. DISABLE PHYSICS ON THE CAR
                 // Disable the collider FIRST so it stops asking for a Rigidbody
@@ -140,6 +156,14 @@ public class DynamicCarController : MonoBehaviour
                 if (wheel.wheelModel != null)
                 {
                     GameObject meshObj = wheel.wheelModel;
+
+                    // Rename mesh so reattach logic can match it if needed
+                    try
+                    {
+                        if (!string.IsNullOrEmpty(wheel.wheelName))
+                            meshObj.name = wheel.wheelName + "_Model";
+                    }
+                    catch { }
 
                     // Store velocity before we break the hierarchy
                     Vector3 launchVelocity = carRb != null ? carRb.velocity : Vector3.zero;
@@ -201,7 +225,7 @@ public class DynamicCarController : MonoBehaviour
                 // Pull down at the corner of the car
                 // (Using a generic offset since model is gone)
                 Vector3 dragPos = transform.TransformPoint(wheel.axel == Axel.Front ? new Vector3(0.8f, 0, 1.5f) : new Vector3(0.8f, 0, -1.5f));
-                
+
                 carRb.AddForceAtPosition(Vector3.down * 1000f, dragPos);
                 Vector3 dragDir = -carRb.velocity.normalized;
                 carRb.AddForceAtPosition(dragDir * (carRb.velocity.magnitude * scrapingFriction), dragPos);
@@ -211,9 +235,10 @@ public class DynamicCarController : MonoBehaviour
 
     void ApplyAirDrag()
     {
-        if (CarSettings.Instance == null) return;
+        // safe read of air damping with sensible fallback
+        float airDamp = carSettings != null ? carSettings.airDamping : 0.5f;
         float speed = carRb.velocity.magnitude;
-        Vector3 dragForce = -carRb.velocity * (speed * CarSettings.Instance.airDamping);
+        Vector3 dragForce = -carRb.velocity * (speed * airDamp);
         carRb.AddForce(dragForce);
     }
 }
