@@ -2,7 +2,8 @@ using UnityEngine;
 
 public class WorldTriggerMessage : MonoBehaviour
 {
-    public enum MessageType { Neutral, Checkpoint, LapComplete, Victory, Defeat, Warning, Damage }
+    // Added Info and Error to the enum
+    public enum MessageType { Neutral, Checkpoint, LapComplete, Victory, Defeat, Warning, Damage, Info, Error }
 
     [Header("Message Content")]
     public MessageType type;
@@ -27,6 +28,7 @@ public class WorldTriggerMessage : MonoBehaviour
     {
         if (hasTriggered) return;
 
+        // Check if the object entering the trigger is the Player
         if (other.CompareTag(targetTag))
         {
             SendGlobalMessage(messageText, type, duration);

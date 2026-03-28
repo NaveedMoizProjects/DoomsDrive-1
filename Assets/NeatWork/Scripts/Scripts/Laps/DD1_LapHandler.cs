@@ -1,95 +1,78 @@
 ﻿using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
+using TMPro;
 
 public class DD1_LapHandler : MonoBehaviour
 {
-    [Header("Checkpoint Settings")]
-    public List<Transform> checkpoints; // [0] = Start/Finish Line
+    private List<Transform> checkpoints;
+    private TextMeshProUGUI lapText;
+    private TextMeshProUGUI cpText;
+    private UI_CheckpointMarker marker;
     private int nextCPIndex = 1;
 
-    [Header("UI")]
-    public TextMeshProUGUI checkpointText;
-    public TextMeshProUGUI lapText;
-
-    [Header("Objective Marker")]
-    public UI_CheckpointMarker marker; // Assign your UI Marker Image here
-
-    private void Start()
+    public void Setup(List<Transform> cpList, TextMeshProUGUI lUI, TextMeshProUGUI cUI, UI_CheckpointMarker ptr)
     {
-        UpdateUI();
-        UpdateMarkerTarget(); // Set initial target
+        checkpoints = cpList; lapText = lUI; cpText = cUI; marker = ptr;
+    }
+
+    public void InitializeProgress(int lap, int lastCPIndex)
+    {
+        nextCPIndex = (lastCPIndex + 1 >= checkpoints.Count) ? 0 : lastCPIndex + 1;
+        RefreshSystems(lastCPIndex);
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (checkpoints.Count <= 1 || DamageManager.Instance == null) return;
+        if (checkpoints == null || checkpoints.Count <= 1) return;
 
-        // 1. Logic for Normal Checkpoints
-        if (nextCPIndex < checkpoints.Count && other.transform == checkpoints[nextCPIndex])
+        // --- THE VALIDATION GATE ---
+        // Only proceed if the hit object IS the next specific checkpoint in our list
+        if (!IsHit(other, nextCPIndex))
         {
-            Debug.Log("Reached Checkpoint: " + nextCPIndex);
-            nextCPIndex++;
-            UpdateUI();
-            UpdateMarkerTarget(); // Update marker to next CP
+            return; // Exit immediately. No message, no update, total silence.
         }
 
-        // 2. Logic for Finishing a Lap (Returning to checkpoints[0])
-        else if (nextCPIndex == checkpoints.Count && other.transform == checkpoints[0])
+        // 1. Handle Normal Checkpoints (1 to Max)
+        if (nextCPIndex != 0)
         {
-            DamageManager.Instance.currentLap++;
-            Debug.Log("Lap Completed: " + DamageManager.Instance.currentLap);
+            int currentHit = nextCPIndex;
 
-            if (DamageManager.Instance.currentLap >= DamageManager.Instance.lapsToWin)
-            {
-                DamageManager.Instance.FinalizeGame("RACE COMPLETED: VICTORY!");
-            }
+            // Save this as the new "Safe Spot" in the Manager
+            RespawnManager.Instance.UpdateRespawnAnchor(currentHit);
 
-            // Reset for next lap
-            nextCPIndex = 1;
-            UpdateUI();
-            UpdateMarkerTarget(); // Point back to the first checkpoint
+            // Set the next target
+            nextCPIndex = (nextCPIndex + 1 >= checkpoints.Count) ? 0 : nextCPIndex + 1;
+
+            RefreshSystems(currentHit);
         }
-    }
-
-    private void UpdateMarkerTarget()
-    {
-        if (marker == null) return;
-
-        // If we still have checkpoints left, point to the next one
-        if (nextCPIndex < checkpoints.Count)
-        {
-            marker.target = checkpoints[nextCPIndex];
-        }
+        // 2. Handle Finish Line (Index 0)
         else
         {
-            // If all intermediate checkpoints are hit, point to the Finish Line (0)
-            marker.target = checkpoints[0];
+            if (DamageManager.Instance != null)
+            {
+                DamageManager.Instance.currentLap++;
+                RespawnManager.Instance.savedLap = DamageManager.Instance.currentLap;
+            }
+
+            nextCPIndex = 1;
+            RespawnManager.Instance.UpdateRespawnAnchor(0);
+            RefreshSystems(0);
         }
     }
 
-    private void UpdateUI()
+    private bool IsHit(Collider other, int idx)
     {
-        if (DamageManager.Instance == null) return;
-
-        if (checkpointText != null)
-        {
-            checkpointText.text = $"Checkpoint: {nextCPIndex - 1} / {checkpoints.Count - 1}";
-        }
-
-        if (lapText != null)
-        {
-            lapText.text = $"Lap: {DamageManager.Instance.currentLap} / {DamageManager.Instance.lapsToWin}";
-        }
+        // Check if the collider belongs to the specific checkpoint transform at this index
+        return other.transform == checkpoints[idx] || other.transform.IsChildOf(checkpoints[idx]);
     }
 
-    // New utility: return the last checkpoint the player passed (safe access)
-    public Transform GetLastPassedCheckpoint()
+    private void RefreshSystems(int currentIdx)
     {
-        if (checkpoints == null || checkpoints.Count == 0)
-            return null;
+        int curLap = (DamageManager.Instance != null) ? DamageManager.Instance.currentLap : 1;
+        if (lapText) lapText.text = $"Lap: {curLap}";
+        if (cpText) cpText.text = $"CP: {currentIdx} / {checkpoints.Count - 1}";
 
-        int lastIndex = Mathf.Clamp(nextCPIndex - 1, 0, checkpoints.Count - 1);
-        return checkpoints[lastIndex];
+        // Update the pointer to show the ONLY checkpoint that matters now
+        if (marker != null) marker.target = checkpoints[nextCPIndex];
     }
 }
