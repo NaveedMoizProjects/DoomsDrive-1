@@ -700,7 +700,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4236de192c16fd340a0b7fd86c75e5bc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneName: Work
+  sceneName: Mines
   loadingSlider: {fileID: 1115523564}
   loadingScreen: {fileID: 1259935505}
 --- !u!95 &1115523563
