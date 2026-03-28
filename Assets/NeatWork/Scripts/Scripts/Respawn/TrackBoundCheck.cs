@@ -4,78 +4,70 @@ public class TrackBoundCheck : MonoBehaviour
 {
     [Header("Settings")]
     public string trackTag = "Track";
-    public KeyCode offTrackKey = KeyCode.R; // Warning key (only when off track)
-    public KeyCode libertyKey = KeyCode.G;  // Liberty key (always active)
+    public KeyCode offTrackKey = KeyCode.R;
+    public KeyCode libertyKey = KeyCode.G;
+
+    [Header("Safe Spot Memory")]
+    private Vector3 lastSafePos;
+    private Quaternion lastSafeRot;
+    private float recordTimer = 0f;
+    private float recordInterval = 0.5f; // How often to save the position
 
     [Header("State")]
     public bool isOnTrack = true;
     private float messageTimer = 0f;
 
-    // 1. CONSTANT STAY CHECK
     private void OnTriggerStay(Collider other)
     {
         if (other.CompareTag(trackTag))
         {
             isOnTrack = true;
+
+            // Record position while on track
+            recordTimer += Time.deltaTime;
+            if (recordTimer >= recordInterval)
+            {
+                lastSafePos = transform.position;
+                lastSafeRot = transform.rotation;
+                recordTimer = 0f;
+            }
         }
     }
 
-    // 2. EXIT CHECK
     private void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag(trackTag))
-        {
-            isOnTrack = false;
-        }
+        if (other.CompareTag(trackTag)) isOnTrack = false;
     }
 
     private void Update()
     {
-        // --- LIBERTY LOGIC (ALWAYS ON) ---
-        // Player can press G at any time to replace themselves
-        if (Input.GetKeyDown(libertyKey))
-        {
-            RecoverCar("Liberty Recovery");
-        }
+        if (Input.GetKeyDown(libertyKey)) PerformPreciseRecovery();
 
-        // --- WARNING LOGIC (ONLY OFF TRACK) ---
         if (!isOnTrack)
         {
-            HandleOffTrackLogic();
-        }
-        else
-        {
-            messageTimer = 0f;
+            HandleOffTrackMessage();
+            if (Input.GetKeyDown(offTrackKey)) PerformPreciseRecovery();
         }
     }
 
-    void HandleOffTrackLogic()
+    void HandleOffTrackMessage()
     {
         messageTimer -= Time.deltaTime;
         if (messageTimer <= 0f)
         {
             if (MessageUIManager.Instance != null)
-            {
-                // Tells them to press R (offTrackKey)
                 MessageUIManager.Instance.ProcessMessage($"OFF TRACK!\nPress [{offTrackKey}] to Recover", WorldTriggerMessage.MessageType.Warning, 2f);
-            }
             messageTimer = 2f;
-        }
-
-        // Check for the specific Off-Track recovery button
-        if (Input.GetKeyDown(offTrackKey))
-        {
-            RecoverCar("Off-Track Recovery");
         }
     }
 
-    void RecoverCar(string logReason)
+    void PerformPreciseRecovery()
     {
         if (RespawnManager.Instance != null)
         {
-            RespawnManager.Instance.SoftResetCar(this.gameObject);
+            // We call a new function that uses the SPECIFIC last safe spot
+            RespawnManager.Instance.PlacementRecovery(this.gameObject, lastSafePos, lastSafeRot);
             isOnTrack = true;
-            Debug.Log(logReason + " Triggered.");
         }
     }
 }

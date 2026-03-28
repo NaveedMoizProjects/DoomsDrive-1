@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using Cinemachine;
+using System.Collections;
+using System.Collections.Generic;
 using TMPro;
-using Cinemachine;
+using UnityEngine;
 
 public class RespawnManager : MonoBehaviour
 {
@@ -110,31 +111,72 @@ public class RespawnManager : MonoBehaviour
     {
         Rigidbody rb = car.GetComponent<Rigidbody>();
 
-        // 1. Kill all velocity so the car doesn't "fly" when moved
+        if (rb != null)
+        {
+            // 1. KILL THE ENERGY (Stop the spinning and speed)
+            rb.velocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+
+            // 2. FREEZE PHYSICS (Prevents the "launch" glitch)
+            rb.isKinematic = true;
+        }
+
+        // 3. MOVE CAREFULLY
+        // We use the rotation of the checkpoint (respawnRot) so the car faces FORWARD
+        car.transform.position = respawnPos + Vector3.up * 1.5f;
+        car.transform.rotation = respawnRot;
+
+        // 4. RESET DAMAGE (Optional)
+        // If you want the "G" key to also fix the car's health:
+        if (DamageManager.Instance != null)
+        {
+            DamageManager.Instance.ForceFullHeal(car);
+        }
+
+        // 5. UNFREEZE after the car has settled
+        StartCoroutine(ReenablePhysics(rb));
+
+        Debug.Log("Car placed carefully at last checkpoint. Physics cleared.");
+    }
+
+    private IEnumerator ReenablePhysics(Rigidbody rb)
+    {
+        // Wait for the physics engine to sync the new position
+        yield return new WaitForFixedUpdate();
+
+        if (rb != null)
+        {
+            rb.isKinematic = false;
+            // Optional: wake the body up to ensure it doesn't just hang in the air
+            rb.WakeUp();
+        }
+    }
+
+    public void PlacementRecovery(GameObject car, Vector3 targetPos, Quaternion targetRot)
+    {
+        Rigidbody rb = car.GetComponent<Rigidbody>();
+
         if (rb != null)
         {
             rb.velocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
-            rb.isKinematic = true; // Temporarily stop physics calculations
+            rb.isKinematic = true;
         }
 
-        // 2. Place the car at the last saved checkpoint (the sibling anchor)
-        // We use respawnPos and respawnRot which were updated by DD1_LapHandler
-        car.transform.position = respawnPos + Vector3.up * 1.5f;
-        car.transform.rotation = respawnRot;
+        // Move to the EXACT spot we were at 0.5 seconds before falling
+        car.transform.position = targetPos + Vector3.up * 0.5f;
+        car.transform.rotation = targetRot;
 
-        // 3. Optional: Add a tiny delay or just re-enable physics
-        StartCoroutine(ReenablePhysics(rb));
-
-        Debug.Log("Car recovered to last checkpoint.");
+        StartCoroutine(ReenablePhysicsAfterPlacement(rb));
     }
 
-    private System.Collections.IEnumerator ReenablePhysics(Rigidbody rb)
+    private System.Collections.IEnumerator ReenablePhysicsAfterPlacement(Rigidbody rb)
     {
-        yield return new WaitForFixedUpdate(); // Wait one physics frame
+        yield return new WaitForFixedUpdate();
         if (rb != null)
         {
             rb.isKinematic = false;
+            rb.WakeUp();
         }
     }
 }
