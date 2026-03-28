@@ -5,7 +5,7 @@ public class DamageablePart : MonoBehaviour
     public string partName;
     public float health = 100f;
     public float maxHealth = 100f;
-    public enum PartType { Wheel, Door, Body, Core }
+    public enum PartType { Wheel, Door, Body, Core,player,enemy }
     public PartType type;
 
     private GameObject rootCar;
