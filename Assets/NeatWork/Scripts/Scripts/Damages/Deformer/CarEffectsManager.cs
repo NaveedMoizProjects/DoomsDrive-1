@@ -6,15 +6,27 @@ public class CarEffectsManager : MonoBehaviour
     public ParticleSystem smokeParticles;
     public ParticleSystem fireParticles;
 
-    [Header("Core Health Thresholds (0.0 to 1.0)")]
-    [Range(0f, 1f)] public float smokeThreshold = 0.7f; // Starts smoking at 70% Core health
-    [Range(0f, 1f)] public float fireThreshold = 0.3f;  // Starts fire at 30% Core health
+    [Header("Thresholds (0.0 to 1.0)")]
+    [Tooltip("Start smoking when health is below this %")]
+    [Range(0f, 1f)] public float smokeThreshold = 0.7f;
+    [Tooltip("Start fire when health is below this %")]
+    [Range(0f, 1f)] public float fireThreshold = 0.3f;
 
     private DamageablePart corePart;
 
     void Start()
     {
-        // Find all parts and identify the one labeled "Core"
+        // Initial setup
+        FindCorePart();
+
+        // Ensure particles are off at the start of the race
+        if (smokeParticles) smokeParticles.Stop();
+        if (fireParticles) fireParticles.Stop();
+    }
+
+    void FindCorePart()
+    {
+        // Look through all children to find the engine/core
         DamageablePart[] allParts = GetComponentsInChildren<DamageablePart>();
         foreach (var part in allParts)
         {
@@ -26,50 +38,55 @@ public class CarEffectsManager : MonoBehaviour
         }
 
         if (corePart == null)
-            Debug.LogError("CarEffectsManager: No part with type 'Core' found on this car!");
-
-        if (smokeParticles) smokeParticles.Stop();
-        if (fireParticles) fireParticles.Stop();
+            Debug.LogWarning($"CarEffectsManager on {gameObject.name}: No 'Core' part found!");
     }
 
-    // Called by DamageablePart.cs when damage is taken
+    // This is called by DamageablePart.cs whenever it takes a hit
     public void RefreshEffects()
     {
         if (corePart == null) return;
 
-        // Since health is float (0-100), we calculate the percentage
-        // We assume 100 is max health. If not, you can use a 'maxHealth' variable from corePart
-        float healthPercent = corePart.health / 100f;
+        // Calculate the current percentage based on the Core's health
+        // We use 0.01f as a buffer to prevent math errors at exactly 0
+        float healthPercent = Mathf.Clamp01(corePart.health / corePart.maxHealth);
 
         HandleFumes(healthPercent);
     }
 
     private void HandleFumes(float percent)
     {
-        // Logic: If core health is lower than threshold, play particles
-
-        // SMOKE
-        if (percent <= smokeThreshold && percent > 0)
+        // --- SMOKE LOGIC ---
+        // If health is below threshold, keep smoking (even if health is 0)
+        if (percent <= smokeThreshold)
         {
-            if (!smokeParticles.isPlaying) smokeParticles.Play();
+            if (smokeParticles != null)
+            {
+                if (!smokeParticles.isPlaying) smokeParticles.Play();
 
-            // Optional: Make smoke thicker as health drops
-            var emission = smokeParticles.emission;
-            emission.rateOverTime = Mathf.Lerp(50, 10, percent);
-        }
-        else if (percent > smokeThreshold || percent <= 0)
-        {
-            if (smokeParticles.isPlaying) smokeParticles.Stop();
-        }
-
-        // FIRE
-        if (percent <= fireThreshold && percent > 0)
-        {
-            if (!fireParticles.isPlaying) fireParticles.Play();
+                // Dynamic Intensity: Thicker smoke as health drops
+                var emission = smokeParticles.emission;
+                // Remaps the range [smokeThreshold to 0] into [0 to 1]
+                float intensity = Mathf.InverseLerp(smokeThreshold, 0f, percent);
+                emission.rateOverTime = Mathf.Lerp(10f, 60f, intensity);
+            }
         }
         else
         {
-            if (fireParticles.isPlaying) fireParticles.Stop();
+            // If repaired or healthy, stop the smoke
+            if (smokeParticles != null && smokeParticles.isPlaying)
+                smokeParticles.Stop();
+        }
+
+        // --- FIRE LOGIC ---
+        if (percent <= fireThreshold)
+        {
+            if (fireParticles != null && !fireParticles.isPlaying)
+                fireParticles.Play();
+        }
+        else
+        {
+            if (fireParticles != null && fireParticles.isPlaying)
+                fireParticles.Stop();
         }
     }
 }

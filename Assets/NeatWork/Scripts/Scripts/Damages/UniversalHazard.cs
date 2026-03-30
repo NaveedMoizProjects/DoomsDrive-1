@@ -29,7 +29,6 @@ public class UniversalHazard : MonoBehaviour
         rend = GetComponent<Renderer>();
     }
 
-    // Called by the Gun right after spawning
     public void SetupIgnoreTag(string tagToIgnore)
     {
         currentIgnoreTag = tagToIgnore;
@@ -38,18 +37,16 @@ public class UniversalHazard : MonoBehaviour
     void OnEnable()
     {
         hasExploded = false;
-        currentIgnoreTag = ""; // Reset tag so it doesn't carry over in the pool
-
-        if (col != null)
-        {
-            col.enabled = true;
-            col.isTrigger = false;
-        }
+        currentIgnoreTag = "";
 
         if (rb != null)
         {
             rb.isKinematic = false;
-            rb.useGravity = true;
+
+            // FIX: For bullets at 200 speed, gravity makes them "heavy"
+            // We only want gravity for Landmines or slow Explosives
+            rb.useGravity = (type != HazardType.Bullet);
+
             rb.velocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
         }
@@ -57,18 +54,17 @@ public class UniversalHazard : MonoBehaviour
         if (col != null)
         {
             col.enabled = true;
-            col.isTrigger = false; // Reset to physical collision for the "Landing" hit
+            col.isTrigger = false;
         }
 
         if (rend != null) rend.enabled = true;
     }
 
-    // --- LANDMINE PROXIMITY DETECTION ---
     private void OnTriggerEnter(Collider other)
     {
         if (type == HazardType.LandMine && !hasExploded)
         {
-            // Ignore the shooter even in trigger mode
+            // Check ownership to prevent self-detonation
             if (!string.IsNullOrEmpty(currentIgnoreTag) && other.CompareTag(currentIgnoreTag)) return;
 
             if (other.CompareTag("Player") || other.CompareTag("AI"))
@@ -78,40 +74,33 @@ public class UniversalHazard : MonoBehaviour
         }
     }
 
-    // --- IMPACT LOGIC ---
     void OnCollisionEnter(Collision collision)
     {
         if (hasExploded) return;
 
-        // 1. Dynamic Ignore Check (Prevents shooting yourself)
+        // 1. OWNERSHIP CHECK: Prevents shooting yourself
         if (!string.IsNullOrEmpty(currentIgnoreTag) && collision.collider.CompareTag(currentIgnoreTag))
         {
             return;
         }
 
-        // 2. Landmine "Stick to Terrain" Logic
+        // 2. Landmine Logic
         if (type == HazardType.LandMine && collision.collider.CompareTag("Terrain"))
         {
             rb.useGravity = false;
             rb.isKinematic = true;
-            col.isTrigger = true; // Switch to proximity trigger mode
+            col.isTrigger = true;
             return;
         }
 
-        // 3. Standard Impact Logic
+        // 3. Impact Logic
         Vector3 point = collision.contacts[0].point;
         Vector3 normal = collision.contacts[0].normal;
         string hitTag = collision.collider.tag;
 
         if (type == HazardType.Bullet)
         {
-            hasExploded = true;
-            SpawnEffect(point, normal, hitTag);
-
-            DamageablePart part = collision.collider.GetComponent<DamageablePart>();
-            if (part != null) part.TakeDamage(directDamage, point, normal);
-
-            gameObject.SetActive(false); // Return to pool
+            HandleBulletImpact(point, normal, hitTag, collision.collider);
         }
         else if (type == HazardType.Explosive)
         {
@@ -119,12 +108,23 @@ public class UniversalHazard : MonoBehaviour
         }
     }
 
+    void HandleBulletImpact(Vector3 point, Vector3 normal, string hitTag, Collider hitCollider)
+    {
+        hasExploded = true;
+        SpawnEffect(point, normal, hitTag);
+
+        DamageablePart part = hitCollider.GetComponent<DamageablePart>();
+        if (part != null) part.TakeDamage(directDamage, point, normal);
+
+        gameObject.SetActive(false);
+    }
+
     void TriggerExplosion(Vector3 point, string tag, Vector3 normal)
     {
         hasExploded = true;
         SpawnEffect(point, normal, tag);
 
-        // Create invisible logic object for the explosion shockwave
+        // Explosion logic (damage and push)
         GameObject explosionLogic = new GameObject("ExplosionLogic");
         explosionLogic.transform.position = point;
         explosionLogic.AddComponent<ExplosionShockwave>().Setup(explosionRadius, directDamage, explosionForce);
@@ -144,13 +144,8 @@ public class UniversalHazard : MonoBehaviour
     void SpawnEffect(Vector3 point, Vector3 normal, string tag)
     {
         if (effectLibrary == null) return;
-
-        // Fetch pool tag from Surface Settings
         string poolTag = effectLibrary.GetPoolTagForSurface(tag);
-
-        // Request from Object Pooler
         GameObject fx = ObjectPooler.Instance.SpawnFromPool(poolTag, point, Quaternion.LookRotation(normal));
-
         if (fx != null) StartCoroutine(ReturnToPool(fx, effectLifeTime));
     }
 

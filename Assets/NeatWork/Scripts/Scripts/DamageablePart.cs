@@ -76,6 +76,17 @@ public class DamageablePart : MonoBehaviour
         {
             rootCar = transform.root != null ? transform.root.gameObject : rootCar;
             DamageManager.Instance.UpdateHealth(gameObject.GetInstanceID(), Mathf.Max(0, health), type, rootCar);
+
+            // --- ADDED FOR EFFECTS ---
+            // If THIS part is the Core, tell the car to update its smoke/fire visuals
+            if (type == PartType.Core && rootCar != null)
+            {
+                CarEffectsManager effects = rootCar.GetComponent<CarEffectsManager>();
+                if (effects != null)
+                {
+                    effects.RefreshEffects();
+                }
+            }
         }
     }
 }
