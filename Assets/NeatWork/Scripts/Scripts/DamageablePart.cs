@@ -5,8 +5,12 @@ public class DamageablePart : MonoBehaviour
     public string partName;
     public float health = 100f;
     public float maxHealth = 100f;
-    public enum PartType { Wheel, Door, Body, Core,player,enemy }
+    public enum PartType { Wheel, Door, Body, Core, player, enemy }
     public PartType type;
+
+    [Header("Protection Settings")]
+    public float damageThreshold = 5f; // Hits weaker than this are ignored
+    public bool canBeDestroyed = true;
 
     private GameObject rootCar;
     private bool isBroken = false;
@@ -20,8 +24,12 @@ public class DamageablePart : MonoBehaviour
 
     public void TakeDamage(float amount, Vector3 hitPoint, Vector3 hitNormal)
     {
+        // 1. Check if damage is enabled for the player
         if (rootCar != null && rootCar.CompareTag("Player") && DamageManager.Instance != null && !DamageManager.Instance.allowPlayerDamage)
             return;
+
+        // 2. NEW: Ignore "Micro-Damage" (Prevents braking/bumping from breaking wheels)
+        if (amount < damageThreshold) return;
 
         if (health <= 0 || isBroken) return;
 
@@ -31,10 +39,27 @@ public class DamageablePart : MonoBehaviour
         if (type == PartType.Wheel)
         {
             DynamicCarController controller = GetComponentInParent<DynamicCarController>();
+            // Only apply damage if it's actually a significant hit
             if (controller != null) controller.ApplyDamageToWheel(partName, amount);
         }
 
-        if (health <= 0) BreakPart();
+        if (health <= 0 && canBeDestroyed) BreakPart();
+    }
+
+    // --- Add this to catch Physics Collisions automatically ---
+    private void OnCollisionEnter(Collision collision)
+    {
+        // Ignore if we hit our own car body
+        if (collision.gameObject.transform.root == transform.root) return;
+
+        // Calculate damage based on impact velocity (Mass * Speed)
+        float impactForce = collision.relativeVelocity.magnitude;
+
+        // Only take damage if we hit something hard
+        if (impactForce > damageThreshold)
+        {
+            TakeDamage(impactForce * 2f, collision.contacts[0].point, collision.contacts[0].normal);
+        }
     }
 
     void BreakPart()
@@ -42,7 +67,6 @@ public class DamageablePart : MonoBehaviour
         if (isBroken) return;
         isBroken = true;
 
-        // Use the SINGLETON Instance instead of GetComponentInParent
         if (type == PartType.Core)
         {
             if (RespawnManager.Instance != null)
@@ -56,7 +80,6 @@ public class DamageablePart : MonoBehaviour
             if (controller != null)
             {
                 controller.DisconnectWheel(partName);
-                // Trigger the R/ESC menu when a wheel falls off
                 if (RespawnManager.Instance != null)
                     RespawnManager.Instance.TriggerDeath("CRITICAL WHEEL LOSS");
             }
@@ -64,7 +87,6 @@ public class DamageablePart : MonoBehaviour
             return;
         }
 
-        // Standard body part physics
         transform.SetParent(null);
         if (!GetComponent<Rigidbody>()) gameObject.AddComponent<Rigidbody>();
         this.enabled = false;
@@ -77,15 +99,10 @@ public class DamageablePart : MonoBehaviour
             rootCar = transform.root != null ? transform.root.gameObject : rootCar;
             DamageManager.Instance.UpdateHealth(gameObject.GetInstanceID(), Mathf.Max(0, health), type, rootCar);
 
-            // --- ADDED FOR EFFECTS ---
-            // If THIS part is the Core, tell the car to update its smoke/fire visuals
             if (type == PartType.Core && rootCar != null)
             {
                 CarEffectsManager effects = rootCar.GetComponent<CarEffectsManager>();
-                if (effects != null)
-                {
-                    effects.RefreshEffects();
-                }
+                if (effects != null) effects.RefreshEffects();
             }
         }
     }

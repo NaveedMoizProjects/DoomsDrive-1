@@ -78,13 +78,20 @@ public class UniversalHazard : MonoBehaviour
     {
         if (hasExploded) return;
 
-        // 1. OWNERSHIP CHECK: Prevents shooting yourself
-        if (!string.IsNullOrEmpty(currentIgnoreTag) && collision.collider.CompareTag(currentIgnoreTag))
+        // 1. IMPROVED OWNERSHIP CHECK
+        // If we have a tag, check it. 
+        if (!string.IsNullOrEmpty(currentIgnoreTag))
         {
-            return;
+            if (collision.collider.CompareTag(currentIgnoreTag)) return;
+        }
+        else
+        {
+            // SAFETY FALLBACK: If the Gun hasn't set the tag yet (Race Condition), 
+            // and we hit something tagged "Player" or "AI" immediately, ignore it for 1 frame.
+            if (collision.collider.CompareTag("Player") || collision.collider.CompareTag("AI")) return;
         }
 
-        // 2. Landmine Logic
+        // 2. Landmine Logic... (keep your existing code)
         if (type == HazardType.LandMine && collision.collider.CompareTag("Terrain"))
         {
             rb.useGravity = false;
@@ -94,18 +101,8 @@ public class UniversalHazard : MonoBehaviour
         }
 
         // 3. Impact Logic
-        Vector3 point = collision.contacts[0].point;
-        Vector3 normal = collision.contacts[0].normal;
-        string hitTag = collision.collider.tag;
-
-        if (type == HazardType.Bullet)
-        {
-            HandleBulletImpact(point, normal, hitTag, collision.collider);
-        }
-        else if (type == HazardType.Explosive)
-        {
-            TriggerExplosion(point, hitTag, normal);
-        }
+        ContactPoint contact = collision.contacts[0];
+        HandleBulletImpact(contact.point, contact.normal, collision.collider.tag, collision.collider);
     }
 
     void HandleBulletImpact(Vector3 point, Vector3 normal, string hitTag, Collider hitCollider)

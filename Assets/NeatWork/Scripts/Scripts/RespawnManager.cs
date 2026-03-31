@@ -8,10 +8,18 @@ public class RespawnManager : MonoBehaviour
 {
     public static RespawnManager Instance { get; private set; }
 
+    public enum GameMode { DragRace, CombatStory }
+
+    [Header("Game Mode Settings")]
+    public GameMode currentMode = GameMode.DragRace;
+    public int maxRespawns = 3; // Only used in Combat/Story
+    private int respawnsRemaining;
+
     [Header("Master Track & UI")]
     public List<Transform> masterCheckpoints;
     public TextMeshProUGUI lapUI;
     public TextMeshProUGUI checkpointUI;
+    public TextMeshProUGUI livesUI;
     public UI_CheckpointMarker pointer;
 
     [Header("Prefabs & Cameras")]
@@ -32,6 +40,8 @@ public class RespawnManager : MonoBehaviour
         if (Instance != null && Instance != this) { Destroy(this.gameObject); return; }
         Instance = this;
 
+        respawnsRemaining = maxRespawns;
+
         if (masterCheckpoints.Count > 0)
         {
             UpdateRespawnAnchor(0);
@@ -40,6 +50,7 @@ public class RespawnManager : MonoBehaviour
         }
 
         SpawnNewCar();
+        UpdateLivesUI();
     }
 
     public void UpdateRespawnAnchor(int index)
@@ -55,8 +66,25 @@ public class RespawnManager : MonoBehaviour
         isDead = true;
         Time.timeScale = 0.5f;
 
+        string message = reason;
+
+        if (currentMode == GameMode.CombatStory)
+        {
+            if (respawnsRemaining > 0)
+                message += $"\n{respawnsRemaining} LIVES LEFT\n[R] RESPAWN";
+            else
+            {
+                message += "\nMISSION FAILED\nOUT OF LIVES";
+                if (DamageManager.Instance != null) DamageManager.Instance.FinalizeGame("OUT OF LIVES");
+            }
+        }
+        else
+        {
+            message += "\n[R] RESPAWN";
+        }
+
         if (MessageUIManager.Instance != null)
-            MessageUIManager.Instance.ProcessMessage($"{reason}\n[R] RESPAWN", WorldTriggerMessage.MessageType.Warning, 10f);
+            MessageUIManager.Instance.ProcessMessage(message, WorldTriggerMessage.MessageType.Warning, 10f);
 
         if (currentCar != null)
         {
@@ -68,7 +96,14 @@ public class RespawnManager : MonoBehaviour
 
     private void Update()
     {
-        if (isDead && Input.GetKeyDown(KeyCode.R)) PerformRespawn();
+        if (isDead && Input.GetKeyDown(KeyCode.R))
+        {
+            if (currentMode == GameMode.DragRace || respawnsRemaining > 0)
+            {
+                if (currentMode == GameMode.CombatStory) respawnsRemaining--;
+                PerformRespawn();
+            }
+        }
     }
 
     void PerformRespawn()
@@ -81,11 +116,11 @@ public class RespawnManager : MonoBehaviour
         Time.timeScale = 1f;
         isDead = false;
         SpawnNewCar();
+        UpdateLivesUI();
     }
 
     void SpawnNewCar()
     {
-        // Spawning as sibling (null parent)
         currentCar = Instantiate(carPrefab, transform.position + Vector3.up * 1.5f, transform.rotation, null);
         currentCar.tag = "Player";
 
@@ -105,57 +140,18 @@ public class RespawnManager : MonoBehaviour
             vCam.OnTargetObjectWarped(currentCar.transform, currentCar.transform.position - vCam.transform.position);
         }
     }
-    // Add these functions inside your existing RespawnManager.cs
 
-    public void SoftResetCar(GameObject car)
+    void UpdateLivesUI()
     {
-        Rigidbody rb = car.GetComponent<Rigidbody>();
-
-        if (rb != null)
-        {
-            // 1. KILL THE ENERGY (Stop the spinning and speed)
-            rb.velocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
-
-            // 2. FREEZE PHYSICS (Prevents the "launch" glitch)
-            rb.isKinematic = true;
-        }
-
-        // 3. MOVE CAREFULLY
-        // We use the rotation of the checkpoint (respawnRot) so the car faces FORWARD
-        car.transform.position = respawnPos + Vector3.up * 1.5f;
-        car.transform.rotation = respawnRot;
-
-        // 4. RESET DAMAGE (Optional)
-        // If you want the "G" key to also fix the car's health:
-        if (DamageManager.Instance != null)
-        {
-            DamageManager.Instance.ForceFullHeal(car);
-        }
-
-        // 5. UNFREEZE after the car has settled
-        StartCoroutine(ReenablePhysics(rb));
-
-        Debug.Log("Car placed carefully at last checkpoint. Physics cleared.");
+        if (livesUI == null) return;
+        livesUI.text = (currentMode == GameMode.CombatStory) ? $"LIVES: {respawnsRemaining}" : "MODE: DRAG RACE";
     }
 
-    private IEnumerator ReenablePhysics(Rigidbody rb)
-    {
-        // Wait for the physics engine to sync the new position
-        yield return new WaitForFixedUpdate();
-
-        if (rb != null)
-        {
-            rb.isKinematic = false;
-            // Optional: wake the body up to ensure it doesn't just hang in the air
-            rb.WakeUp();
-        }
-    }
+    // --- RECOVERY FUNCTIONS (FIXES THE MISMATCH ERROR) ---
 
     public void PlacementRecovery(GameObject car, Vector3 targetPos, Quaternion targetRot)
     {
         Rigidbody rb = car.GetComponent<Rigidbody>();
-
         if (rb != null)
         {
             rb.velocity = Vector3.zero;
@@ -163,14 +159,13 @@ public class RespawnManager : MonoBehaviour
             rb.isKinematic = true;
         }
 
-        // Move to the EXACT spot we were at 0.5 seconds before falling
         car.transform.position = targetPos + Vector3.up * 0.5f;
         car.transform.rotation = targetRot;
 
         StartCoroutine(ReenablePhysicsAfterPlacement(rb));
     }
 
-    private System.Collections.IEnumerator ReenablePhysicsAfterPlacement(Rigidbody rb)
+    private IEnumerator ReenablePhysicsAfterPlacement(Rigidbody rb)
     {
         yield return new WaitForFixedUpdate();
         if (rb != null)
@@ -178,5 +173,23 @@ public class RespawnManager : MonoBehaviour
             rb.isKinematic = false;
             rb.WakeUp();
         }
+    }
+
+    public void SoftResetCar(GameObject car)
+    {
+        Rigidbody rb = car.GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.velocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            rb.isKinematic = true;
+        }
+
+        car.transform.position = respawnPos + Vector3.up * 1.5f;
+        car.transform.rotation = respawnRot;
+
+        if (DamageManager.Instance != null) DamageManager.Instance.ForceFullHeal(car);
+
+        StartCoroutine(ReenablePhysicsAfterPlacement(rb));
     }
 }

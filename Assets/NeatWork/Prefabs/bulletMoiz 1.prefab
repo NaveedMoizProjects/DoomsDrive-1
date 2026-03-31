@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 6726970485743205945}
   - component: {fileID: 3394016523930281602}
   - component: {fileID: 4739023484413296382}
-  m_Layer: 0
+  m_Layer: 15
   m_Name: bulletMoiz 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -129,7 +129,6 @@ MonoBehaviour:
   directDamage: 12
   explosionRadius: 0
   explosionForce: 0
-  delay: 0
   effectLifeTime: 1
 --- !u!1 &4674007439880974894
 GameObject:
@@ -142,7 +141,7 @@ GameObject:
   - component: {fileID: 5508591494739651724}
   - component: {fileID: 8290876172784182718}
   - component: {fileID: 2032974194743237060}
-  m_Layer: 0
+  m_Layer: 15
   m_Name: Shell
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -223,7 +222,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3414704895221519578}
-  m_Layer: 0
+  m_Layer: 15
   m_Name: Bullet762_LowPoly(Clone)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -258,7 +257,7 @@ GameObject:
   - component: {fileID: 8238360495948284460}
   - component: {fileID: 1706584253940370979}
   - component: {fileID: 2102991077556844565}
-  m_Layer: 0
+  m_Layer: 15
   m_Name: Bullet
   m_TagString: Untagged
   m_Icon: {fileID: 0}

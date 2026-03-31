@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2958030185385610342}
   m_Layer: 0
   m_Name: Particle System_A
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -4856,7 +4856,7 @@ GameObject:
   - component: {fileID: 8468589670538425968}
   m_Layer: 0
   m_Name: MuzzleFlash
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -9837,7 +9837,7 @@ GameObject:
   - component: {fileID: 7968537479088673846}
   m_Layer: 0
   m_Name: mixamorig:LeftHandPinky3
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -9869,7 +9869,7 @@ GameObject:
   - component: {fileID: 5962589268257186763}
   m_Layer: 8
   m_Name: COM
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -9900,7 +9900,7 @@ GameObject:
   - component: {fileID: 3511024855028946509}
   m_Layer: 0
   m_Name: mixamorig:RightHandPinky1
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -9934,7 +9934,7 @@ GameObject:
   - component: {fileID: 4488313650103285852}
   m_Layer: 0
   m_Name: Flame
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -14780,7 +14780,7 @@ GameObject:
   - component: {fileID: 3165503531335069743}
   m_Layer: 0
   m_Name: Swivel
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -14865,7 +14865,7 @@ GameObject:
   - component: {fileID: 3643378505524124005}
   m_Layer: 8
   m_Name: Wheel_RL
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -14909,6 +14909,8 @@ MonoBehaviour:
   health: 100
   maxHealth: 100
   type: 0
+  damageThreshold: 5
+  canBeDestroyed: 1
 --- !u!23 &7316899107765561810
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -14984,7 +14986,7 @@ GameObject:
   - component: {fileID: 9088441495179261661}
   m_Layer: 0
   m_Name: Front
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -15019,7 +15021,7 @@ GameObject:
   - component: {fileID: 1125416378043663147}
   m_Layer: 9
   m_Name: Wheel_FL
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -15052,7 +15054,7 @@ GameObject:
   - component: {fileID: 5153520072378874536}
   m_Layer: 0
   m_Name: mixamorig:RightHandRing1
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -15084,7 +15086,7 @@ GameObject:
   - component: {fileID: 3942779237013346249}
   m_Layer: 0
   m_Name: mixamorig:RightForeArm
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -15116,7 +15118,7 @@ GameObject:
   - component: {fileID: 8803707678620434018}
   m_Layer: 0
   m_Name: mixamorig:RightArm
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -15148,7 +15150,7 @@ GameObject:
   - component: {fileID: 1245946746541999804}
   m_Layer: 0
   m_Name: mixamorig:LeftHandThumb3
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -15180,7 +15182,7 @@ GameObject:
   - component: {fileID: 5134350516351851436}
   m_Layer: 0
   m_Name: mixamorig:Head
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -15214,7 +15216,7 @@ GameObject:
   - component: {fileID: 2887246384432247932}
   m_Layer: 0
   m_Name: mixamorig:RightHandRing4
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -15245,7 +15247,7 @@ GameObject:
   - component: {fileID: 3294148679931921767}
   m_Layer: 0
   m_Name: mixamorig:RightShoulder
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -15470,7 +15472,7 @@ GameObject:
   - component: {fileID: 5947600105688247283}
   m_Layer: 0
   m_Name: mixamorig:LeftToe_End
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -15502,7 +15504,7 @@ GameObject:
   - component: {fileID: 3846781394881515783}
   m_Layer: 0
   m_Name: Erika_Archer_Body_Mesh
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -15653,7 +15655,7 @@ GameObject:
   - component: {fileID: 2406172808122810232}
   m_Layer: 0
   m_Name: MuzzleFlash1
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: -1077886335, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -15689,7 +15691,7 @@ GameObject:
   - component: {fileID: 2853871440842621827}
   m_Layer: 0
   m_Name: mixamorig:RightHandThumb3
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -15770,6 +15772,8 @@ MonoBehaviour:
   health: 110
   maxHealth: 100
   type: 2
+  damageThreshold: 5
+  canBeDestroyed: 1
 --- !u!23 &2971031694701969907
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -15846,8 +15850,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7834d19337b7b0a42b969a64bf020b8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  targetBodies: []
   maxDeformDepth: 0.2
   globalFalloffPower: 2
+  impactRadius: 0.5
+  deformationHardness: 0.05
 --- !u!1 &1358124663781145437
 GameObject:
   m_ObjectHideFlags: 0
@@ -15859,7 +15866,7 @@ GameObject:
   - component: {fileID: 7785287104878677604}
   m_Layer: 0
   m_Name: mixamorig:RightHandIndex2
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -15927,7 +15934,7 @@ GameObject:
   - component: {fileID: 5906861649993392462}
   m_Layer: 0
   m_Name: SpineAim
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -16154,6 +16161,8 @@ MonoBehaviour:
   health: 100
   maxHealth: 100
   type: 2
+  damageThreshold: 5
+  canBeDestroyed: 1
 --- !u!153 &1036170434070191715
 ConfigurableJoint:
   m_ObjectHideFlags: 0
@@ -16268,8 +16277,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7834d19337b7b0a42b969a64bf020b8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  targetBodies: []
   maxDeformDepth: 0.2
   globalFalloffPower: 2
+  impactRadius: 0.5
+  deformationHardness: 0.05
 --- !u!1 &1551357835299837248
 GameObject:
   m_ObjectHideFlags: 0
@@ -16281,7 +16293,7 @@ GameObject:
   - component: {fileID: 5695894395231198671}
   m_Layer: 0
   m_Name: mixamorig:LeftToeBase
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -21003,7 +21015,7 @@ GameObject:
   - component: {fileID: 4701251860317078070}
   m_Layer: 0
   m_Name: mixamorig:RightHandThumb2
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -21037,7 +21049,7 @@ GameObject:
   - component: {fileID: 3306883184018873137}
   m_Layer: 0
   m_Name: Smoke
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -25952,7 +25964,7 @@ GameObject:
   - component: {fileID: 689472915734406584}
   m_Layer: 8
   m_Name: Cube
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -26059,6 +26071,8 @@ MonoBehaviour:
   health: 100
   maxHealth: 100
   type: 3
+  damageThreshold: 5
+  canBeDestroyed: 1
 --- !u!1 &1811420109861247497
 GameObject:
   m_ObjectHideFlags: 0
@@ -26074,7 +26088,7 @@ GameObject:
   - component: {fileID: 281153134437511757}
   m_Layer: 8
   m_Name: Cube (4)
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -26181,6 +26195,8 @@ MonoBehaviour:
   health: 100
   maxHealth: 100
   type: 3
+  damageThreshold: 5
+  canBeDestroyed: 1
 --- !u!1 &2102000525018314667
 GameObject:
   m_ObjectHideFlags: 0
@@ -26192,7 +26208,7 @@ GameObject:
   - component: {fileID: 8923722639498562991}
   m_Layer: 8
   m_Name: COM
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -26223,7 +26239,7 @@ GameObject:
   - component: {fileID: 36648916234771070}
   m_Layer: 0
   m_Name: mixamorig:RightEye
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -26254,7 +26270,7 @@ GameObject:
   - component: {fileID: 8588738787864862470}
   m_Layer: 0
   m_Name: mixamorig:LeftHandIndex1
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -26286,7 +26302,7 @@ GameObject:
   - component: {fileID: 5371245773248347949}
   m_Layer: 0
   m_Name: mixamorig:LeftHandPinky2
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -26318,7 +26334,7 @@ GameObject:
   - component: {fileID: 8085328510050328841}
   m_Layer: 9
   m_Name: Wheel_RR
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -26351,7 +26367,7 @@ GameObject:
   - component: {fileID: 9050689827097859302}
   m_Layer: 0
   m_Name: mixamorig:RightHandIndex4
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -26384,7 +26400,7 @@ GameObject:
   - component: {fileID: 6552796666378008528}
   m_Layer: 0
   m_Name: Point light
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -26611,7 +26627,7 @@ GameObject:
   - component: {fileID: 5577900129270228946}
   m_Layer: 8
   m_Name: Cube (1)
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -26718,6 +26734,8 @@ MonoBehaviour:
   health: 100
   maxHealth: 100
   type: 3
+  damageThreshold: 5
+  canBeDestroyed: 1
 --- !u!1 &2394601613002373719
 GameObject:
   m_ObjectHideFlags: 0
@@ -26731,7 +26749,7 @@ GameObject:
   - component: {fileID: 2311405986407953785}
   m_Layer: 0
   m_Name: MuzzleFlash
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -31587,7 +31605,7 @@ GameObject:
   - component: {fileID: 5338700072085576166}
   m_Layer: 0
   m_Name: cm
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -36592,6 +36610,8 @@ MonoBehaviour:
   health: 200
   maxHealth: 100
   type: 1
+  damageThreshold: 5
+  canBeDestroyed: 1
 --- !u!23 &8770667869576411345
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -36801,8 +36821,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7834d19337b7b0a42b969a64bf020b8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  targetBodies: []
   maxDeformDepth: 0.2
   globalFalloffPower: 2
+  impactRadius: 0.5
+  deformationHardness: 0.05
 --- !u!1 &2773654338052857746
 GameObject:
   m_ObjectHideFlags: 0
@@ -37025,7 +37048,7 @@ GameObject:
   - component: {fileID: 862573143125356354}
   m_Layer: 0
   m_Name: mixamorig:RightHandMiddle2
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -37104,7 +37127,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2811508339192476586}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6ee340e0287e1cb46bc1de15ec1c32dd, type: 3}
   m_Name: 
@@ -37112,7 +37135,9 @@ MonoBehaviour:
   partName: Body
   health: 400
   maxHealth: 100
-  type: 3
+  type: 2
+  damageThreshold: 5
+  canBeDestroyed: 0
 --- !u!23 &430286944820645325
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -37191,8 +37216,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7834d19337b7b0a42b969a64bf020b8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  targetBodies:
+  - {fileID: 6184324446367819972}
+  - {fileID: 3509771535294129845}
+  - {fileID: 6432411106698307805}
+  - {fileID: 2317340655247868838}
+  - {fileID: 1306212938420723424}
   maxDeformDepth: 0.2
   globalFalloffPower: 2
+  impactRadius: 0.5
+  deformationHardness: 0.05
 --- !u!1 &2852750378924641765
 GameObject:
   m_ObjectHideFlags: 0
@@ -37239,7 +37272,7 @@ GameObject:
   - component: {fileID: 5889548016891026814}
   m_Layer: 0
   m_Name: mixamorig:Neck
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -37271,7 +37304,7 @@ GameObject:
   - component: {fileID: 942240124489585591}
   m_Layer: 0
   m_Name: mixamorig:Hips
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -37305,7 +37338,7 @@ GameObject:
   - component: {fileID: 1503791195841959937}
   m_Layer: 0
   m_Name: mixamorig:RightFoot
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -37501,7 +37534,7 @@ GameObject:
   - component: {fileID: 247353021466988534}
   m_Layer: 0
   m_Name: IndicatorLight
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 7148428337604731935, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -37742,7 +37775,7 @@ GameObject:
   - component: {fileID: 4461476901048678990}
   m_Layer: 0
   m_Name: ReverseLight
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 7866945982896999795, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -37851,7 +37884,7 @@ GameObject:
   - component: {fileID: 7584292647204966517}
   m_Layer: 0
   m_Name: mixamorig:LeftHandRing1
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -37934,7 +37967,7 @@ GameObject:
   - component: {fileID: 2686624201717765312}
   m_Layer: 0
   m_Name: mixamorig:Spine
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -37966,7 +37999,7 @@ GameObject:
   - component: {fileID: 752826639225502348}
   m_Layer: 0
   m_Name: mixamorig:Spine1
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -37998,7 +38031,7 @@ GameObject:
   - component: {fileID: 2707459292531184325}
   m_Layer: 0
   m_Name: rightArm_hint
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -38029,7 +38062,7 @@ GameObject:
   - component: {fileID: 238415871944001155}
   m_Layer: 0
   m_Name: mixamorig:RightHandRing2
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -38061,7 +38094,7 @@ GameObject:
   - component: {fileID: 8019449416890491782}
   m_Layer: 9
   m_Name: Wheel_FR
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -38144,6 +38177,8 @@ MonoBehaviour:
   health: 100
   maxHealth: 100
   type: 2
+  damageThreshold: 5
+  canBeDestroyed: 1
 --- !u!23 &1706906905152106086
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -38221,8 +38256,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7834d19337b7b0a42b969a64bf020b8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  targetBodies: []
   maxDeformDepth: 0.2
   globalFalloffPower: 2
+  impactRadius: 0.5
+  deformationHardness: 0.05
 --- !u!1 &3706387612867741631
 GameObject:
   m_ObjectHideFlags: 0
@@ -38287,6 +38325,8 @@ MonoBehaviour:
   health: 200
   maxHealth: 100
   type: 1
+  damageThreshold: 5
+  canBeDestroyed: 1
 --- !u!23 &7332055724785955566
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -38519,8 +38559,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7834d19337b7b0a42b969a64bf020b8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  targetBodies: []
   maxDeformDepth: 0.2
   globalFalloffPower: 2
+  impactRadius: 0.5
+  deformationHardness: 0.05
 --- !u!1 &3746268471571602906
 GameObject:
   m_ObjectHideFlags: 0
@@ -38532,7 +38575,7 @@ GameObject:
   - component: {fileID: 8406789673482366678}
   m_Layer: 0
   m_Name: mixamorig:LeftHandIndex2
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -38568,7 +38611,7 @@ GameObject:
   - component: {fileID: 6281760977948706027}
   m_Layer: 8
   m_Name: Cube (2)
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -38675,6 +38718,8 @@ MonoBehaviour:
   health: 100
   maxHealth: 100
   type: 3
+  damageThreshold: 5
+  canBeDestroyed: 1
 --- !u!1 &3814339282733870040
 GameObject:
   m_ObjectHideFlags: 0
@@ -38686,7 +38731,7 @@ GameObject:
   - component: {fileID: 3235417708229029262}
   m_Layer: 0
   m_Name: mixamorig:RightToe_End
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -38717,7 +38762,7 @@ GameObject:
   - component: {fileID: 6686584550156753577}
   m_Layer: 0
   m_Name: mixamorig:LeftHandRing3
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -38751,7 +38796,7 @@ GameObject:
   - component: {fileID: 4845999226922502703}
   m_Layer: 0
   m_Name: Particle System_C
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -43591,7 +43636,7 @@ GameObject:
   - component: {fileID: 3444686560324463086}
   m_Layer: 8
   m_Name: COM
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -43624,7 +43669,7 @@ GameObject:
   - component: {fileID: 3200507648365470323}
   m_Layer: 0
   m_Name: IndicatorLight_D
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 7148428337604731935, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -43735,7 +43780,7 @@ GameObject:
   - component: {fileID: 7472711957573444372}
   m_Layer: 0
   m_Name: BrakeLight
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -43848,7 +43893,7 @@ GameObject:
   - component: {fileID: 7667740770989999499}
   m_Layer: 8
   m_Name: Wheel_RR
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -43892,6 +43937,8 @@ MonoBehaviour:
   health: 100
   maxHealth: 100
   type: 0
+  damageThreshold: 5
+  canBeDestroyed: 1
 --- !u!23 &4733941120842164432
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -43967,7 +44014,7 @@ GameObject:
   - component: {fileID: 4277811595492491046}
   m_Layer: 0
   m_Name: mixamorig:LeftArm
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -44001,7 +44048,7 @@ GameObject:
   - component: {fileID: 8891343100714660206}
   m_Layer: 0
   m_Name: ReverseLight_D
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 7866945982896999795, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -44110,7 +44157,7 @@ GameObject:
   - component: {fileID: 2237710473844214745}
   m_Layer: 0
   m_Name: mixamorig:RightHandMiddle4
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -44141,7 +44188,7 @@ GameObject:
   - component: {fileID: 3014987364703129221}
   m_Layer: 0
   m_Name: mixamorig:LeftHandThumb2
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -44422,6 +44469,8 @@ MonoBehaviour:
   health: 100
   maxHealth: 100
   type: 2
+  damageThreshold: 5
+  canBeDestroyed: 1
 --- !u!64 &4901601809952506840
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -44526,7 +44575,7 @@ GameObject:
   - component: {fileID: 2332525032236958740}
   m_Layer: 0
   m_Name: mixamorig:LeftLeg
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -44562,7 +44611,7 @@ GameObject:
   - component: {fileID: 6120885539408992702}
   m_Layer: 8
   m_Name: Wheel_FR
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -44606,6 +44655,8 @@ MonoBehaviour:
   health: 100
   maxHealth: 100
   type: 0
+  damageThreshold: 5
+  canBeDestroyed: 1
 --- !u!23 &1866785389506922039
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -44681,7 +44732,7 @@ GameObject:
   - component: {fileID: 9045235998129431434}
   m_Layer: 0
   m_Name: mixamorig:LeftHandMiddle4
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -44795,7 +44846,7 @@ GameObject:
   - component: {fileID: 2058677431726015987}
   m_Layer: 0
   m_Name: mixamorig:Spine2
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -54456,7 +54507,7 @@ GameObject:
   - component: {fileID: 4244078179542876970}
   m_Layer: 0
   m_Name: mixamorig:RightHandThumb1
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -54489,7 +54540,7 @@ GameObject:
   - component: {fileID: 527873095695380737}
   m_Layer: 0
   m_Name: leftArm
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -54544,7 +54595,7 @@ GameObject:
   - component: {fileID: 4527393014859218552}
   m_Layer: 0
   m_Name: leftArm_hint
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -54575,7 +54626,7 @@ GameObject:
   - component: {fileID: 5598200780272613969}
   m_Layer: 8
   m_Name: COLLIDERS
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -54612,7 +54663,7 @@ GameObject:
   - component: {fileID: 1251119759674953475}
   m_Layer: 0
   m_Name: (HINT)RightArmTarget
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -54701,7 +54752,7 @@ GameObject:
   - component: {fileID: 3496799128692235113}
   m_Layer: 0
   m_Name: mixamorig:RightLeg
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -54737,7 +54788,7 @@ GameObject:
   - component: {fileID: 5629295991765780359}
   m_Layer: 8
   m_Name: Cube (5)
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -54844,6 +54895,8 @@ MonoBehaviour:
   health: 100
   maxHealth: 100
   type: 3
+  damageThreshold: 5
+  canBeDestroyed: 1
 --- !u!1 &4940550708436437274
 GameObject:
   m_ObjectHideFlags: 0
@@ -54983,7 +55036,7 @@ GameObject:
   - component: {fileID: 1125412979039074719}
   m_Layer: 0
   m_Name: BloodSprayFX
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -55018,7 +55071,7 @@ GameObject:
   - component: {fileID: 2471220694893061898}
   m_Layer: 0
   m_Name: Erika_Archer_Clothes_Mesh
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -55169,7 +55222,7 @@ GameObject:
   - component: {fileID: 5714399834043682282}
   m_Layer: 0
   m_Name: mixamorig:LeftUpLeg
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -55204,7 +55257,7 @@ GameObject:
   - component: {fileID: 7218701386913598223}
   m_Layer: 0
   m_Name: cm
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -55296,7 +55349,7 @@ GameObject:
   - component: {fileID: 5828292695758432254}
   m_Layer: 0
   m_Name: mixamorig:LeftHandMiddle1
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -55328,7 +55381,7 @@ GameObject:
   - component: {fileID: 489689312302655697}
   m_Layer: 0
   m_Name: mixamorig:LeftHandIndex4
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -55392,7 +55445,7 @@ GameObject:
   - component: {fileID: 5842215924313746968}
   m_Layer: 0
   m_Name: HeadLight
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 7422848464349959988, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -55501,7 +55554,7 @@ GameObject:
   - component: {fileID: 2888843752114172393}
   m_Layer: 0
   m_Name: mixamorig:LeftEye
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -55532,7 +55585,7 @@ GameObject:
   - component: {fileID: 4012494130977526889}
   m_Layer: 0
   m_Name: mixamorig:RightHandPinky3
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -55564,7 +55617,7 @@ GameObject:
   - component: {fileID: 9157857476734711790}
   m_Layer: 0
   m_Name: mixamorig:RightHand
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -55686,7 +55739,7 @@ GameObject:
   - component: {fileID: 8209401153657970569}
   m_Layer: 0
   m_Name: Cube
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -55929,7 +55982,7 @@ GameObject:
   - component: {fileID: 1736165934486504381}
   m_Layer: 0
   m_Name: rightArm_target
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -60654,7 +60707,7 @@ GameObject:
   - component: {fileID: 2331677214921308210}
   m_Layer: 8
   m_Name: Wheel_FL
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -60698,6 +60751,8 @@ MonoBehaviour:
   health: 100
   maxHealth: 100
   type: 0
+  damageThreshold: 5
+  canBeDestroyed: 1
 --- !u!23 &8646558291687247247
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -60856,7 +60911,7 @@ GameObject:
   - component: {fileID: 8476832727116545319}
   m_Layer: 0
   m_Name: RightArmTarget
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -60953,7 +61008,7 @@ GameObject:
   - component: {fileID: 5069058582067159834}
   m_Layer: 0
   m_Name: mixamorig:RightHandMiddle3
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -60986,7 +61041,7 @@ GameObject:
   - component: {fileID: 2898756535192475634}
   m_Layer: 0
   m_Name: Erika_Archer_Eyelashes_Mesh
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -61137,7 +61192,7 @@ GameObject:
   - component: {fileID: 8685654584926877450}
   m_Layer: 9
   m_Name: Wheel_RL
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -61222,6 +61277,8 @@ MonoBehaviour:
   health: 100
   maxHealth: 100
   type: 2
+  damageThreshold: 5
+  canBeDestroyed: 1
 --- !u!23 &3723945271978283058
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -61428,8 +61485,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7834d19337b7b0a42b969a64bf020b8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  targetBodies: []
   maxDeformDepth: 0.2
   globalFalloffPower: 2
+  impactRadius: 0.5
+  deformationHardness: 0.05
 --- !u!1 &5734874233391952137
 GameObject:
   m_ObjectHideFlags: 0
@@ -61513,7 +61573,7 @@ GameObject:
   - component: {fileID: 5661187687687577802}
   m_Layer: 0
   m_Name: (HINT)LeftArmTarget
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -61579,7 +61639,7 @@ GameObject:
   - component: {fileID: 2105026682803970237}
   m_Layer: 0
   m_Name: Erika Archer
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -61740,7 +61800,7 @@ GameObject:
   - component: {fileID: 4617884478358883889}
   m_Layer: 0
   m_Name: mixamorig:LeftHandThumb1
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -61854,7 +61914,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7682845821421237743}
   m_Layer: 8
-  m_Name: Target
+  m_Name: GunPivot
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -61886,7 +61946,7 @@ GameObject:
   - component: {fileID: 3814692230522247602}
   m_Layer: 0
   m_Name: mixamorig:RightHandPinky2
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -61918,7 +61978,7 @@ GameObject:
   - component: {fileID: 3790555172325621446}
   m_Layer: 0
   m_Name: mixamorig:LeftHandRing2
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -61950,7 +62010,7 @@ GameObject:
   - component: {fileID: 2447342632284934860}
   m_Layer: 0
   m_Name: mixamorig:LeftHandThumb4
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -66671,7 +66731,7 @@ GameObject:
   - component: {fileID: 3704768202128533617}
   m_Layer: 0
   m_Name: mixamorig:RightToeBase
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -66705,7 +66765,7 @@ GameObject:
   - component: {fileID: 3412038612421932165}
   m_Layer: 0
   m_Name: HeadLight_D
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 7422848464349959988, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -66897,7 +66957,7 @@ GameObject:
   - component: {fileID: 9065894922758874021}
   m_Layer: 0
   m_Name: mixamorig:LeftHandPinky1
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -66933,7 +66993,7 @@ GameObject:
   - component: {fileID: 2974731557442075401}
   m_Layer: 8
   m_Name: Cube (3)
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -67040,6 +67100,8 @@ MonoBehaviour:
   health: 100
   maxHealth: 100
   type: 3
+  damageThreshold: 5
+  canBeDestroyed: 1
 --- !u!1 &7258037678485933945
 GameObject:
   m_ObjectHideFlags: 0
@@ -67051,7 +67113,7 @@ GameObject:
   - component: {fileID: 6516751537102966384}
   m_Layer: 0
   m_Name: mixamorig:RightUpLeg
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -67083,7 +67145,7 @@ GameObject:
   - component: {fileID: 7313171770286385309}
   m_Layer: 0
   m_Name: mixamorig:LeftHandIndex3
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -67115,7 +67177,7 @@ GameObject:
   - component: {fileID: 4738332201849259589}
   m_Layer: 0
   m_Name: mixamorig:RightHandPinky4
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -67146,7 +67208,7 @@ GameObject:
   - component: {fileID: 3841301082776721851}
   m_Layer: 0
   m_Name: mixamorig:RightHandIndex1
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -67178,7 +67240,7 @@ GameObject:
   - component: {fileID: 8414648117890968095}
   m_Layer: 0
   m_Name: mixamorig:LeftHandMiddle3
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -67243,7 +67305,7 @@ GameObject:
   - component: {fileID: 8847237201403155466}
   m_Layer: 0
   m_Name: MGMain
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -67324,7 +67386,7 @@ GameObject:
   - component: {fileID: 5135846028358725441}
   m_Layer: 0
   m_Name: mixamorig:LeftHandMiddle2
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -67439,7 +67501,7 @@ GameObject:
   - component: {fileID: 4179399687039762468}
   m_Layer: 0
   m_Name: mixamorig:LeftHandRing4
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -67560,6 +67622,8 @@ MonoBehaviour:
   health: 100
   maxHealth: 100
   type: 2
+  damageThreshold: 5
+  canBeDestroyed: 1
 --- !u!64 &6652792304957169971
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -67593,7 +67657,7 @@ GameObject:
   - component: {fileID: 8700725429366765741}
   m_Layer: 0
   m_Name: mixamorig:HeadTop_End
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -67624,7 +67688,7 @@ GameObject:
   - component: {fileID: 1244652610572452502}
   m_Layer: 0
   m_Name: mixamorig:RightHandIndex3
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -67657,7 +67721,7 @@ GameObject:
   - component: {fileID: 3522714053510895062}
   m_Layer: 0
   m_Name: Erika_Archer_Eyes_Mesh
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -67808,7 +67872,7 @@ GameObject:
   - component: {fileID: 6989579072768366974}
   m_Layer: 0
   m_Name: leftArm_target
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -67839,7 +67903,7 @@ GameObject:
   - component: {fileID: 8836499131149857133}
   m_Layer: 0
   m_Name: mixamorig:RightHandRing3
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -67871,7 +67935,7 @@ GameObject:
   - component: {fileID: 9058107140653892907}
   m_Layer: 0
   m_Name: mixamorig:LeftShoulder
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -67903,7 +67967,7 @@ GameObject:
   - component: {fileID: 2966923280655687462}
   m_Layer: 0
   m_Name: mixamorig:RightHandMiddle1
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -67936,7 +68000,7 @@ GameObject:
   - component: {fileID: 268732356130114928}
   m_Layer: 0
   m_Name: rightArm
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -67991,7 +68055,7 @@ GameObject:
   - component: {fileID: 1395846008386747125}
   m_Layer: 0
   m_Name: mixamorig:LeftHandPinky4
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -68022,7 +68086,7 @@ GameObject:
   - component: {fileID: 6433385832871852132}
   m_Layer: 0
   m_Name: mixamorig:RightHandThumb4
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -68053,7 +68117,7 @@ GameObject:
   - component: {fileID: 7580675031175531297}
   m_Layer: 8
   m_Name: COM
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -68156,7 +68220,7 @@ GameObject:
   - component: {fileID: 5829828318809133493}
   m_Layer: 0
   m_Name: mixamorig:LeftHand
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -68194,7 +68258,7 @@ GameObject:
   - component: {fileID: 5067857220316651983}
   m_Layer: 0
   m_Name: Particle System_B
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -73034,7 +73098,7 @@ GameObject:
   - component: {fileID: 5134237902216078506}
   m_Layer: 0
   m_Name: mixamorig:LeftForeArm
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -73066,7 +73130,7 @@ GameObject:
   - component: {fileID: 5201918261384298187}
   m_Layer: 0
   m_Name: LeftArmTarget
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -73099,7 +73163,7 @@ GameObject:
   - component: {fileID: 205329767350200468}
   m_Layer: 0
   m_Name: BrakeLight_D
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: -5442936267250999957, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -73231,7 +73295,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9065658817380356667}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 208.96, y: 12.228082, z: 234.51}
   m_LocalScale: {x: 0.7, y: 0.7, z: 0.7}
   m_ConstrainProportionsScale: 0
@@ -73333,9 +73397,9 @@ MonoBehaviour:
     health: 100
     sandParticles: {fileID: 5976683088841022049}
   baseMotorTorque: 1000
-  maxSteerAngle: 30
-  brakeForce: 3000
-  scrapingFriction: 500
+  maxSteerAngle: 80
+  brakeForce: 10000
+  scrapingFriction: 200
 --- !u!114 &2284003672890669868
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -73532,8 +73596,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   smokeParticles: {fileID: 8300490971566776112}
   fireParticles: {fileID: 390027455964212183}
-  smokeThreshold: 0.47
-  fireThreshold: 0.05
+  smokeThreshold: 0.5
+  fireThreshold: 0.1
 --- !u!65 &6573372534345391196
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -73566,7 +73630,7 @@ GameObject:
   - component: {fileID: 3816218676046826564}
   m_Layer: 0
   m_Name: mixamorig:LeftFoot
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -73599,7 +73663,7 @@ GameObject:
   - component: {fileID: 4096677443710568938}
   m_Layer: 0
   m_Name: Rig 1
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -73680,6 +73744,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: RCCWheelSlipSand
       objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: 19d4c8eda967b7547af76ca0165fc47e, type: 3}
+      propertyPath: m_TagString
+      value: Player
+      objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 19d4c8eda967b7547af76ca0165fc47e, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -73724,6 +73792,14 @@ PrefabInstance:
       propertyPath: playOnAwake
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1067017748486444, guid: 19d4c8eda967b7547af76ca0165fc47e, type: 3}
+      propertyPath: m_TagString
+      value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 1535218473871316, guid: 19d4c8eda967b7547af76ca0165fc47e, type: 3}
+      propertyPath: m_TagString
+      value: Player
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -73750,6 +73826,10 @@ PrefabInstance:
     - target: {fileID: 100000, guid: 19d4c8eda967b7547af76ca0165fc47e, type: 3}
       propertyPath: m_Name
       value: RCCWheelSlipSand
+      objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: 19d4c8eda967b7547af76ca0165fc47e, type: 3}
+      propertyPath: m_TagString
+      value: Player
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 19d4c8eda967b7547af76ca0165fc47e, type: 3}
       propertyPath: m_LocalPosition.x
@@ -73791,6 +73871,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1067017748486444, guid: 19d4c8eda967b7547af76ca0165fc47e, type: 3}
+      propertyPath: m_TagString
+      value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 1535218473871316, guid: 19d4c8eda967b7547af76ca0165fc47e, type: 3}
+      propertyPath: m_TagString
+      value: Player
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -73817,6 +73905,10 @@ PrefabInstance:
     - target: {fileID: 100000, guid: 19d4c8eda967b7547af76ca0165fc47e, type: 3}
       propertyPath: m_Name
       value: RCCWheelSlipSand (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: 19d4c8eda967b7547af76ca0165fc47e, type: 3}
+      propertyPath: m_TagString
+      value: Player
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 19d4c8eda967b7547af76ca0165fc47e, type: 3}
       propertyPath: m_LocalPosition.x
@@ -73861,6 +73953,14 @@ PrefabInstance:
     - target: {fileID: 19800000, guid: 19d4c8eda967b7547af76ca0165fc47e, type: 3}
       propertyPath: playOnAwake
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1067017748486444, guid: 19d4c8eda967b7547af76ca0165fc47e, type: 3}
+      propertyPath: m_TagString
+      value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 1535218473871316, guid: 19d4c8eda967b7547af76ca0165fc47e, type: 3}
+      propertyPath: m_TagString
+      value: Player
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -73929,6 +74029,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: GameObject
       objectReference: {fileID: 0}
+    - target: {fileID: 8320197386923102124, guid: 7308b5f3111b2654dbea70a27e3bc5b0, type: 3}
+      propertyPath: m_TagString
+      value: Player
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -73996,6 +74100,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: GameObject
       objectReference: {fileID: 0}
+    - target: {fileID: 8320197386923102124, guid: 7308b5f3111b2654dbea70a27e3bc5b0, type: 3}
+      propertyPath: m_TagString
+      value: Player
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -74022,6 +74130,10 @@ PrefabInstance:
     - target: {fileID: 100000, guid: 19d4c8eda967b7547af76ca0165fc47e, type: 3}
       propertyPath: m_Name
       value: RCCWheelSlipSand
+      objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: 19d4c8eda967b7547af76ca0165fc47e, type: 3}
+      propertyPath: m_TagString
+      value: Player
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 19d4c8eda967b7547af76ca0165fc47e, type: 3}
       propertyPath: m_LocalPosition.x
@@ -74066,6 +74178,14 @@ PrefabInstance:
     - target: {fileID: 19800000, guid: 19d4c8eda967b7547af76ca0165fc47e, type: 3}
       propertyPath: playOnAwake
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1067017748486444, guid: 19d4c8eda967b7547af76ca0165fc47e, type: 3}
+      propertyPath: m_TagString
+      value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 1535218473871316, guid: 19d4c8eda967b7547af76ca0165fc47e, type: 3}
+      propertyPath: m_TagString
+      value: Player
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -74150,6 +74270,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: GameObject
       objectReference: {fileID: 0}
+    - target: {fileID: 8320197386923102124, guid: 7308b5f3111b2654dbea70a27e3bc5b0, type: 3}
+      propertyPath: m_TagString
+      value: Player
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -74216,6 +74340,10 @@ PrefabInstance:
     - target: {fileID: 8320197386923102124, guid: 7308b5f3111b2654dbea70a27e3bc5b0, type: 3}
       propertyPath: m_Name
       value: GameObject
+      objectReference: {fileID: 0}
+    - target: {fileID: 8320197386923102124, guid: 7308b5f3111b2654dbea70a27e3bc5b0, type: 3}
+      propertyPath: m_TagString
+      value: Player
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
