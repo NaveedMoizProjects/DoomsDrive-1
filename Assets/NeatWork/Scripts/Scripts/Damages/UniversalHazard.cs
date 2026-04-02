@@ -16,6 +16,12 @@ public class UniversalHazard : MonoBehaviour
     public float explosionForce = 1000f;
     public float effectLifeTime = 2.0f;
 
+    [Header("Ownership / Filtering")]
+    [Tooltip("If true the last owner tag set via SetupIgnoreTag will be preserved through OnEnable (useful for pooling).")]
+    public bool preserveOwnerOnEnable = true;
+    [Tooltip("If true the owner's tag will be ignored by the AOE explosion")]
+    public bool ignoreOwnerInAOE = true;
+
     private bool hasExploded = false;
     private string currentIgnoreTag = "";
     private Rigidbody rb;
@@ -37,7 +43,9 @@ public class UniversalHazard : MonoBehaviour
     void OnEnable()
     {
         hasExploded = false;
-        currentIgnoreTag = "";
+        // don't wipe owner when pooling; respect preserveOwnerOnEnable
+        if (!preserveOwnerOnEnable)
+            currentIgnoreTag = "";
 
         if (rb != null)
         {
@@ -107,6 +115,14 @@ public class UniversalHazard : MonoBehaviour
 
     void HandleBulletImpact(Vector3 point, Vector3 normal, string hitTag, Collider hitCollider)
     {
+        // Owner safety: do not apply direct damage to the owner tag
+        if (!string.IsNullOrEmpty(currentIgnoreTag) && hitCollider.CompareTag(currentIgnoreTag))
+        {
+            // just deactivate bullet quietly
+            gameObject.SetActive(false);
+            return;
+        }
+
         hasExploded = true;
         SpawnEffect(point, normal, hitTag);
 
@@ -124,7 +140,10 @@ public class UniversalHazard : MonoBehaviour
         // Explosion logic (damage and push)
         GameObject explosionLogic = new GameObject("ExplosionLogic");
         explosionLogic.transform.position = point;
-        explosionLogic.AddComponent<ExplosionShockwave>().Setup(explosionRadius, directDamage, explosionForce);
+        var shock = explosionLogic.AddComponent<ExplosionShockwave>();
+        // Pass owner tag so AOE can optionally ignore it
+        string ownerForAOE = ignoreOwnerInAOE ? currentIgnoreTag : "";
+        shock.Setup(explosionRadius, directDamage, explosionForce, ownerForAOE);
 
         if (type == HazardType.LandMine)
         {

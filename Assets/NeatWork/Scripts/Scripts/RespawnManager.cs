@@ -35,6 +35,9 @@ public class RespawnManager : MonoBehaviour
     public GameObject currentCar;
     private bool isDead = false;
 
+    // NEW: wheel-loss prompt state (non-destructive)
+    private bool promptActive = false;
+
     private void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(this.gameObject); return; }
@@ -94,14 +97,52 @@ public class RespawnManager : MonoBehaviour
         }
     }
 
+    // NEW: non-destructive prompt showing message and waiting for R (respawn) or C (continue)
+    public void PromptRespawn(string reason)
+    {
+        if (promptActive || isDead) return;
+        promptActive = true;
+        Time.timeScale = 0.5f;
+
+        string message = reason + "\n[R] RESPAWN    [C] CONTINUE";
+
+        if (MessageUIManager.Instance != null)
+            MessageUIManager.Instance.ProcessMessage(message, WorldTriggerMessage.MessageType.Warning, 10f);
+    }
+
     private void Update()
     {
+        // Keep existing death handling
         if (isDead && Input.GetKeyDown(KeyCode.R))
         {
             if (currentMode == GameMode.DragRace || respawnsRemaining > 0)
             {
                 if (currentMode == GameMode.CombatStory) respawnsRemaining--;
                 PerformRespawn();
+            }
+        }
+
+        // NEW: handle prompt input without destroying the car
+        if (promptActive)
+        {
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                // Respawn (soft): teleport current car to respawn anchor and fully heal
+                if (currentCar != null)
+                {
+                    if (currentMode == GameMode.CombatStory) respawnsRemaining = Mathf.Max(0, respawnsRemaining - 1);
+                    SoftResetCar(currentCar);
+                }
+                promptActive = false;
+                Time.timeScale = 1f;
+            }
+            else if (Input.GetKeyDown(KeyCode.C))
+            {
+                // Continue playing; keep current car as-is
+                promptActive = false;
+                Time.timeScale = 1f;
+                if (MessageUIManager.Instance != null)
+                    MessageUIManager.Instance.ProcessMessage("Continuing", WorldTriggerMessage.MessageType.Info, 2f);
             }
         }
     }
@@ -159,8 +200,74 @@ public class RespawnManager : MonoBehaviour
             rb.isKinematic = true;
         }
 
-        car.transform.position = targetPos + Vector3.up * 0.5f;
-        car.transform.rotation = targetRot;
+        // Restore old logic: place at nearest Track collider surface (ClosestPoint), otherwise use saved checkpoint's closest point,
+        // otherwise pick nearest nearby collider's closest point, otherwise fallback to provided position.
+        Collider chosenCollider = null;
+        Vector3 referencePoint = (car != null) ? car.transform.position : targetPos;
+
+        // 1) Search for the nearest 'Track' collider in a larger radius (prefer the main track)
+        float searchRadius = 20f;
+        Collider[] hits = Physics.OverlapSphere(targetPos, searchRadius);
+        float bestSqr = Mathf.Infinity;
+        for (int i = 0; i < hits.Length; i++)
+        {
+            var c = hits[i];
+            if (c == null) continue;
+            if (!c.enabled) continue;
+            // prefer track-tagged colliders first
+            if (c.CompareTag("Track"))
+            {
+                Vector3 cp = c.ClosestPoint(referencePoint);
+                float d = (cp - referencePoint).sqrMagnitude;
+                if (d < bestSqr)
+                {
+                    bestSqr = d;
+                    chosenCollider = c;
+                }
+            }
+        }
+
+        // 2) If no Track collider was found, prefer saved checkpoint collider (use its closest point)
+        if (chosenCollider == null && masterCheckpoints != null && savedCPIndex >= 0 && savedCPIndex < masterCheckpoints.Count)
+        {
+            Transform cp = masterCheckpoints[savedCPIndex];
+            if (cp != null)
+                chosenCollider = cp.GetComponent<Collider>() ?? cp.GetComponentInChildren<Collider>() ?? cp.GetComponentInParent<Collider>();
+        }
+
+        // 3) If still none, pick nearest collider from a small radius (previous behavior)
+        if (chosenCollider == null)
+        {
+            Collider[] nearby = Physics.OverlapSphere(targetPos, 2f);
+            float closestDist = Mathf.Infinity;
+            foreach (var col in nearby)
+            {
+                if (col == null) continue;
+                if (!col.enabled) continue;
+                Vector3 cp = col.ClosestPoint(referencePoint);
+                float d = (cp - referencePoint).sqrMagnitude;
+                if (d < closestDist)
+                {
+                    closestDist = d;
+                    chosenCollider = col;
+                }
+            }
+        }
+
+        // 4) Place at the collider's closest surface point (nearest track behavior). If none found, fallback to provided targetPos/targetRot.
+        if (chosenCollider != null)
+        {
+            Vector3 spawnPoint = chosenCollider.ClosestPoint(referencePoint) + Vector3.up * 0.5f;
+            Quaternion spawnRot = chosenCollider.transform.rotation;
+
+            car.transform.position = spawnPoint;
+            car.transform.rotation = spawnRot;
+        }
+        else
+        {
+            car.transform.position = targetPos + Vector3.up * 0.5f;
+            car.transform.rotation = targetRot;
+        }
 
         StartCoroutine(ReenablePhysicsAfterPlacement(rb));
     }

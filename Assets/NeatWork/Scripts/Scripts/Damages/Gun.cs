@@ -3,14 +3,21 @@ using UnityEngine;
 public class Gun : MonoBehaviour
 {
     [Header("Assignments")]
-    public string bulletPoolTag = "Bullet";
+    public string bulletPoolTag = "Bullet";             // generic fallback
+    public string playerBulletPoolTag = "PlayerBullet"; // pooled prefab tag for player bullets
+    public string enemyBulletPoolTag = "EnemyBullet";   // pooled prefab tag for enemy bullets
+
     public string ownerTag = "Player";
     public Transform spawnPoint;
     public ParticleSystem muzzleFlash;
     public AudioSource gunAudioSource;
 
+    [Header("Layer Names (create these in Unity Tags & Layers)")]
+    public string playerBulletLayerName = "PlayerBullet";
+    public string enemyBulletLayerName = "EnemyBullet";
+
     [Header("Settings")]
-    public float launchForce = 200f; // Updated to your preferred speed
+    public float launchForce = 200f;
     public float fireRate = 0.5f;
     private float nextTimeToShoot = 0f;
 
@@ -18,7 +25,6 @@ public class Gun : MonoBehaviour
 
     void Start()
     {
-        // Find the Rigidbody of the car this gun is attached to
         carRb = GetComponentInParent<Rigidbody>();
     }
 
@@ -33,42 +39,97 @@ public class Gun : MonoBehaviour
 
     void Shoot()
     {
+        if (spawnPoint == null)
+        {
+            Debug.LogWarning("Gun: spawnPoint is null.");
+            return;
+        }
+
         if (muzzleFlash != null) muzzleFlash.Play();
         if (gunAudioSource != null) gunAudioSource.Play();
 
-        // Standard 90-degree offset for horizontal capsule/cylinder meshes
         Quaternion bulletRotation = spawnPoint.rotation * Quaternion.Euler(90, 0, 0);
 
-        GameObject projectile = ObjectPooler.Instance.SpawnFromPool(bulletPoolTag, spawnPoint.position, bulletRotation);
-
-        if (projectile != null)
+        string chosenPoolTag;
+        string chosenLayerName;
+        if (ownerTag == "Player")
         {
-            // 1. Setup Hazard logic
-            UniversalHazard hazard = projectile.GetComponent<UniversalHazard>();
-            if (hazard != null) hazard.SetupIgnoreTag(ownerTag);
-
-            // 2. Ignore collisions with the shooter
-            Collider bulletCol = projectile.GetComponent<Collider>();
-            Collider carCol = GetComponentInParent<Collider>();
-            if (bulletCol != null && carCol != null)
-            {
-                Physics.IgnoreCollision(bulletCol, carCol, true);
-            }
-
-            // 3. Physics Handling
-            Rigidbody rb = projectile.GetComponent<Rigidbody>();
-            if (rb != null)
-            {
-                // Clear old pooling forces
-                rb.angularVelocity = Vector3.zero;
-
-                // INHERIT SPEED: If the car is moving at 50 units, 
-                // and we shoot at 200, the bullet should move at 250 units.
-                Vector3 carVelocity = (carRb != null) ? carRb.velocity : Vector3.zero;
-
-                // Directly set velocity for maximum precision at high speeds
-                rb.velocity = carVelocity + (spawnPoint.forward * launchForce);
-            }
+            chosenPoolTag = playerBulletPoolTag;
+            chosenLayerName = playerBulletLayerName;
         }
+        else
+        {
+            chosenPoolTag = !string.IsNullOrEmpty(enemyBulletPoolTag) ? enemyBulletPoolTag : bulletPoolTag;
+            chosenLayerName = enemyBulletLayerName;
+        }
+
+        // Spawn inactive so we can configure ownership/layer before physics wakes up.
+        GameObject projectile = ObjectPooler.Instance.SpawnFromPool(chosenPoolTag, spawnPoint.position, bulletRotation, false);
+        if (projectile == null && chosenPoolTag != bulletPoolTag)
+        {
+            Debug.LogWarning($"Gun: pool '{chosenPoolTag}' not found. Falling back to '{bulletPoolTag}'.");
+            projectile = ObjectPooler.Instance.SpawnFromPool(bulletPoolTag, spawnPoint.position, bulletRotation, false);
+        }
+
+        if (projectile == null)
+        {
+            Debug.LogWarning($"Gun: SpawnFromPool returned null for '{chosenPoolTag}' and fallback.");
+            return;
+        }
+
+        // set descriptive tag
+        projectile.tag = (ownerTag == "Player") ? "PlayerBullet" : "EnemyBullet";
+
+        // set layer recursively (so physics collision matrix applies)
+        int layer = LayerMask.NameToLayer(chosenLayerName);
+        if (layer == -1)
+        {
+            Debug.LogWarning($"Gun: Layer '{chosenLayerName}' not found. Set it in __Edit > Project Settings > Tags & Layers__.");
+        }
+        else
+        {
+            SetLayerRecursively(projectile, layer);
+        }
+
+        // setup hazard/ownership for pooled bullets
+        UniversalHazard hazard = projectile.GetComponent<UniversalHazard>();
+        if (hazard != null)
+        {
+            hazard.SetupIgnoreTag(ownerTag);
+            hazard.preserveOwnerOnEnable = true;
+            hazard.ignoreOwnerInAOE = true;
+        }
+
+        // ignore collisions with shooter colliders (extra safety)
+        Collider[] projectileCols = projectile.GetComponentsInChildren<Collider>(true);
+        Collider[] shooterCols = GetComponentsInParent<Collider>();
+        foreach (var pCol in projectileCols)
+            foreach (var sCol in shooterCols)
+                if (pCol != null && sCol != null)
+                    Physics.IgnoreCollision(pCol, sCol, true);
+
+        // activate AFTER configuration
+        projectile.SetActive(true);
+
+        // set velocity AFTER activation (OnEnable may reset rb)
+        Rigidbody rb = projectile.GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.angularVelocity = Vector3.zero;
+            Vector3 carVelocity = (carRb != null) ? carRb.velocity : Vector3.zero;
+            rb.velocity = carVelocity + (spawnPoint.forward * launchForce);
+        }
+        else
+        {
+            Debug.LogWarning("Gun: spawned projectile missing Rigidbody.");
+        }
+    }
+
+    private void SetLayerRecursively(GameObject root, int layer)
+    {
+        if (root == null) return;
+        root.layer = layer;
+        foreach (Transform t in root.transform)
+            SetLayerRecursively(t.gameObject, layer);
     }
 }

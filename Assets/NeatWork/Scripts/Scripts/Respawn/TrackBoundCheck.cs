@@ -4,7 +4,7 @@ public class TrackBoundCheck : MonoBehaviour
 {
     [Header("Settings")]
     public string trackTag = "Track";
-    public KeyCode offTrackKey = KeyCode.R;
+    public KeyCode offTrackKey = KeyCode.G;
     public KeyCode libertyKey = KeyCode.G;
 
     [Header("Safe Spot Memory")]

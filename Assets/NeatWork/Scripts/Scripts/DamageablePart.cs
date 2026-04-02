@@ -1,5 +1,4 @@
 using UnityEngine;
-
 public class DamageablePart : MonoBehaviour
 {
     public string partName;
@@ -80,8 +79,12 @@ public class DamageablePart : MonoBehaviour
             if (controller != null)
             {
                 controller.DisconnectWheel(partName);
+
+                // SHOW PROMPT instead of immediate destroy
                 if (RespawnManager.Instance != null)
-                    RespawnManager.Instance.TriggerDeath("CRITICAL WHEEL LOSS");
+                {
+                    RespawnManager.Instance.PromptRespawn("CRITICAL WHEEL LOSS");
+                }
             }
             this.enabled = false;
             return;

@@ -64,16 +64,23 @@ public class ObjectPooler : MonoBehaviour
         poolDictionary.Add(tag, objectPool);
     }
 
-    public GameObject SpawnFromPool(string tag, Vector3 pos, Quaternion rot)
+    // Added optional 'activate' param. If false, caller must call SetActive(true) after configuring the instance.
+    public GameObject SpawnFromPool(string tag, Vector3 pos, Quaternion rot, bool activate = true)
     {
         if (!poolDictionary.ContainsKey(tag)) return null;
 
         GameObject obj = poolDictionary[tag].Dequeue();
+        // ensure object is deactivated while we position/configure it
         obj.SetActive(false);
         obj.transform.position = pos;
         obj.transform.rotation = rot;
-        obj.SetActive(true);
+
+        // return to queue immediately to preserve pool rotation
         poolDictionary[tag].Enqueue(obj);
+
+        if (activate)
+            obj.SetActive(true);
+
         return obj;
     }
 }

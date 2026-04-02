@@ -18,8 +18,15 @@ public class CarCollisionImpact : MonoBehaviour
     public AudioSource audioSource;
     public AudioClip crunchSound;
 
+    [Header("Ignore collisions from these layers (e.g. PlayerBullet / EnemyBullet)")]
+    public LayerMask ignoreCollisionLayers = 0;
+
     void OnCollisionEnter(Collision collision)
     {
+        // Ignore collisions from projectile layers to avoid bullets triggering large collision damage
+        if (((1 << collision.gameObject.layer) & ignoreCollisionLayers.value) != 0)
+            return;
+
         if (Time.time < lastImpactTime + impactCooldown) return;
 
         float impactForce = collision.relativeVelocity.magnitude;

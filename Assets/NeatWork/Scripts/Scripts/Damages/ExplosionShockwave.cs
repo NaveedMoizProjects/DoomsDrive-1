@@ -6,14 +6,23 @@ public class ExplosionShockwave : MonoBehaviour
     private float currentRadius = 0f;
     private float expansionSpeed;
 
+    private string ownerTag = "";
+
+    // Backwards-compatible Setup overloads
     public void Setup(float radius, float damage, float force)
     {
-        maxRadius = radius;
-        // Adjust expansionSpeed for how fast the red sphere grows
-        expansionSpeed = radius * 5f;
+        Setup(radius, damage, force, "");
+    }
 
-        // Apply the Damage and Force immediately using your helper
-        DamageGiver.SendExplosionDamage(transform.position, radius, damage, force);
+    // New: accept ownerTag so AOE can ignore owner
+    public void Setup(float radius, float damage, float force, string ownerToIgnore)
+    {
+        maxRadius = radius;
+        expansionSpeed = radius * 5f;
+        ownerTag = ownerToIgnore;
+
+        // Apply the Damage and Force immediately using your helper (owner-aware)
+        DamageGiver.SendExplosionDamage(transform.position, radius, damage, force, ownerTag);
     }
 
     void Update()

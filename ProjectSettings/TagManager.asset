@@ -9,6 +9,9 @@ TagManager:
   - CinemachineTarget
   - AI
   - Terrain
+  - Undefined
+  - PlayerBullet
+  - EnemyBullet
   layers:
   - Default
   - TransparentFX
@@ -25,8 +28,8 @@ TagManager:
   - RCC_Crasher
   - Ground
   - ShooterUI
-  - Projectile
-  - 
+  - PlayerBullet
+  - EnemyBullet
   - 
   - 
   - 
