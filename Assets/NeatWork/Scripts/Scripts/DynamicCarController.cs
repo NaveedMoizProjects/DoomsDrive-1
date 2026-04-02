@@ -1,11 +1,17 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class DynamicCarController : MonoBehaviour
 {
-    // ... Enums & Structs remain the same ...
     public enum DriveType { AllWheelDrive, FrontWheelDrive, RearWheelDrive }
-    public enum Axel { Front, Rear }
+
+    public enum WheelPosition
+    {
+        FrontLeft,
+        FrontRight,
+        RearLeft,
+        RearRight
+    }
 
     [System.Serializable]
     public struct Wheel
@@ -13,7 +19,7 @@ public class DynamicCarController : MonoBehaviour
         public string wheelName;
         public WheelCollider wheelCollider;
         public GameObject wheelModel;
-        public Axel axel;
+        public WheelPosition position; // 👈 updated
         public float health;
         public ParticleSystem sandParticles;
     }
@@ -29,7 +35,7 @@ public class DynamicCarController : MonoBehaviour
     public float scrapingFriction = 500f;
 
     private Rigidbody carRb;
-    private CarSettings carSettings; // cached reference to avoid repeated Instance calls and to allow null-checks
+    private CarSettings carSettings;
 
     void Start()
     {
@@ -39,7 +45,6 @@ public class DynamicCarController : MonoBehaviour
         if (carSettings == null)
             Debug.LogWarning("CarSettings Singleton missing! Using fallback defaults.");
 
-        // a conservative initial CoM, will be smoothed toward settings if available
         carRb.centerOfMass = new Vector3(0, -1.0f, 0);
     }
 
@@ -62,33 +67,41 @@ public class DynamicCarController : MonoBehaviour
         float steerInput = Input.GetAxis("Horizontal");
         bool isBraking = Input.GetKey(KeyCode.Space);
 
-        // read settings once with safe fallbacks
         float accelMultiplier = carSettings != null ? carSettings.globalAccelerationMultiplier : 1f;
         float suspHeight = carSettings != null ? carSettings.suspensionHeight : 0.2f;
 
         for (int i = 0; i < wheels.Count; i++)
         {
-            // CRITICAL: Stop all logic if collider is null
             if (wheels[i].wheelCollider == null) continue;
 
-            // Steering
-            if (wheels[i].axel == Axel.Front)
+            // ✅ Steering (ONLY front wheels)
+            if (wheels[i].position == WheelPosition.FrontLeft ||
+                wheels[i].position == WheelPosition.FrontRight)
+            {
                 wheels[i].wheelCollider.steerAngle = steerInput * maxSteerAngle;
+            }
 
-            // Drive Power
+            // ✅ Drive Power
             bool isPowered = false;
-            if (driveMode == DriveType.AllWheelDrive) isPowered = true;
-            else if (driveMode == DriveType.FrontWheelDrive && wheels[i].axel == Axel.Front) isPowered = true;
-            else if (driveMode == DriveType.RearWheelDrive && wheels[i].axel == Axel.Rear) isPowered = true;
+
+            if (driveMode == DriveType.AllWheelDrive)
+                isPowered = true;
+            else if (driveMode == DriveType.FrontWheelDrive &&
+                (wheels[i].position == WheelPosition.FrontLeft || wheels[i].position == WheelPosition.FrontRight))
+                isPowered = true;
+            else if (driveMode == DriveType.RearWheelDrive &&
+                (wheels[i].position == WheelPosition.RearLeft || wheels[i].position == WheelPosition.RearRight))
+                isPowered = true;
 
             if (isPowered)
                 wheels[i].wheelCollider.motorTorque = moveInput * baseMotorTorque * accelMultiplier;
             else
                 wheels[i].wheelCollider.motorTorque = 0;
 
+            // ✅ Brake (same as before)
             wheels[i].wheelCollider.brakeTorque = isBraking ? brakeForce : 0;
 
-            // Suspension - safely apply targetPosition
+            // Suspension
             var spring = wheels[i].wheelCollider.suspensionSpring;
             spring.targetPosition = suspHeight;
             wheels[i].wheelCollider.suspensionSpring = spring;
@@ -99,7 +112,6 @@ public class DynamicCarController : MonoBehaviour
 
     void UpdateVisuals(Wheel wheel)
     {
-        // Double check both exist before moving anything
         if (wheel.wheelModel == null || wheel.wheelCollider == null) return;
 
         Vector3 pos;
@@ -119,8 +131,6 @@ public class DynamicCarController : MonoBehaviour
                 Wheel wheel = wheels[i];
                 wheel.health -= amount;
                 wheels[i] = wheel;
-
-
                 return;
             }
         }
@@ -134,30 +144,24 @@ public class DynamicCarController : MonoBehaviour
             {
                 Wheel wheel = wheels[i];
 
-                // SAFETY: If already disconnected, exit
                 if (wheel.wheelCollider == null)
                     return;
 
-                // Rename collider to a predictable name so respawn can find it later
                 try
                 {
                     if (wheel.wheelCollider.gameObject != null && !string.IsNullOrEmpty(wheel.wheelName))
                         wheel.wheelCollider.gameObject.name = wheel.wheelName + "_Collider";
                 }
-                catch { /* ignore editor/runtime rename issues */ }
+                catch { }
 
-                // 2. DISABLE PHYSICS ON THE CAR
-                // Disable the collider FIRST so it stops asking for a Rigidbody
                 wheel.wheelCollider.enabled = false;
-                wheel.wheelCollider.transform.SetParent(this.transform); // Reparent to car
+                wheel.wheelCollider.transform.SetParent(this.transform);
                 wheel.wheelCollider.gameObject.SetActive(false);
 
-                // 3. HANDLE THE MESH
                 if (wheel.wheelModel != null)
                 {
                     GameObject meshObj = wheel.wheelModel;
 
-                    // Rename mesh so reattach logic can match it if needed
                     try
                     {
                         if (!string.IsNullOrEmpty(wheel.wheelName))
@@ -165,51 +169,42 @@ public class DynamicCarController : MonoBehaviour
                     }
                     catch { }
 
-                    // Store velocity before we break the hierarchy
                     Vector3 launchVelocity = carRb != null ? carRb.velocity : Vector3.zero;
 
-                    meshObj.transform.SetParent(null); // Now it's a free object
+                    meshObj.transform.SetParent(null);
 
-                    // 4. RIGIDBODY SAFETY CHECK
                     Rigidbody tireRb = meshObj.GetComponent<Rigidbody>();
                     if (tireRb == null)
-                    {
                         tireRb = meshObj.AddComponent<Rigidbody>();
-                    }
 
-                    // Now that we ARE SURE tireRb is not null, we can apply settings
                     tireRb.isKinematic = false;
                     tireRb.useGravity = true;
                     tireRb.mass = 20f;
                     tireRb.velocity = launchVelocity;
 
-                    // 5. COLLIDER SAFETY CHECK
                     MeshCollider tireCol = meshObj.GetComponent<MeshCollider>();
                     if (tireCol == null)
-                    {
                         tireCol = meshObj.AddComponent<MeshCollider>();
-                    }
+
                     tireCol.convex = true;
 
-                    // Ignore car body
                     Collider carCol = GetComponent<Collider>();
                     if (carCol != null && tireCol != null)
-                    {
                         Physics.IgnoreCollision(tireCol, carCol);
-                    }
 
-                    // Final Kick
-                    Vector3 sideDir = (wheel.axel == Axel.Front) ? transform.right : -transform.right;
+                    // 👉 Side kick based on LEFT/RIGHT
+                    Vector3 sideDir = (wheel.position == WheelPosition.FrontLeft || wheel.position == WheelPosition.RearLeft)
+                        ? -transform.right
+                        : transform.right;
+
                     tireRb.AddForce(sideDir * 5f, ForceMode.Impulse);
                 }
 
-                // 6. UPDATE THE LIST
-                // We set the collider to null so the loop knows this wheel is "dead"
                 wheel.wheelCollider = null;
                 wheels[i] = wheel;
 
                 Debug.Log($"<color=cyan>{targetName} disconnected successfully.</color>");
-                return; // Breakpoint here should work now
+                return;
             }
         }
     }
@@ -218,13 +213,20 @@ public class DynamicCarController : MonoBehaviour
     {
         foreach (var wheel in wheels)
         {
-            // If the collider is gone but we have a "positional marker" (the empty spot)
-            // Note: If wheelModel was unparented, we need to track the "Spawn Point"
             if (wheel.wheelCollider == null)
             {
-                // Pull down at the corner of the car
-                // (Using a generic offset since model is gone)
-                Vector3 dragPos = transform.TransformPoint(wheel.axel == Axel.Front ? new Vector3(0.8f, 0, 1.5f) : new Vector3(0.8f, 0, -1.5f));
+                Vector3 offset;
+
+                if (wheel.position == WheelPosition.FrontLeft)
+                    offset = new Vector3(-0.8f, 0, 1.5f);
+                else if (wheel.position == WheelPosition.FrontRight)
+                    offset = new Vector3(0.8f, 0, 1.5f);
+                else if (wheel.position == WheelPosition.RearLeft)
+                    offset = new Vector3(-0.8f, 0, -1.5f);
+                else
+                    offset = new Vector3(0.8f, 0, -1.5f);
+
+                Vector3 dragPos = transform.TransformPoint(offset);
 
                 carRb.AddForceAtPosition(Vector3.down * 1000f, dragPos);
                 Vector3 dragDir = -carRb.velocity.normalized;
@@ -235,7 +237,6 @@ public class DynamicCarController : MonoBehaviour
 
     void ApplyAirDrag()
     {
-        // safe read of air damping with sensible fallback
         float airDamp = carSettings != null ? carSettings.airDamping : 0.5f;
         float speed = carRb.velocity.magnitude;
         Vector3 dragForce = -carRb.velocity * (speed * airDamp);
