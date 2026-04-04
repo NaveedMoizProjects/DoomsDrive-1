@@ -130,6 +130,8 @@ MonoBehaviour:
   explosionRadius: 0
   explosionForce: 0
   effectLifeTime: 1.5
+  preserveOwnerOnEnable: 1
+  ignoreOwnerInAOE: 1
 --- !u!1 &4674007439880974894
 GameObject:
   m_ObjectHideFlags: 0

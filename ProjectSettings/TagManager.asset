@@ -10,8 +10,8 @@ TagManager:
   - AI
   - Terrain
   - Undefined
-  - PlayerBullet
   - EnemyBullet
+  - PlayerBullet
   layers:
   - Default
   - TransparentFX
