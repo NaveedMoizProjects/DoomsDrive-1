@@ -23,17 +23,73 @@ public class EnemyCarChaseAI : MonoBehaviour
 
     private Rigidbody rb;
 
+    void OnEnable()
+    {
+        // Subscribe if RespawnManager exists now
+        if (RespawnManager.Instance != null)
+            RespawnManager.Instance.OnPlayerSpawned += OnPlayerSpawned;
+    }
+
+    void OnDisable()
+    {
+        if (RespawnManager.Instance != null)
+            RespawnManager.Instance.OnPlayerSpawned -= OnPlayerSpawned;
+    }
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         rb.centerOfMass = new Vector3(0, -0.8f, 0);
+
+        // Try to acquire player at start
+        LocatePlayer();
     }
 
     void FixedUpdate()
     {
-        if (playerCar == null) return;
+        // If we don't have a player, try to find one (covers startup ordering / missed events)
+        if (playerCar == null)
+        {
+            LocatePlayer();
+            // still no player -> nothing to do this frame
+            if (playerCar == null) return;
+        }
 
         ChasePlayer();
+    }
+
+    void OnPlayerSpawned(GameObject newPlayer)
+    {
+        if (newPlayer != null)
+        {
+            playerCar = newPlayer.transform;
+            Debug.Log($"EnemyCarChaseAI: assigned player from RespawnManager: {newPlayer.name}");
+        }
+    }
+
+    void LocatePlayer()
+    {
+        // Prefer RespawnManager's currentCar if available
+        if (RespawnManager.Instance != null && RespawnManager.Instance.currentCar != null)
+        {
+            playerCar = RespawnManager.Instance.currentCar.transform;
+            Debug.Log("EnemyCarChaseAI: located player via RespawnManager.currentCar");
+            // Ensure subscription (in case Awake order prevented OnEnable subscription)
+            RespawnManager.Instance.OnPlayerSpawned -= OnPlayerSpawned;
+            RespawnManager.Instance.OnPlayerSpawned += OnPlayerSpawned;
+            return;
+        }
+
+        // Fallback: find by tag
+        GameObject found = GameObject.FindWithTag("Player");
+        if (found != null)
+        {
+            playerCar = found.transform;
+            Debug.Log($"EnemyCarChaseAI: located player by tag: {found.name}");
+            return;
+        }
+
+        // Not found yet — will try again next FixedUpdate
     }
 
     void ChasePlayer()

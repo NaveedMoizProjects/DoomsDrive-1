@@ -1,4 +1,5 @@
 ﻿using Cinemachine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -7,6 +8,12 @@ using UnityEngine;
 public class RespawnManager : MonoBehaviour
 {
     public static RespawnManager Instance { get; private set; }
+
+    // Event fired whenever a new player car is spawned.
+    public event Action<GameObject> OnPlayerSpawned;
+
+    // Optional: event for when player car is destroyed
+    public event Action<GameObject> OnPlayerDestroyed;
 
     public enum GameMode { DragRace, CombatStory }
 
@@ -92,6 +99,10 @@ public class RespawnManager : MonoBehaviour
         if (currentCar != null)
         {
             DamageManager.Instance?.ClearOwnerEntries(currentCar);
+
+            // notify listeners about destruction
+            OnPlayerDestroyed?.Invoke(currentCar);
+
             Destroy(currentCar);
             currentCar = null;
         }
@@ -180,6 +191,9 @@ public class RespawnManager : MonoBehaviour
             vCam.LookAt = currentCar.transform;
             vCam.OnTargetObjectWarped(currentCar.transform, currentCar.transform.position - vCam.transform.position);
         }
+
+        // Notify listeners that a player car was spawned
+        OnPlayerSpawned?.Invoke(currentCar);
     }
 
     void UpdateLivesUI()
@@ -200,25 +214,20 @@ public class RespawnManager : MonoBehaviour
             rb.isKinematic = true;
         }
 
-        // Restore old logic: place at nearest Track collider surface (ClosestPoint), otherwise use saved checkpoint's closest point,
-        // otherwise pick nearest nearby collider's closest point, otherwise fallback to provided position.
         Collider chosenCollider = null;
         Vector3 referencePoint = (car != null) ? car.transform.position : targetPos;
 
-        // 1) Search for the nearest 'Track' collider in a larger radius (prefer the main track)
-        float searchRadius = 20f;
+        // 1) Find the nearest 'Track' collider
+        float searchRadius = 30f;
         Collider[] hits = Physics.OverlapSphere(targetPos, searchRadius);
         float bestSqr = Mathf.Infinity;
-        for (int i = 0; i < hits.Length; i++)
+
+        foreach (var c in hits)
         {
-            var c = hits[i];
-            if (c == null) continue;
-            if (!c.enabled) continue;
-            // prefer track-tagged colliders first
+            if (c == null || !c.enabled) continue;
             if (c.CompareTag("Track"))
             {
-                Vector3 cp = c.ClosestPoint(referencePoint);
-                float d = (cp - referencePoint).sqrMagnitude;
+                float d = (c.bounds.center - referencePoint).sqrMagnitude;
                 if (d < bestSqr)
                 {
                     bestSqr = d;
@@ -227,51 +236,31 @@ public class RespawnManager : MonoBehaviour
             }
         }
 
-        // 2) If no Track collider was found, prefer saved checkpoint collider (use its closest point)
-        if (chosenCollider == null && masterCheckpoints != null && savedCPIndex >= 0 && savedCPIndex < masterCheckpoints.Count)
-        {
-            Transform cp = masterCheckpoints[savedCPIndex];
-            if (cp != null)
-                chosenCollider = cp.GetComponent<Collider>() ?? cp.GetComponentInChildren<Collider>() ?? cp.GetComponentInParent<Collider>();
-        }
-
-        // 3) If still none, pick nearest collider from a small radius (previous behavior)
-        if (chosenCollider == null)
-        {
-            Collider[] nearby = Physics.OverlapSphere(targetPos, 2f);
-            float closestDist = Mathf.Infinity;
-            foreach (var col in nearby)
-            {
-                if (col == null) continue;
-                if (!col.enabled) continue;
-                Vector3 cp = col.ClosestPoint(referencePoint);
-                float d = (cp - referencePoint).sqrMagnitude;
-                if (d < closestDist)
-                {
-                    closestDist = d;
-                    chosenCollider = col;
-                }
-            }
-        }
-
-        // 4) Place at the collider's closest surface point (nearest track behavior). If none found, fallback to provided targetPos/targetRot.
+        // 2) If found, move to CENTER of the collider, not the edge
         if (chosenCollider != null)
         {
-            Vector3 spawnPoint = chosenCollider.ClosestPoint(referencePoint) + Vector3.up * 0.5f;
-            Quaternion spawnRot = chosenCollider.transform.rotation;
+            // Use bounds.center to get the absolute middle of the "Range Cube"
+            Vector3 spawnPoint = chosenCollider.bounds.center;
+
+            // Offset upward based on the collider's height so you don't spawn inside the floor
+            // (Half the height of the cube + a little extra for the car)
+            float heightOffset = (chosenCollider.bounds.extents.y) + 1.5f;
+            spawnPoint.y = chosenCollider.bounds.min.y + heightOffset;
 
             car.transform.position = spawnPoint;
-            car.transform.rotation = spawnRot;
+
+            // Align rotation to the track piece itself
+            car.transform.rotation = chosenCollider.transform.rotation;
         }
         else
         {
-            car.transform.position = targetPos + Vector3.up * 0.5f;
+            // Fallback to the last recorded safe spot if no track piece is nearby
+            car.transform.position = targetPos + Vector3.up * 1.5f;
             car.transform.rotation = targetRot;
         }
 
         StartCoroutine(ReenablePhysicsAfterPlacement(rb));
     }
-
     private IEnumerator ReenablePhysicsAfterPlacement(Rigidbody rb)
     {
         yield return new WaitForFixedUpdate();
