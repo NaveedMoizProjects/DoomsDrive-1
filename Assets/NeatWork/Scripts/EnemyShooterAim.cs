@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class EnemyShooterAim : MonoBehaviour
 {
@@ -21,12 +21,66 @@ public class EnemyShooterAim : MonoBehaviour
 
     private float nextFireTime;
 
+    void OnEnable()
+    {
+        if (RespawnManager.Instance != null)
+            RespawnManager.Instance.OnPlayerSpawned += OnPlayerSpawned;
+    }
+
+    void OnDisable()
+    {
+        if (RespawnManager.Instance != null)
+            RespawnManager.Instance.OnPlayerSpawned -= OnPlayerSpawned;
+    }
+
+    void Start()
+    {
+        LocatePlayer();
+    }
+
     void Update()
     {
-        if (playerTarget == null) return;
+        if (playerTarget == null)
+        {
+            LocatePlayer();
+            if (playerTarget == null) return;
+        }
 
         AimAtPlayer();
         Shoot();
+    }
+
+    void OnPlayerSpawned(GameObject newPlayer)
+    {
+        if (newPlayer != null)
+        {
+            playerTarget = newPlayer.transform;
+            Debug.Log("EnemyShooterAim: Player assigned from RespawnManager");
+        }
+    }
+
+    void LocatePlayer()
+    {
+        // 1️⃣ Try RespawnManager
+        if (RespawnManager.Instance != null && RespawnManager.Instance.currentCar != null)
+        {
+            playerTarget = RespawnManager.Instance.currentCar.transform;
+
+            // Ensure event subscription
+            RespawnManager.Instance.OnPlayerSpawned -= OnPlayerSpawned;
+            RespawnManager.Instance.OnPlayerSpawned += OnPlayerSpawned;
+
+            Debug.Log("EnemyShooterAim: Found player via RespawnManager");
+            return;
+        }
+
+        // 2️⃣ Fallback: Find by tag
+        GameObject found = GameObject.FindWithTag("Player");
+        if (found != null)
+        {
+            playerTarget = found.transform;
+            Debug.Log("EnemyShooterAim: Found player via tag");
+        }
     }
 
     void AimAtPlayer()
@@ -54,7 +108,6 @@ public class EnemyShooterAim : MonoBehaviour
         if (muzzleFlash != null) muzzleFlash.Play();
         if (gunAudioSource != null) gunAudioSource.Play();
 
-        // Same rotation fix as player gun
         Quaternion bulletRotation = firePoint.rotation * Quaternion.Euler(90, 0, 0);
 
         GameObject bullet = Instantiate(bulletPrefab, firePoint.position, bulletRotation);

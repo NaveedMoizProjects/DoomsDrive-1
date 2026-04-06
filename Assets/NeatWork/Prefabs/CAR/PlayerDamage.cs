@@ -8,28 +8,70 @@ public class PlayerHealthDamage : MonoBehaviour
 
     private TMP_Text healthText;
 
+    void OnEnable()
+    {
+        if (RespawnManager.Instance != null)
+            RespawnManager.Instance.OnPlayerSpawned += OnPlayerSpawned;
+    }
+
+    void OnDisable()
+    {
+        if (RespawnManager.Instance != null)
+            RespawnManager.Instance.OnPlayerSpawned -= OnPlayerSpawned;
+    }
+
     void Start()
     {
         currentHealth = maxHealth;
 
-        // Auto find TextMeshPro in scene
-        healthText = GameObject.Find("PlayerHealthText").GetComponent<TMP_Text>();
-
+        LocateHealthText();
         UpdateHealthUI();
     }
 
-    private void OnTriggerEnter(Collider other)
+    void OnPlayerSpawned(GameObject newPlayer)
     {
-        if (other.CompareTag("PlayerBullet"))
+        // Jab player respawn ho to health reset
+        if (newPlayer == gameObject)
         {
-            TakeDamage(10);
-            Destroy(other.gameObject);
+            currentHealth = maxHealth;
+            LocateHealthText();
+            UpdateHealthUI();
+
+            Debug.Log("PlayerHealthDamage: Reset on respawn");
         }
     }
 
-    void TakeDamage(int damage)
+    void LocateHealthText()
+    {
+        // Try find by name
+        GameObject textObj = GameObject.Find("PlayerHealthText");
+
+        if (textObj != null)
+        {
+            healthText = textObj.GetComponent<TMP_Text>();
+            Debug.Log("Health UI Found");
+        }
+        else
+        {
+            Debug.LogWarning("PlayerHealthText not found!");
+        }
+    }
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("EnemyBullet"))
+        {
+            if (CompareTag("Player") || CompareTag("Cube"))
+            {
+                TakeDamage(10);
+                Destroy(collision.gameObject);
+            }
+        }
+    }
+    public void TakeDamage(int damage)
     {
         currentHealth -= damage;
+        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
+
         UpdateHealthUI();
 
         if (currentHealth <= 0)
@@ -38,14 +80,24 @@ public class PlayerHealthDamage : MonoBehaviour
         }
     }
 
-    void UpdateHealthUI()
+    public void UpdateHealthUI()
     {
+        if (healthText == null)
+        {
+            LocateHealthText();
+        }
+
         if (healthText != null)
-            healthText.text = "Health: " + currentHealth;
+        {
+            healthText.text = "HealthMoiz: " + currentHealth;
+        }
     }
 
     void Die()
     {
         Debug.Log("Player Died");
+
+        // Optional: disable player instead of destroy
+        gameObject.SetActive(false);
     }
 }

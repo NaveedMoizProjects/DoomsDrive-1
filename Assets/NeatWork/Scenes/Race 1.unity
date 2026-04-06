@@ -3607,11 +3607,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf60ed5855ad4b443817a88e5a295aa8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startPoint: {fileID: 0}
-  respawnDelay: 2
-  trackTag: Track
-  checkpointTag: Checkpoint
-  playerID: 1
 --- !u!65 &92375072
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -169042,11 +169037,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf60ed5855ad4b443817a88e5a295aa8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startPoint: {fileID: 0}
-  respawnDelay: 2
-  trackTag: Track
-  checkpointTag: Checkpoint
-  playerID: 0
 --- !u!114 &3097436405598177734
 MonoBehaviour:
   m_ObjectHideFlags: 0

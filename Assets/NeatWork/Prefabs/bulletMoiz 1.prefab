@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 4739023484413296382}
   m_Layer: 15
   m_Name: bulletMoiz 1
-  m_TagString: Untagged
+  m_TagString: PlayerBullet
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

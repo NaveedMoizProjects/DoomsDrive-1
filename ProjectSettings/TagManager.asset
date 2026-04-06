@@ -10,8 +10,10 @@ TagManager:
   - AI
   - Terrain
   - Undefined
-  - EnemyBullet
   - PlayerBullet
+  - PlayerHealthText
+  - EnemyBullet
+  - cube
   layers:
   - Default
   - TransparentFX
