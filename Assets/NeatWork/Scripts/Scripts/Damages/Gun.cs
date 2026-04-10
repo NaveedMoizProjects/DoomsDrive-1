@@ -23,6 +23,21 @@ public class Gun : MonoBehaviour
 
     private Rigidbody carRb; // Cached reference to the car's physics
 
+    [Header("Overheat / Cooldown (Inspector controllable)")]
+    [Tooltip("Enable automatic overheat cooldown when firing continuously.")]
+    public bool enableOverheatCooldown = true;
+    [Tooltip("Seconds of continuous firing required to trigger cooldown.")]
+    public float overheatThresholdSeconds = 3f;
+    [Tooltip("Cooldown duration (seconds) during which firing is blocked.")]
+    public float cooldownDuration = 5f;
+    [Tooltip("Show a brief UI message when cooldown starts/ends (MessageUIManager if available).")]
+    public bool showCooldownMessage = true;
+
+    // runtime
+    private float firingHoldTimer = 0f;
+    private bool inCooldown = false;
+    private float cooldownTimer = 0f;
+
     void Start()
     {
         carRb = GetComponentInParent<Rigidbody>();
@@ -30,15 +45,59 @@ public class Gun : MonoBehaviour
 
     void Update()
     {
-        if ((Input.GetKey(KeyCode.F) || Input.GetMouseButton(0)) && Time.time >= nextTimeToShoot)
+        // Update cooldown timer if active
+        if (inCooldown)
         {
-            nextTimeToShoot = Time.time + fireRate;
-            Shoot();
+            cooldownTimer -= Time.deltaTime;
+            if (cooldownTimer <= 0f)
+            {
+                inCooldown = false;
+                if (showCooldownMessage && MessageUIManager.Instance != null)
+                    MessageUIManager.Instance.ProcessMessage("Gun ready", WorldTriggerMessage.MessageType.Info, 1.5f);
+            }
         }
+
+        bool firingInput = (Input.GetKey(KeyCode.F) || Input.GetMouseButton(0));
+
+        // If cooling, block continuous-fire logic
+        if (firingInput && !inCooldown)
+        {
+            // Track continuous hold time
+            firingHoldTimer += Time.deltaTime;
+
+            // Fire according to fireRate
+            if (Time.time >= nextTimeToShoot)
+            {
+                nextTimeToShoot = Time.time + fireRate;
+                Shoot();
+            }
+
+            // Check overheat
+            if (enableOverheatCooldown && firingHoldTimer >= overheatThresholdSeconds)
+            {
+                StartCooldown();
+            }
+        }
+        else
+        {
+            // Not firing or in cooldown -> reset hold timer
+            firingHoldTimer = 0f;
+        }
+    }
+
+    private void StartCooldown()
+    {
+        inCooldown = true;
+        cooldownTimer = Mathf.Max(0f, cooldownDuration);
+
+        if (showCooldownMessage && MessageUIManager.Instance != null)
+            MessageUIManager.Instance.ProcessMessage($"Weapon overheated\n{cooldownTimer:0}s", WorldTriggerMessage.MessageType.Warning, 2f);
     }
 
     void Shoot()
     {
+        if (inCooldown) return; // safeguard
+
         if (spawnPoint == null)
         {
             Debug.LogWarning("Gun: spawnPoint is null.");

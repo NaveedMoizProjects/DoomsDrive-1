@@ -14992,7 +14992,7 @@ MonoBehaviour:
   health: 100
   maxHealth: 100
   type: 0
-  damageThreshold: 5
+  damageThreshold: 1
   canBeDestroyed: 1
 --- !u!23 &7316899107765561810
 MeshRenderer:
@@ -15854,7 +15854,7 @@ MonoBehaviour:
   health: 110
   maxHealth: 100
   type: 2
-  damageThreshold: 5
+  damageThreshold: 1
   canBeDestroyed: 1
 --- !u!23 &2971031694701969907
 MeshRenderer:
@@ -16243,7 +16243,7 @@ MonoBehaviour:
   health: 100
   maxHealth: 100
   type: 2
-  damageThreshold: 5
+  damageThreshold: 1
   canBeDestroyed: 1
 --- !u!153 &1036170434070191715
 ConfigurableJoint:
@@ -36692,7 +36692,7 @@ MonoBehaviour:
   health: 200
   maxHealth: 100
   type: 1
-  damageThreshold: 5
+  damageThreshold: 1
   canBeDestroyed: 1
 --- !u!23 &8770667869576411345
 MeshRenderer:
@@ -37217,8 +37217,8 @@ MonoBehaviour:
   partName: Body
   health: 400
   maxHealth: 100
-  type: 2
-  damageThreshold: 5
+  type: 3
+  damageThreshold: 1
   canBeDestroyed: 0
 --- !u!23 &430286944820645325
 MeshRenderer:
@@ -37687,6 +37687,10 @@ MonoBehaviour:
   enemyBulletLayerName: EnemyBullet
   launchForce: 200
   fireRate: 0.3
+  enableOverheatCooldown: 1
+  overheatThresholdSeconds: 10
+  cooldownDuration: 4
+  showCooldownMessage: 1
 --- !u!1 &3382436013443061360
 GameObject:
   m_ObjectHideFlags: 0
@@ -38102,7 +38106,7 @@ MonoBehaviour:
   health: 100
   maxHealth: 100
   type: 2
-  damageThreshold: 5
+  damageThreshold: 1
   canBeDestroyed: 1
 --- !u!23 &1706906905152106086
 MeshRenderer:
@@ -38249,7 +38253,7 @@ MonoBehaviour:
   health: 200
   maxHealth: 100
   type: 1
-  damageThreshold: 5
+  damageThreshold: 1
   canBeDestroyed: 1
 --- !u!23 &7332055724785955566
 MeshRenderer:
@@ -43838,7 +43842,7 @@ MonoBehaviour:
   health: 100
   maxHealth: 100
   type: 0
-  damageThreshold: 5
+  damageThreshold: 1
   canBeDestroyed: 1
 --- !u!23 &4733941120842164432
 MeshRenderer:
@@ -44370,7 +44374,7 @@ MonoBehaviour:
   health: 100
   maxHealth: 100
   type: 2
-  damageThreshold: 5
+  damageThreshold: 1
   canBeDestroyed: 1
 --- !u!64 &4901601809952506840
 MeshCollider:
@@ -44556,7 +44560,7 @@ MonoBehaviour:
   health: 100
   maxHealth: 100
   type: 0
-  damageThreshold: 5
+  damageThreshold: 1
   canBeDestroyed: 1
 --- !u!23 &1866785389506922039
 MeshRenderer:
@@ -55741,6 +55745,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3110790861769757549}
   - component: {fileID: 3961935827621185457}
+  - component: {fileID: 5495576564791184273}
   m_Layer: 8
   m_Name: Player
   m_TagString: Player
@@ -55785,6 +55790,24 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &5495576564791184273
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5290654097737838084}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6ee340e0287e1cb46bc1de15ec1c32dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  partName: Player
+  health: 100
+  maxHealth: 100
+  type: 4
+  damageThreshold: 1
+  canBeDestroyed: 0
 --- !u!1 &5298230434570831351
 GameObject:
   m_ObjectHideFlags: 0
@@ -60636,7 +60659,7 @@ MonoBehaviour:
   health: 100
   maxHealth: 100
   type: 0
-  damageThreshold: 5
+  damageThreshold: 1
   canBeDestroyed: 1
 --- !u!23 &8646558291687247247
 MeshRenderer:
@@ -61162,7 +61185,7 @@ MonoBehaviour:
   health: 100
   maxHealth: 100
   type: 2
-  damageThreshold: 5
+  damageThreshold: 1
   canBeDestroyed: 1
 --- !u!23 &3723945271978283058
 MeshRenderer:
@@ -67477,7 +67500,7 @@ MonoBehaviour:
   health: 100
   maxHealth: 100
   type: 2
-  damageThreshold: 5
+  damageThreshold: 1
   canBeDestroyed: 1
 --- !u!64 &6652792304957169971
 MeshCollider:
