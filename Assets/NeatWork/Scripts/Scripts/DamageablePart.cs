@@ -11,6 +11,15 @@ public class DamageablePart : MonoBehaviour
     public float damageThreshold = 5f; // Hits weaker than this are ignored
     public bool canBeDestroyed = true;
 
+    [Header("Enemy Explosion (when PartType == enemy)")]
+    [Tooltip("Enable explosion when this enemy part dies.")]
+    public bool enemyExplodes = true;
+    public float enemyExplodeRadius = 5f;
+    public float enemyExplodeDamage = 50f;
+    public float enemyExplodeForce = 800f;
+    public GameObject enemyExplosionPrefab;
+    public float enemyExplosionLifetime = 2f;
+
     private GameObject rootCar;
     private bool isBroken = false;
 
@@ -65,6 +74,28 @@ public class DamageablePart : MonoBehaviour
     {
         if (isBroken) return;
         isBroken = true;
+
+        // If this is an enemy part, do an explosion and destroy the enemy
+        if (type == PartType.enemy)
+        {
+            // Explosion AOE damage + physics impulse (uses DamageGiver helper)
+            if (enemyExplodes)
+            {
+                DamageGiver.SendExplosionDamage(transform.position, enemyExplodeRadius, enemyExplodeDamage, enemyExplodeForce, "");
+            }
+
+            // Optional visual effect
+            if (enemyExplosionPrefab != null)
+            {
+                var fx = Instantiate(enemyExplosionPrefab, transform.position, Quaternion.identity);
+                if (enemyExplosionLifetime > 0f) Destroy(fx, enemyExplosionLifetime);
+            }
+
+            // Destroy the enemy root gameobject (use rootCar when available)
+            GameObject toDestroy = (rootCar != null) ? rootCar : transform.root != null ? transform.root.gameObject : gameObject;
+            Destroy(toDestroy);
+            return;
+        }
 
         if (type == PartType.Core)
         {

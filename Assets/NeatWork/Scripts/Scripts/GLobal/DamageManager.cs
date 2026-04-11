@@ -1,17 +1,28 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class DamageManager : MonoBehaviour
 {
     public static DamageManager Instance { get; private set; }
 
     [Header("Lap Settings")]
-    public int currentLap = 1;
+    public int currentLap = 0; // start at 0 = no laps completed
     public int lapsToWin = 3;
 
     [Header("Game State")]
     public bool isGameOver = false;
+    // Read-only accessor for other systems
+    public bool IsGameOver => isGameOver;
+
+    [Header("Scene / End-level")]
+    [Tooltip("Seconds to wait on results screen before returning to MainMenu")]
+    public float delayBeforeMenu = 5f;
+    [Tooltip("Scene name to load after race end")]
+    public string mainMenuSceneName = "MainMenu";
+    [Header("Audio")]
+    public AudioSource applauseAudio;
 
     [Header("Health")]
     private float maxPlayerHealth = 0f;
@@ -36,6 +47,33 @@ public class DamageManager : MonoBehaviour
         else Destroy(gameObject);
     }
 
+    // --- NEW: Race end / declare winner handled here ---
+    public void DeclareWinner(CarMovement.PlayerID winner)
+    {
+        if (isGameOver) return;
+        isGameOver = true;
+
+        if (RaceUIHandler.Instance != null)
+            RaceUIHandler.Instance.ShowResults(winner);
+
+        Time.timeScale = 0f;
+
+        if (applauseAudio != null)
+            applauseAudio.Play();
+
+        Debug.Log("Game Over! Winner: " + winner);
+        StartCoroutine(BackToMenuAfterDelay());
+    }
+
+    private System.Collections.IEnumerator BackToMenuAfterDelay()
+    {
+        yield return new WaitForSecondsRealtime(delayBeforeMenu);
+        Time.timeScale = 1f;
+        if (!string.IsNullOrEmpty(mainMenuSceneName))
+            SceneManager.LoadScene(mainMenuSceneName);
+    }
+
+    // --- EXISTING: registry, health, respawn helpers ---
     // --- NEW: PURGE OLD DATA BEFORE RESPAWN ---
     public void PurgeAllRegistryData()
     {

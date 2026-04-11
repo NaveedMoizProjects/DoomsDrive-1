@@ -15,6 +15,16 @@ public class EnemyShooterAim : MonoBehaviour
     public float fireRate = 5f;
     public float launchForce = 50f;
 
+    [Header("Ownership")]
+    [Tooltip("Tag that the spawned bullet will ignore (owner).")]
+    public string ownerTag = "Enemy";
+
+    [Header("Layer Ownership (optional)")]
+    [Tooltip("Name of the layer that owner (enemy) GameObjects use.")]
+    public string ownerLayerName = "Enemy";
+    [Tooltip("Name of the layer to assign to spawned enemy bullets.")]
+    public string bulletLayerName = "EnemyBullet";
+
     [Header("Effects")]
     public ParticleSystem muzzleFlash;
     public AudioSource gunAudioSource;
@@ -112,12 +122,64 @@ public class EnemyShooterAim : MonoBehaviour
 
         GameObject bullet = Instantiate(bulletPrefab, firePoint.position, bulletRotation);
 
+        if (bullet != null)
+        {
+            // set descriptive tag
+            bullet.tag = "EnemyBullet";
+
+            // assign layer to bullet and make physics ignore collisions with owner layer (if layers exist)
+            int bLayer = LayerMask.NameToLayer(bulletLayerName);
+            int oLayer = LayerMask.NameToLayer(ownerLayerName);
+            if (bLayer != -1)
+            {
+                SetLayerRecursively(bullet, bLayer);
+
+                if (oLayer != -1)
+                {
+                    // Ensure bullets don't collide with owners' layer
+                    Physics.IgnoreLayerCollision(bLayer, oLayer, true);
+                }
+            }
+        }
+
         Rigidbody rb = bullet.GetComponent<Rigidbody>();
         if (rb != null)
         {
+            rb.angularVelocity = Vector3.zero;
             rb.AddForce(firePoint.forward * launchForce, ForceMode.VelocityChange);
         }
 
+        // Make bullet ignore its shooter (ownerTag) — same approach as Player bullets
+        var hazard = bullet.GetComponent<UniversalHazard>();
+        if (hazard != null)
+        {
+            hazard.SetupIgnoreTag(ownerTag);
+            hazard.preserveOwnerOnEnable = true;
+            hazard.ignoreOwnerInAOE = true;
+        }
+
+        // ignore collisions between bullet colliders and this shooter's colliders (extra safety)
+        Collider[] projectileCols = bullet.GetComponentsInChildren<Collider>(true);
+        Collider[] shooterCols = GetComponentsInParent<Collider>();
+        foreach (var pCol in projectileCols)
+        {
+            if (pCol == null) continue;
+            foreach (var sCol in shooterCols)
+            {
+                if (sCol == null) continue;
+                Physics.IgnoreCollision(pCol, sCol, true);
+            }
+        }
+
         Destroy(bullet, 2f);
+    }
+
+    // Helper: set layer recursively (useful for prefabs with children)
+    private void SetLayerRecursively(GameObject root, int layer)
+    {
+        if (root == null) return;
+        root.layer = layer;
+        foreach (Transform t in root.transform)
+            SetLayerRecursively(t.gameObject, layer);
     }
 }

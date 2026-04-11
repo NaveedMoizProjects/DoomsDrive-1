@@ -36807,7 +36807,7 @@ ConfigurableJoint:
   m_XMotion: 0
   m_YMotion: 0
   m_ZMotion: 0
-  m_AngularXMotion: 1
+  m_AngularXMotion: 0
   m_AngularYMotion: 0
   m_AngularZMotion: 0
   m_LinearLimitSpring:
@@ -37215,11 +37215,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   partName: Body
-  health: 400
+  health: 200
   maxHealth: 100
   type: 3
   damageThreshold: 1
-  canBeDestroyed: 0
+  canBeDestroyed: 1
 --- !u!23 &430286944820645325
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -37298,12 +37298,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7834d19337b7b0a42b969a64bf020b8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetBodies:
-  - {fileID: 6184324446367819972}
-  - {fileID: 3509771535294129845}
-  - {fileID: 6432411106698307805}
-  - {fileID: 2317340655247868838}
-  - {fileID: 1306212938420723424}
+  targetBodies: []
   maxDeformDepth: 0.2
   globalFalloffPower: 2
   impactRadius: 0.5
@@ -38346,7 +38341,7 @@ ConfigurableJoint:
   m_XMotion: 0
   m_YMotion: 0
   m_ZMotion: 0
-  m_AngularXMotion: 1
+  m_AngularXMotion: 0
   m_AngularYMotion: 0
   m_AngularZMotion: 0
   m_LinearLimitSpring:

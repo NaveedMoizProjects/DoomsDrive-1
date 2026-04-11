@@ -60,7 +60,7 @@ public class PlayerHealthDamage : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("EnemyBullet"))
         {
-            if (CompareTag("Player") || CompareTag("Cube"))
+            if (CompareTag("Player") || CompareTag("Player"))
             {
                 TakeDamage(10);
                 Destroy(collision.gameObject);
