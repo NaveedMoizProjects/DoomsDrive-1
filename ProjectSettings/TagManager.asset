@@ -33,10 +33,10 @@ TagManager:
   - PlayerBullet
   - EnemyBullet
   - Enemy
-  - 
-  - 
-  - 
-  - 
+  - Barrier
+  - Fence
+  - signs
+  - spine
   - 
   - 
   - 
