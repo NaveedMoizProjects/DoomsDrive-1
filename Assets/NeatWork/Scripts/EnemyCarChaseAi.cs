@@ -1,85 +1,104 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 /// <summary>
-/// Enemy Car Chase AI with multi-ray obstacle avoidance.
-/// Smoothly follows the player while steering around rocks, terrain bumps,
-/// and other obstacles using a fan of forward-facing raycasts.
+/// Enemy Car Chase AI — v2
+/// • Multi-ray fan obstacle avoidance
+/// • Stuck detection with automatic reverse + re-steer recovery
+/// • Smooth state transitions: CHASE → AVOID → REVERSE → RECOVER
+/// • Realistic WheelCollider physics throughout
 /// </summary>
 [RequireComponent(typeof(Rigidbody))]
 public class EnemyCarChaseAI : MonoBehaviour
 {
-    // ─────────────────────────────────────────────────────────────
-    //  INSPECTOR SETTINGS
-    // ─────────────────────────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════
+    //  ENUMS
+    // ═══════════════════════════════════════════════════════════════
 
-    [Header("Target")]
+    enum DriveState { Chase, Avoid, Reverse, Recover }
+
+    // ═══════════════════════════════════════════════════════════════
+    //  INSPECTOR
+    // ═══════════════════════════════════════════════════════════════
+
+    [Header("─── Target ───────────────────────────────────")]
     public Transform playerCar;
 
-    [Header("Wheel Colliders")]
+    [Header("─── Wheel Colliders ──────────────────────────")]
     public WheelCollider frontLeft;
     public WheelCollider frontRight;
     public WheelCollider rearLeft;
     public WheelCollider rearRight;
 
-    [Header("Chase Settings")]
+    [Header("─── Chase Settings ───────────────────────────")]
     public float motorTorque = 2000f;
     public float maxSteerAngle = 30f;
-    public float maxSpeed = 40f;   // m/s
+    public float maxSpeed = 40f;          // m/s forward cap
 
-    [Header("Distance Settings")]
-    public float followDistance = 8f;   // Stop closing in below this
-    public float slowDistance = 12f;  // Start slowing below this
+    [Header("─── Distance Settings ─────────────────────────")]
+    public float followDistance = 8f;          // stop closing below this
+    public float slowDistance = 12f;         // start slowing below this
 
-    [Header("Obstacle Avoidance")]
-    [Tooltip("How far ahead each ray probes for obstacles")]
+    [Header("─── Obstacle Avoidance ─────────────────────────")]
+    [Tooltip("How far ahead each ray probes")]
     public float raycastDistance = 10f;
-
-    [Tooltip("Number of rays in the fan (odd number recommended)")]
+    [Tooltip("Odd number recommended")]
     public int rayCount = 7;
-
-    [Tooltip("Total spread angle of the ray fan in degrees")]
+    [Tooltip("Total fan spread in degrees")]
     public float raySpreadAngle = 90f;
-
-    [Tooltip("Vertical offset for ray origin (above car pivot)")]
+    [Tooltip("Ray origin height above pivot")]
     public float rayOriginHeight = 0.5f;
-
-    [Tooltip("Layers considered as obstacles (exclude Player layer)")]
-    public LayerMask obstacleMask = ~0;   // All layers by default
-
-    [Header("Avoidance Tuning")]
-    [Tooltip("How strongly obstacle hits steer the car away")]
+    [Tooltip("Obstacle layers — exclude Player layer!")]
+    public LayerMask obstacleMask = ~0;
     public float avoidanceStrength = 1.8f;
-
-    [Tooltip("Smooth time for steering interpolation")]
     public float steerSmoothTime = 0.12f;
-
-    [Tooltip("Extra torque applied when actively avoiding")]
     public float avoidanceMotorBoost = 1.2f;
 
-    // ─────────────────────────────────────────────────────────────
+    [Header("─── Stuck / Reverse Recovery ──────────────────")]
+    [Tooltip("Speed (m/s) below which the car is considered possibly stuck")]
+    public float stuckSpeedThreshold = 0.5f;
+    [Tooltip("Seconds below stuckSpeedThreshold before triggering reverse")]
+    public float stuckTimeLimit = 1.8f;
+    [Tooltip("How long the car reverses")]
+    public float reverseDuration = 1.4f;
+    [Tooltip("How long the car steers away before resuming chase")]
+    public float recoverDuration = 0.8f;
+    [Tooltip("Torque used while reversing")]
+    public float reverseTorque = 1400f;
+    [Tooltip("Speed cap while reversing (m/s)")]
+    public float maxReverseSpeed = 12f;
+    [Tooltip("Steer angle applied while reversing to escape the obstacle")]
+    public float reverseSteerAngle = 25f;
+
+    // ═══════════════════════════════════════════════════════════════
     //  PRIVATE STATE
-    // ─────────────────────────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════
 
-    private Rigidbody rb;
+    Rigidbody rb;
+    DriveState state = DriveState.Chase;
 
-    // Smoothed steer angle (SmoothDamp target)
-    private float currentSteer;
-    private float steerVelocity;    // used by SmoothDamp
+    // Steering
+    float currentSteer;
+    float steerVelocity;
 
-    // True when any ray hit an obstacle last frame
-    private bool isAvoiding;
+    // Avoidance
+    Vector3[] localRayDirs;
+    bool isAvoiding;
 
-    // Cached ray directions (local space), computed once
-    private Vector3[] localRayDirs;
+    // Stuck detection
+    float stuckTimer;
+    float reverseTimer;
+    float recoverTimer;
+    float reverseSteerDir; // -1 left, +1 right (chosen at reverse start)
 
-    // ─────────────────────────────────────────────────────────────
-    //  UNITY LIFECYCLE
-    // ─────────────────────────────────────────────────────────────
+    // One-shot flag so reverse init runs once
+    bool reverseStarted;
 
-    void Awake()
-    {
-        BuildRayDirections();
-    }
+    // ═══════════════════════════════════════════════════════════════
+    //  LIFECYCLE
+    // ═══════════════════════════════════════════════════════════════
+
+    void Awake() => BuildRayDirections();
 
     void OnEnable()
     {
@@ -97,45 +116,144 @@ public class EnemyCarChaseAI : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         rb.centerOfMass = new Vector3(0, -0.8f, 0);
-
         LocatePlayer();
     }
 
     void FixedUpdate()
     {
-        if (playerCar == null)
-        {
-            LocatePlayer();
-            if (playerCar == null) return;
-        }
+        if (playerCar == null) { LocatePlayer(); if (playerCar == null) return; }
 
-        float avoidSteer = ComputeAvoidanceSteering();
-        float chaseSteering = ComputeChaseSteer();
-
-        // Blend: when avoiding, avoidance wins; otherwise pure chase
-        float rawTarget = isAvoiding
-            ? Mathf.Clamp(avoidSteer, -maxSteerAngle, maxSteerAngle)
-            : Mathf.Clamp(chaseSteering, -maxSteerAngle, maxSteerAngle);
-
-        // Smooth the steer to prevent snappy oscillation
-        currentSteer = Mathf.SmoothDamp(
-            currentSteer, rawTarget,
-            ref steerVelocity, steerSmoothTime);
-
-        frontLeft.steerAngle = currentSteer;
-        frontRight.steerAngle = currentSteer;
-
-        DriveMotor();
+        UpdateStuckDetection();
+        RunStateMachine();
     }
 
-    // ─────────────────────────────────────────────────────────────
-    //  OBSTACLE AVOIDANCE
-    // ─────────────────────────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════
+    //  STATE MACHINE
+    // ═══════════════════════════════════════════════════════════════
 
-    /// <summary>
-    /// Casts a fan of rays in front of the car.
-    /// Returns a weighted steer angle that pushes away from hits.
-    /// </summary>
+    void RunStateMachine()
+    {
+        switch (state)
+        {
+            case DriveState.Chase: StateChase(); break;
+            case DriveState.Avoid: StateAvoid(); break;
+            case DriveState.Reverse: StateReverse(); break;
+            case DriveState.Recover: StateRecover(); break;
+        }
+    }
+
+    // ── CHASE ────────────────────────────────────────────────────
+    void StateChase()
+    {
+        ComputeAvoidanceSteering(); // refresh isAvoiding
+
+        if (isAvoiding)
+        {
+            TransitionTo(DriveState.Avoid);
+            return;
+        }
+
+        SetSmoothedSteer(ComputeChaseSteer());
+        DriveForward(1f);
+    }
+
+    // ── AVOID ────────────────────────────────────────────────────
+    void StateAvoid()
+    {
+        float avoidSteer = ComputeAvoidanceSteering();
+
+        if (!isAvoiding)
+        {
+            TransitionTo(DriveState.Chase);
+            return;
+        }
+
+        // 75% avoidance + 25% chase so the car doesn't lose the player
+        float blended = Mathf.Lerp(ComputeChaseSteer(), avoidSteer, 0.75f);
+        SetSmoothedSteer(blended);
+        DriveForward(avoidanceMotorBoost);
+    }
+
+    // ── REVERSE ──────────────────────────────────────────────────
+    void StateReverse()
+    {
+        if (!reverseStarted)
+        {
+            reverseStarted = true;
+            reverseTimer = reverseDuration;
+            reverseSteerDir = ChooseReverseSteerDir();
+        }
+
+        reverseTimer -= Time.fixedDeltaTime;
+
+        // Counter-steer while reversing to swing the nose away from obstacle
+        SetSmoothedSteer(-reverseSteerDir * reverseSteerAngle);
+        DriveReverse();
+
+        if (reverseTimer <= 0f)
+            TransitionTo(DriveState.Recover);
+    }
+
+    // ── RECOVER ──────────────────────────────────────────────────
+    void StateRecover()
+    {
+        recoverTimer -= Time.fixedDeltaTime;
+
+        // Drive forward with a steer bias to face clear space
+        SetSmoothedSteer(reverseSteerDir * maxSteerAngle);
+        DriveForward(1f);
+
+        ComputeAvoidanceSteering(); // refresh isAvoiding
+
+        if (recoverTimer <= 0f)
+            TransitionTo(isAvoiding ? DriveState.Avoid : DriveState.Chase);
+    }
+
+    // ─── Transition helper ────────────────────────────────────────
+    void TransitionTo(DriveState next)
+    {
+        if (state == next) return;
+
+        if (next == DriveState.Reverse)
+        {
+            reverseStarted = false;
+            stuckTimer = 0f;
+        }
+        if (next == DriveState.Recover)
+        {
+            recoverTimer = recoverDuration;
+        }
+
+        state = next;
+        Debug.Log($"[EnemyCarAI] State → {next}");
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    //  STUCK DETECTION
+    // ═══════════════════════════════════════════════════════════════
+
+    void UpdateStuckDetection()
+    {
+        // Only monitor while trying to move forward
+        if (state == DriveState.Reverse || state == DriveState.Recover) return;
+
+        if (rb.velocity.magnitude < stuckSpeedThreshold)
+        {
+            stuckTimer += Time.fixedDeltaTime;
+            if (stuckTimer >= stuckTimeLimit)
+                TransitionTo(DriveState.Reverse);
+        }
+        else
+        {
+            // Decay quickly once moving again
+            stuckTimer = Mathf.Max(0f, stuckTimer - Time.fixedDeltaTime * 2f);
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    //  OBSTACLE AVOIDANCE  (ray fan)
+    // ═══════════════════════════════════════════════════════════════
+
     float ComputeAvoidanceSteering()
     {
         Vector3 origin = transform.position + Vector3.up * rayOriginHeight;
@@ -144,28 +262,20 @@ public class EnemyCarChaseAI : MonoBehaviour
 
         for (int i = 0; i < rayCount; i++)
         {
-            // Local direction → world direction
             Vector3 worldDir = transform.TransformDirection(localRayDirs[i]);
 
             if (Physics.Raycast(origin, worldDir, out RaycastHit hit,
                                 raycastDistance, obstacleMask,
                                 QueryTriggerInteraction.Ignore))
             {
-                // Skip if we hit our own car or the player
                 if (hit.collider.transform.IsChildOf(transform)) continue;
                 if (playerCar != null && hit.collider.transform.IsChildOf(playerCar)) continue;
 
-                // Proximity factor: closer = stronger response
                 float proximity = 1f - (hit.distance / raycastDistance);
-
-                // Ray signed angle: negative = left ray, positive = right ray
-                float rayAngle = localRayDirs[i].x;   // x component encodes left/right
-
-                // Steer AWAY from the side the ray hit
+                float rayAngle = localRayDirs[i].x;
                 weightedSteer -= rayAngle * proximity * avoidanceStrength * maxSteerAngle;
                 hitCount++;
 
-                // Debug visualisation (editor only)
                 Debug.DrawRay(origin, worldDir * hit.distance, Color.red);
             }
             else
@@ -175,116 +285,90 @@ public class EnemyCarChaseAI : MonoBehaviour
         }
 
         isAvoiding = hitCount > 0;
-
         if (hitCount == 0) return 0f;
-
         return Mathf.Clamp(weightedSteer / hitCount, -maxSteerAngle, maxSteerAngle);
     }
 
     /// <summary>
-    /// Returns the raw steer angle needed to face the player.
+    /// Compares open space on left vs right and returns the clearer side (+1 right, -1 left).
+    /// Used to pick which way to swing out during reverse.
     /// </summary>
+    float ChooseReverseSteerDir()
+    {
+        Vector3 origin = transform.position + Vector3.up * rayOriginHeight;
+        float leftDist = raycastDistance;
+        float rightDist = raycastDistance;
+
+        Vector3 leftDir = transform.TransformDirection(Quaternion.Euler(0, -45f, 0) * Vector3.forward);
+        Vector3 rightDir = transform.TransformDirection(Quaternion.Euler(0, 45f, 0) * Vector3.forward);
+
+        if (Physics.Raycast(origin, leftDir, out RaycastHit lh, raycastDistance, obstacleMask))
+            leftDist = lh.distance;
+        if (Physics.Raycast(origin, rightDir, out RaycastHit rh, raycastDistance, obstacleMask))
+            rightDist = rh.distance;
+
+        // Swing toward the more open side
+        return rightDist >= leftDist ? 1f : -1f;
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    //  STEERING
+    // ═══════════════════════════════════════════════════════════════
+
     float ComputeChaseSteer()
     {
-        Vector3 localTarget = transform.InverseTransformPoint(playerCar.position);
-        float magnitude = localTarget.magnitude;
-
-        if (magnitude < 0.001f) return 0f;
-
-        return (localTarget.x / magnitude) * maxSteerAngle;
+        Vector3 local = transform.InverseTransformPoint(playerCar.position);
+        if (local.magnitude < 0.001f) return 0f;
+        return (local.x / local.magnitude) * maxSteerAngle;
     }
 
-    // ─────────────────────────────────────────────────────────────
+    void SetSmoothedSteer(float target)
+    {
+        target = Mathf.Clamp(target, -maxSteerAngle, maxSteerAngle);
+        currentSteer = Mathf.SmoothDamp(currentSteer, target, ref steerVelocity, steerSmoothTime);
+        frontLeft.steerAngle = currentSteer;
+        frontRight.steerAngle = currentSteer;
+    }
+
+    // ═══════════════════════════════════════════════════════════════
     //  MOTOR / BRAKING
-    // ─────────────────────────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════
 
-    void DriveMotor()
+    void DriveForward(float torqueScale)
     {
+        if (rb.velocity.magnitude >= maxSpeed) { ApplyMotorForward(0f); return; }
+
         float distance = Vector3.Distance(transform.position, playerCar.position);
-        float speedMs = rb.velocity.magnitude;
-        float torqueScale = isAvoiding ? avoidanceMotorBoost : 1f;
+        float t = Mathf.InverseLerp(followDistance, slowDistance, distance);
 
-        if (speedMs >= maxSpeed)
-        {
-            // Hit the speed cap
-            ApplyMotor(0f);
-            return;
-        }
+        float throttle = distance > slowDistance ? 1f
+                       : distance > followDistance ? Mathf.Lerp(0.2f, 0.6f, t)
+                       : 0f;
 
-        if (distance > slowDistance)
-        {
-            ApplyMotor(motorTorque * torqueScale);
-        }
-        else if (distance > followDistance)
-        {
-            // Gradual slow-down in the approach zone
-            float t = (distance - followDistance) / (slowDistance - followDistance);
-            ApplyMotor(motorTorque * Mathf.Lerp(0.2f, 0.6f, t) * torqueScale);
-        }
-        else
-        {
-            // Inside follow bubble — hold position
-            ApplyMotor(0f);
-            ApplyBrake(1500f);
-        }
+        if (throttle <= 0f) { ApplyMotorForward(0f); ApplyBrake(1500f); return; }
+
+        ApplyMotorForward(motorTorque * throttle * torqueScale);
     }
 
-    // ─────────────────────────────────────────────────────────────
-    //  PLAYER LOCATION / RESPAWN
-    // ─────────────────────────────────────────────────────────────
-
-    void OnPlayerSpawned(GameObject newPlayer)
+    void DriveReverse()
     {
-        if (newPlayer != null)
-        {
-            playerCar = newPlayer.transform;
-            Debug.Log($"EnemyCarChaseAI: player assigned from RespawnManager → {newPlayer.name}");
-        }
+        float reverseSpeedMs = -Vector3.Dot(rb.velocity, transform.forward);
+        if (reverseSpeedMs >= maxReverseSpeed) { ApplyMotorReverse(0f); return; }
+        ApplyMotorReverse(reverseTorque);
     }
 
-    void LocatePlayer()
-    {
-        if (RespawnManager.Instance != null && RespawnManager.Instance.currentCar != null)
-        {
-            playerCar = RespawnManager.Instance.currentCar.transform;
-            RespawnManager.Instance.OnPlayerSpawned -= OnPlayerSpawned;
-            RespawnManager.Instance.OnPlayerSpawned += OnPlayerSpawned;
-            return;
-        }
-
-        GameObject found = GameObject.FindWithTag("Player");
-        if (found != null)
-            playerCar = found.transform;
-    }
-
-    // ─────────────────────────────────────────────────────────────
-    //  HELPERS
-    // ─────────────────────────────────────────────────────────────
-
-    /// <summary>
-    /// Pre-computes evenly spread ray directions in local car space.
-    /// Rays are angled slightly downward to detect ground-level obstacles.
-    /// </summary>
-    void BuildRayDirections()
-    {
-        localRayDirs = new Vector3[rayCount];
-        float halfSpread = raySpreadAngle * 0.5f;
-
-        for (int i = 0; i < rayCount; i++)
-        {
-            float t = rayCount > 1 ? (float)i / (rayCount - 1) : 0.5f;
-            float horizontal = Mathf.Lerp(-halfSpread, halfSpread, t);
-
-            // Tilt slightly downward (-5°) so rays skim terrain bumps
-            Quaternion rot = Quaternion.Euler(-5f, horizontal, 0f);
-            localRayDirs[i] = rot * Vector3.forward;
-        }
-    }
-
-    void ApplyMotor(float torque)
+    void ApplyMotorForward(float torque)
     {
         rearLeft.motorTorque = torque;
         rearRight.motorTorque = torque;
+        rearLeft.brakeTorque = 0f;
+        rearRight.brakeTorque = 0f;
+    }
+
+    void ApplyMotorReverse(float torque)
+    {
+        rearLeft.motorTorque = -torque;
+        rearRight.motorTorque = -torque;
         rearLeft.brakeTorque = 0f;
         rearRight.brakeTorque = 0f;
     }
@@ -297,9 +381,49 @@ public class EnemyCarChaseAI : MonoBehaviour
         rearRight.motorTorque = 0f;
     }
 
-    // ─────────────────────────────────────────────────────────────
-    //  GIZMOS (Scene view debug)
-    // ─────────────────────────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════
+    //  PLAYER LOCATION / RESPAWN
+    // ═══════════════════════════════════════════════════════════════
+
+    void OnPlayerSpawned(GameObject newPlayer)
+    {
+        if (newPlayer != null) playerCar = newPlayer.transform;
+    }
+
+    void LocatePlayer()
+    {
+        if (RespawnManager.Instance != null && RespawnManager.Instance.currentCar != null)
+        {
+            playerCar = RespawnManager.Instance.currentCar.transform;
+            RespawnManager.Instance.OnPlayerSpawned -= OnPlayerSpawned;
+            RespawnManager.Instance.OnPlayerSpawned += OnPlayerSpawned;
+            return;
+        }
+        GameObject found = GameObject.FindWithTag("Player");
+        if (found != null) playerCar = found.transform;
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    //  RAY SETUP
+    // ═══════════════════════════════════════════════════════════════
+
+    void BuildRayDirections()
+    {
+        localRayDirs = new Vector3[rayCount];
+        float halfSpread = raySpreadAngle * 0.5f;
+
+        for (int i = 0; i < rayCount; i++)
+        {
+            float t = rayCount > 1 ? (float)i / (rayCount - 1) : 0.5f;
+            float horizontal = Mathf.Lerp(-halfSpread, halfSpread, t);
+            Quaternion rot = Quaternion.Euler(-5f, horizontal, 0f);
+            localRayDirs[i] = rot * Vector3.forward;
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    //  GIZMOS  (Scene view debug)
+    // ═══════════════════════════════════════════════════════════════
 
 #if UNITY_EDITOR
     void OnDrawGizmosSelected()
@@ -307,19 +431,19 @@ public class EnemyCarChaseAI : MonoBehaviour
         if (localRayDirs == null) BuildRayDirections();
 
         Vector3 origin = transform.position + Vector3.up * rayOriginHeight;
-        Gizmos.color = new Color(1f, 0.5f, 0f, 0.5f);
 
-        foreach (Vector3 localDir in localRayDirs)
-        {
-            Vector3 worldDir = transform.TransformDirection(localDir);
-            Gizmos.DrawRay(origin, worldDir * raycastDistance);
-        }
+        Gizmos.color = new Color(1f, 0.5f, 0f, 0.45f);
+        foreach (var d in localRayDirs)
+            Gizmos.DrawRay(origin, transform.TransformDirection(d) * raycastDistance);
 
-        // Follow / slow distance rings
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, followDistance);
         Gizmos.color = Color.cyan;
         Gizmos.DrawWireSphere(transform.position, slowDistance);
+
+        UnityEditor.Handles.Label(
+            transform.position + Vector3.up * 2.5f,
+            $"State : {state}\nStuck : {stuckTimer:F1} s");
     }
 #endif
 }
