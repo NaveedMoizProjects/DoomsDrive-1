@@ -125,7 +125,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: 0
   effectLibrary: {fileID: 11400000, guid: 202b5e72f1d69ed4bbbd326846d53528, type: 2}
-  directDamage: 6
+  directDamage: 3
   explosionRadius: 0
   explosionForce: 0
   effectLifeTime: 0.5

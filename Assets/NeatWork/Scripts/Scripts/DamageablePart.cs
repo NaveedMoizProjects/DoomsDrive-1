@@ -1,4 +1,5 @@
 using UnityEngine;
+
 public class DamageablePart : MonoBehaviour
 {
     public string partName;
@@ -8,7 +9,7 @@ public class DamageablePart : MonoBehaviour
     public PartType type;
 
     [Header("Protection Settings")]
-    public float damageThreshold = 5f; // Hits weaker than this are ignored
+    public float damageThreshold = 5f;
     public bool canBeDestroyed = true;
 
     [Header("Enemy Explosion (when PartType == enemy)")]
@@ -20,50 +21,77 @@ public class DamageablePart : MonoBehaviour
     public GameObject enemyExplosionPrefab;
     public float enemyExplosionLifetime = 2f;
 
+    [Header("Player Blood Splash VFX")]
+    [Tooltip("Assign your blood splash GameObject here (e.g. a screen overlay or particle system).")]
+    public GameObject bloodSplashVFX;
+    public float bloodSplashDuration = 2f;
+
     private GameObject rootCar;
     private bool isBroken = false;
+    private float bloodSplashTimer = 0f;
+    private bool bloodSplashActive = false;
 
     void Start()
     {
         rootCar = transform.root != null ? transform.root.gameObject : null;
         if (maxHealth <= 0f) maxHealth = health;
+
+        // Make sure blood splash starts hidden
+        if (bloodSplashVFX != null)
+            bloodSplashVFX.SetActive(false);
+
         SyncWithManager();
+    }
+
+    void Update()
+    {
+        // Count down and hide blood splash when timer expires
+        if (bloodSplashActive)
+        {
+            bloodSplashTimer -= Time.deltaTime;
+            if (bloodSplashTimer <= 0f)
+            {
+                bloodSplashActive = false;
+                if (bloodSplashVFX != null)
+                    bloodSplashVFX.SetActive(false);
+            }
+        }
     }
 
     public void TakeDamage(float amount, Vector3 hitPoint, Vector3 hitNormal)
     {
-        // 1. Check if damage is enabled for the player
         if (rootCar != null && rootCar.CompareTag("Player") && DamageManager.Instance != null && !DamageManager.Instance.allowPlayerDamage)
             return;
 
-        // 2. NEW: Ignore "Micro-Damage" (Prevents braking/bumping from breaking wheels)
         if (amount < damageThreshold) return;
-
         if (health <= 0 || isBroken) return;
 
         health -= amount;
         SyncWithManager();
 
+        // --- Trigger blood splash only for player parts ---
+        if (type == PartType.player && bloodSplashVFX != null)
+        {
+            bloodSplashVFX.SetActive(true);
+            bloodSplashTimer = bloodSplashDuration; // Resets timer if hit again mid-splash
+            bloodSplashActive = true;
+        }
+
         if (type == PartType.Wheel)
         {
             DynamicCarController controller = GetComponentInParent<DynamicCarController>();
-            // Only apply damage if it's actually a significant hit
             if (controller != null) controller.ApplyDamageToWheel(partName, amount);
         }
 
         if (health <= 0 && canBeDestroyed) BreakPart();
     }
 
-    // --- Add this to catch Physics Collisions automatically ---
     private void OnCollisionEnter(Collision collision)
     {
-        // Ignore if we hit our own car body
         if (collision.gameObject.transform.root == transform.root) return;
 
-        // Calculate damage based on impact velocity (Mass * Speed)
         float impactForce = collision.relativeVelocity.magnitude;
 
-        // Only take damage if we hit something hard
         if (impactForce > damageThreshold)
         {
             TakeDamage(impactForce * 2f, collision.contacts[0].point, collision.contacts[0].normal);
@@ -75,23 +103,19 @@ public class DamageablePart : MonoBehaviour
         if (isBroken) return;
         isBroken = true;
 
-        // If this is an enemy part, do an explosion and destroy the enemy
         if (type == PartType.enemy)
         {
-            // Explosion AOE damage + physics impulse (uses DamageGiver helper)
             if (enemyExplodes)
             {
                 DamageGiver.SendExplosionDamage(transform.position, enemyExplodeRadius, enemyExplodeDamage, enemyExplodeForce, "");
             }
 
-            // Optional visual effect
             if (enemyExplosionPrefab != null)
             {
                 var fx = Instantiate(enemyExplosionPrefab, transform.position, Quaternion.identity);
                 if (enemyExplosionLifetime > 0f) Destroy(fx, enemyExplosionLifetime);
             }
 
-            // Destroy the enemy root gameobject (use rootCar when available)
             GameObject toDestroy = (rootCar != null) ? rootCar : transform.root != null ? transform.root.gameObject : gameObject;
             Destroy(toDestroy);
             return;
@@ -111,7 +135,6 @@ public class DamageablePart : MonoBehaviour
             {
                 controller.DisconnectWheel(partName);
 
-                // SHOW PROMPT instead of immediate destroy
                 if (RespawnManager.Instance != null)
                 {
                     RespawnManager.Instance.PromptRespawn("CRITICAL WHEEL LOSS");
