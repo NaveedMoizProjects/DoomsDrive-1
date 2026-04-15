@@ -36,7 +36,6 @@ public class DamageablePart : MonoBehaviour
         rootCar = transform.root != null ? transform.root.gameObject : null;
         if (maxHealth <= 0f) maxHealth = health;
 
-        // Make sure blood splash starts hidden
         if (bloodSplashVFX != null)
             bloodSplashVFX.SetActive(false);
 
@@ -45,7 +44,6 @@ public class DamageablePart : MonoBehaviour
 
     void Update()
     {
-        // Count down and hide blood splash when timer expires
         if (bloodSplashActive)
         {
             bloodSplashTimer -= Time.deltaTime;
@@ -69,11 +67,10 @@ public class DamageablePart : MonoBehaviour
         health -= amount;
         SyncWithManager();
 
-        // --- Trigger blood splash only for player parts ---
         if (type == PartType.player && bloodSplashVFX != null)
         {
             bloodSplashVFX.SetActive(true);
-            bloodSplashTimer = bloodSplashDuration; // Resets timer if hit again mid-splash
+            bloodSplashTimer = bloodSplashDuration;
             bloodSplashActive = true;
         }
 
@@ -103,6 +100,9 @@ public class DamageablePart : MonoBehaviour
         if (isBroken) return;
         isBroken = true;
 
+        // Notify LevelFailManager for configured part types (it will decide)
+        LevelFailedManager.Instance?.NotifyPartDestroyed(type);
+
         if (type == PartType.enemy)
         {
             if (enemyExplodes)
@@ -118,6 +118,22 @@ public class DamageablePart : MonoBehaviour
 
             GameObject toDestroy = (rootCar != null) ? rootCar : transform.root != null ? transform.root.gameObject : gameObject;
             Destroy(toDestroy);
+            return;
+        }
+
+        // Player part destroyed -> use RespawnManager logic (respawn or level-fail)
+        if (type == PartType.player)
+        {
+            if (RespawnManager.Instance != null)
+            {
+                RespawnManager.Instance.OnPlayerZero();
+            }
+            else
+            {
+                // fallback: destroy root if no respawn manager
+                GameObject toDestroy = (rootCar != null) ? rootCar : transform.root != null ? transform.root.gameObject : gameObject;
+                Destroy(toDestroy);
+            }
             return;
         }
 

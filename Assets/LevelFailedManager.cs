@@ -1,105 +1,71 @@
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
+using TMPro;
 
 public class LevelFailedManager : MonoBehaviour
 {
+    public static LevelFailedManager Instance { get; private set; }
+
+    [Header("Failure configuration")]
+    [Tooltip("If any of these PartTypes are destroyed, level fail will trigger.")]
+    public List<DamageablePart.PartType> failOnPartTypes = new List<DamageablePart.PartType>()
+    {
+        DamageablePart.PartType.Core,
+        DamageablePart.PartType.Wheel
+    };
+
     [Header("UI")]
-    [Tooltip("Assign your Level Failed panel here.")]
-    public GameObject levelFailedPanel;
+    public GameObject levelFailPanel;
+    public TextMeshProUGUI attemptsText;
 
-    [Tooltip("Assign your Pause panel here — it will be destroyed when Level Failed triggers.")]
-    public GameObject pausePanel;
-
-    [Header("Settings")]
-    [Tooltip("Pause the game when Level Failed panel appears.")]
-    public bool pauseOnFail = true;
-
-    [Header("Tags to Monitor")]
-    [Tooltip("All tags listed here will be monitored — if ANY are destroyed, Level Failed triggers.")]
-    public string[] tagsToMonitor = new string[] { "Player", "Body", "Tyre" };
-
-    private GameObject[] trackedObjects;
-    private bool levelFailed = false;
-
-    void Start()
+    void Awake()
     {
-        if (levelFailedPanel != null)
-            levelFailedPanel.SetActive(false);
-
-        trackedObjects = FindAllTaggedObjects();
-
-        if (trackedObjects.Length == 0)
-            Debug.LogWarning("LevelFailedManager: No GameObjects found for any of the monitored tags!");
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
     }
 
-    GameObject[] FindAllTaggedObjects()
+    // Call from anywhere when a part is destroyed (DamageablePart will call this)
+    // Now only shows fail panel when configured PartType is destroyed AND respawn attempts are exhausted.
+    public void NotifyPartDestroyed(DamageablePart.PartType partType)
     {
-        System.Collections.Generic.List<GameObject> found = new System.Collections.Generic.List<GameObject>();
+        if (failOnPartTypes == null || !failOnPartTypes.Contains(partType))
+            return;
 
-        foreach (string tag in tagsToMonitor)
+        var rm = RespawnManager.Instance;
+        if (rm != null)
         {
-            try
+            // Show fail panel only when no respawns remain
+            if (rm.RespawnsRemaining <= 0)
             {
-                GameObject[] objects = GameObject.FindGameObjectsWithTag(tag);
-                if (objects.Length == 0)
-                    Debug.LogWarning("LevelFailedManager: No GameObject found with tag '" + tag + "'");
-                else
-                    found.AddRange(objects);
+                ShowLevelFailed();
             }
-            catch
+            else
             {
-                Debug.LogWarning("LevelFailedManager: Tag '" + tag + "' does not exist in Tag Manager. Please add it.");
+                Debug.Log($"LevelFailedManager: '{partType}' destroyed but respawns remain ({rm.RespawnsRemaining}). Not failing level.");
             }
         }
-
-        return found.ToArray();
-    }
-
-    void Update()
-    {
-        if (levelFailed) return;
-
-        foreach (GameObject obj in trackedObjects)
-        {
-            if (obj == null)
-            {
-                TriggerLevelFailed();
-                return;
-            }
-        }
-    }
-
-    void TriggerLevelFailed()
-    {
-        if (levelFailed) return;
-        levelFailed = true;
-
-        Debug.Log("LevelFailedManager: A critical GameObject was destroyed — showing Level Failed panel.");
-
-        // Destroy the pause panel if it exists
-        if (pausePanel != null)
-            Destroy(pausePanel);
-
-        if (levelFailedPanel != null)
-            levelFailedPanel.SetActive(true);
         else
-            Debug.LogWarning("LevelFailedManager: Level Failed Panel is not assigned!");
-
-        if (pauseOnFail)
-            Time.timeScale = 0f;
+        {
+            // If RespawnManager missing, fallback to showing panel (safer) — adjust if you prefer different behavior.
+            Debug.LogWarning("LevelFailedManager: RespawnManager.Instance not found — showing fail panel by fallback.");
+            ShowLevelFailed();
+        }
     }
 
-    // Call this from a Retry button in your UI
-    public void RetryLevel()
+    // Explicit show API (callable from other systems)
+    public void ShowLevelFailed()
     {
-        Time.timeScale = 1f;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-    }
+        if (levelFailPanel != null) levelFailPanel.SetActive(true);
 
-    // Call this from a Main Menu button in your UI
-    public void GoToMainMenu(int menuSceneIndex = 0)
-    {
-        Time.timeScale = 1f;
-        SceneManager.LoadScene(menuSceneIndex);
+        // Display attempts info if RespawnManager is present
+        if (attemptsText != null && RespawnManager.Instance != null)
+        {
+            int max = RespawnManager.Instance.MaxRespawns;
+            int remaining = RespawnManager.Instance.RespawnsRemaining;
+            int used = Mathf.Max(0, max - remaining);
+            attemptsText.text = $"Attempts used: {used} / {max}";
+        }
+
+        Time.timeScale = 0f;
     }
 }

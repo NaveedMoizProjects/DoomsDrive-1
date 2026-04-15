@@ -66,12 +66,19 @@ public class RespawnManager : MonoBehaviour
     // internal
     private bool respawnInProgress = false;
 
+    // Exposed read-only properties for other systems (LevelFailedManager, UI, etc.)
+    public int RespawnsRemaining => respawnsRemaining;
+    public int MaxRespawns => maxRespawns;
+
     private void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(this.gameObject); return; }
         Instance = this;
 
         respawnsRemaining = maxRespawns;
+
+        // guard null list to avoid NREs if inspector not set
+        if (masterCheckpoints == null) masterCheckpoints = new List<Transform>();
 
         if (masterCheckpoints.Count > 0)
         {
@@ -86,6 +93,8 @@ public class RespawnManager : MonoBehaviour
 
     public void UpdateRespawnAnchor(int index)
     {
+        if (masterCheckpoints == null || masterCheckpoints.Count == 0) return;
+        index = Mathf.Clamp(index, 0, masterCheckpoints.Count - 1);
         respawnPos = masterCheckpoints[index].position;
         respawnRot = masterCheckpoints[index].rotation;
         savedCPIndex = index;
@@ -127,6 +136,47 @@ public class RespawnManager : MonoBehaviour
             Destroy(currentCar);
             currentCar = null;
         }
+    }
+
+    // NEW API: called when a DamageablePart with PartType.player reaches zero
+    public void OnPlayerZero()
+    {
+        if (isDead || respawnInProgress) return;
+
+        // Combat/Story mode: consume respawn if available, otherwise level fail
+        if (currentMode == GameMode.CombatStory)
+        {
+            if (respawnsRemaining > 0)
+            {
+                respawnsRemaining = Mathf.Max(0, respawnsRemaining - 1);
+                // Use existing death flow so UI/messages remain consistent
+                TriggerDeath("PLAYER KILLED");
+            }
+            else
+            {
+                // No respawns left — destroy player and show level failed UI
+                if (currentCar != null)
+                {
+                    DamageManager.Instance?.ClearOwnerEntries(currentCar);
+                    OnPlayerDestroyed?.Invoke(currentCar);
+                    Destroy(currentCar);
+                    currentCar = null;
+                }
+
+                // Show level failed panel (if present)
+                LevelFailedManager.Instance?.ShowLevelFailed();
+
+                // ensure timeScale is 0 (LevelFailedManager handles it but defensive)
+                Time.timeScale = 0f;
+            }
+        }
+        else
+        {
+            // For DragRace or other modes, use regular death handling
+            TriggerDeath("PLAYER KILLED");
+        }
+
+        UpdateLivesUI();
     }
 
     // NEW: non-destructive prompt showing message and waiting for R (respawn) or C (continue)
