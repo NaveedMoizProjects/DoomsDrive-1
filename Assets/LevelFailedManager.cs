@@ -18,14 +18,25 @@ public class LevelFailedManager : MonoBehaviour
     public GameObject levelFailPanel;
     public TextMeshProUGUI attemptsText;
 
+    [Header("References")]
+    public GameObject pausePanel;
+    //naveed here
+
+    private Gun gun;
+
     void Awake()
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
+
+        // Find Gun by GameObject name
+        GameObject gunObj = GameObject.Find("Gun");
+        if (gunObj != null)
+            gun = gunObj.GetComponent<Gun>();
+        else
+            Debug.LogWarning("LevelFailedManager: GameObject named 'Gun' not found in scene!");
     }
 
-    // Call from anywhere when a part is destroyed (DamageablePart will call this)
-    // Now only shows fail panel when configured PartType is destroyed AND respawn attempts are exhausted.
     public void NotifyPartDestroyed(DamageablePart.PartType partType)
     {
         if (failOnPartTypes == null || !failOnPartTypes.Contains(partType))
@@ -34,7 +45,6 @@ public class LevelFailedManager : MonoBehaviour
         var rm = RespawnManager.Instance;
         if (rm != null)
         {
-            // Show fail panel only when no respawns remain
             if (rm.RespawnsRemaining <= 0)
             {
                 ShowLevelFailed();
@@ -46,18 +56,26 @@ public class LevelFailedManager : MonoBehaviour
         }
         else
         {
-            // If RespawnManager missing, fallback to showing panel (safer) — adjust if you prefer different behavior.
             Debug.LogWarning("LevelFailedManager: RespawnManager.Instance not found — showing fail panel by fallback.");
             ShowLevelFailed();
         }
     }
 
-    // Explicit show API (callable from other systems)
     public void ShowLevelFailed()
     {
-        if (levelFailPanel != null) levelFailPanel.SetActive(true);
+        // Hide pause panel immediately
+        if (pausePanel != null)
+            Destroy(pausePanel);
 
-        // Display attempts info if RespawnManager is present
+        // Disable mouse movement via Gun script
+        if (gun != null)
+            gun.enabled = false;
+
+        // Show fail panel
+        if (levelFailPanel != null)
+            levelFailPanel.SetActive(true);
+
+        // Display attempts info
         if (attemptsText != null && RespawnManager.Instance != null)
         {
             int max = RespawnManager.Instance.MaxRespawns;

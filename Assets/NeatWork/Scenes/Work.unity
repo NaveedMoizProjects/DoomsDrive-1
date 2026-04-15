@@ -47409,6 +47409,7 @@ MonoBehaviour:
   failOnPartTypes: 030000000000000004000000
   levelFailPanel: {fileID: 4891921299591602412}
   attemptsText: {fileID: 522016739}
+  pausePanel: {fileID: 7826548158382986408}
 --- !u!4 &1057917824
 Transform:
   m_ObjectHideFlags: 0
