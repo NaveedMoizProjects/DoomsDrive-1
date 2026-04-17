@@ -75679,14 +75679,14 @@ MonoBehaviour:
   frontRight: {fileID: 182032108}
   rearLeft: {fileID: 2130429838}
   rearRight: {fileID: 878532913}
-  motorTorque: 1200
+  motorTorque: 3000
   maxSteerAngle: 30
-  maxSpeed: 80
-  followDistance: 8
+  maxSpeed: 120
+  followDistance: 4
   slowDistance: 12
-  raycastDistance: 10
+  raycastDistance: 100
   rayCount: 7
-  raySpreadAngle: 90
+  raySpreadAngle: 180
   rayOriginHeight: 0.5
   obstacleMask:
     serializedVersion: 2
@@ -75695,9 +75695,9 @@ MonoBehaviour:
   steerSmoothTime: 0.12
   avoidanceMotorBoost: 1.2
   stuckSpeedThreshold: 0.5
-  stuckTimeLimit: 1.8
+  stuckTimeLimit: 1
   reverseDuration: 1.4
-  recoverDuration: 0.8
+  recoverDuration: 0.4
   reverseTorque: 1400
   maxReverseSpeed: 12
   reverseSteerAngle: 25
