@@ -101,7 +101,7 @@ public class DamageablePart : MonoBehaviour
         isBroken = true;
 
         // Notify LevelFailManager for configured part types (it will decide)
-        LevelFailedManager.Instance?.NotifyPartDestroyed(type);
+        //LevelFailedManager.Instance?.NotifyPartDestroyed(type);
 
         if (type == PartType.enemy)
         {
