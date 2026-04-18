@@ -95,14 +95,22 @@ public class RespawnManager : MonoBehaviour
 
         string message = reason;
 
+        bool outOfLives = false;
+
         if (currentMode == GameMode.CombatStory)
         {
             if (respawnsRemaining > 0)
+            {
                 message += $"\n{respawnsRemaining} LIVES LEFT\n[R] RESPAWN";
+            }
             else
             {
+                outOfLives = true;
                 message += "\nMISSION FAILED\nOUT OF LIVES";
                 if (DamageManager.Instance != null) DamageManager.Instance.FinalizeGame("OUT OF LIVES");
+
+                // final screen (lose)
+                LevelComplete.Instance?.ShowLevelComplete("You lost");
             }
         }
         else
@@ -112,6 +120,12 @@ public class RespawnManager : MonoBehaviour
 
         if (MessageUIManager.Instance != null)
             MessageUIManager.Instance.ProcessMessage(message, WorldTriggerMessage.MessageType.Warning, 10f);
+
+        // Transient death notice when NOT out of lives
+        if (!outOfLives)
+        {
+            LevelComplete.Instance?.ShowTransientMessage("You died", WorldTriggerMessage.MessageType.Defeat, 2f);
+        }
 
         if (currentCar != null)
         {
@@ -135,7 +149,7 @@ public class RespawnManager : MonoBehaviour
             }
             else
             {
-                // No respawns left — destroy player and show pause panel
+                // No respawns left — destroy player and show final fail screen
                 if (currentCar != null)
                 {
                     DamageManager.Instance?.ClearOwnerEntries(currentCar);
@@ -144,15 +158,17 @@ public class RespawnManager : MonoBehaviour
                     currentCar = null;
                 }
 
-                // ✅ Show pause panel instead of LevelFailedManager
-                GamePauseManager.ShowOnPlayerDeath();
+                if (DamageManager.Instance != null) DamageManager.Instance.FinalizeGame("OUT OF LIVES");
+
+                // final screen (lose)
+                LevelComplete.Instance?.ShowLevelComplete("You lost");
 
                 Time.timeScale = 0f;
             }
         }
         else
         {
-            // DragRace mode — regular death flow, no pause panel
+            // DragRace mode — regular death flow
             TriggerDeath("PLAYER KILLED");
         }
 
@@ -173,7 +189,7 @@ public class RespawnManager : MonoBehaviour
 
     private void Update()
     {
-        // ✅ Block R key if pause panel is showing due to death (CombatStory no lives left)
+        // Block R key if pause panel is showing due to death
         if (GamePauseManager.IsPlayerDead) return;
 
         if (isDead && Input.GetKeyDown(KeyCode.R) && !respawnInProgress)
