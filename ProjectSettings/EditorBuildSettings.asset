@@ -18,12 +18,12 @@ EditorBuildSettings:
     path: Assets/NeatWork/Scenes/LevelSelection.unity
     guid: 520434e35672c104ba32c441d0a82a43
   - enabled: 1
+    path: Assets/NeatWork/Scenes/Work.unity
+    guid: 99c9720ab356a0642a771bea13969a05
+  - enabled: 1
     path: Assets/NeatWork/Scenes/Race.unity
     guid: cc8b2c7ff10e4c14884b7a0d630820b0
   - enabled: 1
     path: Assets/NeatWork/Scenes/Mines.unity
     guid: 535b1c6ce7ddfbb44b653522ec6c571a
-  - enabled: 1
-    path: Assets/NeatWork/Scenes/Work.unity
-    guid: 99c9720ab356a0642a771bea13969a05
   m_configObjects: {}
