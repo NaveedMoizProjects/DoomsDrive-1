@@ -75,7 +75,7 @@ public class UniversalHazard : MonoBehaviour
             // Check ownership to prevent self-detonation
             if (!string.IsNullOrEmpty(currentIgnoreTag) && other.CompareTag(currentIgnoreTag)) return;
 
-            if (other.CompareTag("Player") || other.CompareTag("AI"))
+            if (other.CompareTag("Player") /*|| other.CompareTag("AI")*/)
             {
                 TriggerExplosion(transform.position, other.tag, Vector3.up);
             }
@@ -96,7 +96,7 @@ public class UniversalHazard : MonoBehaviour
         {
             // SAFETY FALLBACK: If the Gun hasn't set the tag yet (Race Condition), 
             // and we hit something tagged "Player" or "AI" immediately, ignore it for 1 frame.
-            if (collision.collider.CompareTag("Player") || collision.collider.CompareTag("AI")) return;
+            if (collision.collider.CompareTag("Player") /*|| collision.collider.CompareTag("AI")*/) return;
         }
 
         // 2. Landmine Logic... (keep your existing code)
