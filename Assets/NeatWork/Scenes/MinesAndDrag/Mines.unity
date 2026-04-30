@@ -67253,10 +67253,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   currentLap: 0
   lapsToWin: 1
+  objectToSpawn: {fileID: 1705724035}
   isGameOver: 0
   delayBeforeMenu: 5
   mainMenuSceneName: MainMenu
-  applauseAudio: {fileID: 0}
+  applauseAudio: {fileID: 673358176}
   hudPaused: 0
   allowPlayerDamage: 1
 --- !u!4 &1524651712
@@ -76019,7 +76020,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1705724036
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -76114,7 +76115,7 @@ Transform:
   m_GameObject: {fileID: 1705724035}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0.5846266, z: -0, w: 0.8113025}
-  m_LocalPosition: {x: 383.81854, y: 15.22, z: 716.05786}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 21.296017, y: 13.446164, z: 1.2269555}
   m_ConstrainProportionsScale: 0
   m_Children: []

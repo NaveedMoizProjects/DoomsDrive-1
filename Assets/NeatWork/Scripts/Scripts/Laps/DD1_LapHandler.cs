@@ -10,21 +10,15 @@ public class DD1_LapHandler : MonoBehaviour
     private UI_CheckpointMarker marker;
     private int nextCPIndex = 1;
 
-    // Map every transform that belongs to a checkpoint (root + children) -> checkpoint index
     private Dictionary<Transform, int> transformToIndex;
-
-    // Local reference to the car's player id for winner callback
     private CarMovement carMovement;
 
     public void Setup(List<Transform> cpList, TextMeshProUGUI lUI, TextMeshProUGUI cUI, UI_CheckpointMarker ptr)
     {
         checkpoints = cpList;
         lapText = lUI; cpText = cUI; marker = ptr;
-
-        // cache CarMovement (this script is attached to the car instance)
         carMovement = GetComponent<CarMovement>();
 
-        // Build mapping once for deterministic matching
         transformToIndex = new Dictionary<Transform, int>();
         if (checkpoints != null)
         {
@@ -33,10 +27,8 @@ public class DD1_LapHandler : MonoBehaviour
                 var cp = checkpoints[i];
                 if (cp == null) continue;
 
-                // Map the root transform
                 if (!transformToIndex.ContainsKey(cp)) transformToIndex.Add(cp, i);
 
-                // Map all child transforms so colliders located on children still resolve to this index
                 foreach (var child in cp.GetComponentsInChildren<Transform>(true))
                 {
                     if (child == null) continue;
@@ -49,82 +41,83 @@ public class DD1_LapHandler : MonoBehaviour
     public void InitializeProgress(int lap, int lastCPIndex)
     {
         if (checkpoints == null || checkpoints.Count == 0) return;
-        nextCPIndex = (lastCPIndex + 1 >= checkpoints.Count) ? 0 : lastCPIndex + 1;
+        // Strictly (0 -> 1 -> 2 -> 0)
+        nextCPIndex = (lastCPIndex + 1) % checkpoints.Count;
         RefreshSystems(lastCPIndex);
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        // stop processing if game already finished via DamageManager
         if (DamageManager.Instance != null && DamageManager.Instance.IsGameOver) return;
         if (checkpoints == null || checkpoints.Count <= 1) return;
 
-        Debug.Log($"DD1_LapHandler: OnTriggerEnter - collider '{other.name}', expected index {nextCPIndex}", this);
+        if (!IsHit(other, nextCPIndex)) return;
 
-        if (!IsHit(other, nextCPIndex))
-            return;
+        int currentHit = nextCPIndex;
 
-        if (nextCPIndex != 0)
+        // Update Respawn bookmark
+        RespawnManager.Instance.UpdateRespawnAnchor(currentHit);
+
+        // TRIGGER AT END OF LIST (e.g., Index 2)
+        if (currentHit == checkpoints.Count - 1)
         {
-            int currentHit = nextCPIndex;
-            RespawnManager.Instance.UpdateRespawnAnchor(currentHit);
-            nextCPIndex = (nextCPIndex + 1 >= checkpoints.Count) ? 0 : nextCPIndex + 1;
-            RefreshSystems(currentHit);
+            SpawnObjectAtFinish();
         }
-        else
+
+        // TRIGGER AT START/FINISH (Index 0)
+        if (currentHit == 0)
         {
-            if (DamageManager.Instance != null)
+            HandleLapCompletion();
+        }
+
+        // Rotate index: 0->1->2->0
+        nextCPIndex = (nextCPIndex + 1) % checkpoints.Count;
+
+        RefreshSystems(currentHit);
+    }
+
+    private void SpawnObjectAtFinish()
+    {
+        // PULL FROM DAMAGE MANAGER
+        if (DamageManager.Instance != null && DamageManager.Instance.objectToSpawn != null)
+        {
+            if (checkpoints != null && checkpoints.Count > 0)
             {
-                DamageManager.Instance.currentLap++;
-                RespawnManager.Instance.savedLap = DamageManager.Instance.currentLap;
+                Transform finishLine = checkpoints[0];
+                Instantiate(DamageManager.Instance.objectToSpawn, finishLine.position, finishLine.rotation);
+                Debug.Log("Last CP reached: Prefab from DamageManager spawned at CP 0.");
             }
+        }
+    }
 
-            int completed = (DamageManager.Instance != null) ? DamageManager.Instance.currentLap : 0;
-            int target = (DamageManager.Instance != null) ? DamageManager.Instance.lapsToWin : 1;
+    private void HandleLapCompletion()
+    {
+        if (DamageManager.Instance != null)
+        {
+            DamageManager.Instance.currentLap++;
+            RespawnManager.Instance.savedLap = DamageManager.Instance.currentLap;
 
-            if (completed >= target)
+            if (DamageManager.Instance.currentLap >= DamageManager.Instance.lapsToWin)
             {
-                // set short delay and declare winner via DamageManager (the project "game manager")
-                if (DamageManager.Instance != null)
-                    DamageManager.Instance.delayBeforeMenu = 2f;
-
-                if (carMovement != null && DamageManager.Instance != null)
+                if (carMovement != null)
                 {
                     DamageManager.Instance.DeclareWinner(carMovement.playerID);
-                    return; // stop further processing
-                }
-                else
-                {
-                    Debug.LogWarning("DD1_LapHandler: Winner reached but missing CarMovement or DamageManager reference.");
                 }
             }
-
-            nextCPIndex = 1;
-            RespawnManager.Instance.UpdateRespawnAnchor(0);
-            RefreshSystems(0);
         }
     }
 
     private bool IsHit(Collider other, int idx)
     {
-        if (checkpoints == null || idx < 0 || idx >= checkpoints.Count) return false;
-
         Transform t = other.transform;
         while (t != null)
         {
             if (transformToIndex != null && transformToIndex.TryGetValue(t, out int foundIdx))
             {
-                bool match = (foundIdx == idx);
-                if (match)
-                    Debug.Log($"DD1_LapHandler: Checkpoint HIT idx={idx} name='{checkpoints[idx].name}' by collider '{other.name}' (mapped from '{t.name}')", this);
-                else
-                    Debug.Log($"DD1_LapHandler: Collider '{other.name}' mapped to checkpoint idx={foundIdx} but expected {idx}", this);
-
-                return match;
+                return (foundIdx == idx);
             }
             t = t.parent;
         }
-
         return false;
     }
 
@@ -132,9 +125,9 @@ public class DD1_LapHandler : MonoBehaviour
     {
         int curLap = (DamageManager.Instance != null) ? DamageManager.Instance.currentLap : 0;
         if (lapText) lapText.text = $"Lap: {curLap} / {(DamageManager.Instance != null ? DamageManager.Instance.lapsToWin : 1)}";
-        if (cpText) cpText.text = $"CP: {currentIdx} / {Mathf.Max(0, checkpoints.Count - 1)}";
+        if (cpText) cpText.text = $"CP: {currentIdx} / {checkpoints.Count - 1}";
 
-        if (marker != null && checkpoints != null && nextCPIndex >= 0 && nextCPIndex < checkpoints.Count)
+        if (marker != null && checkpoints != null)
             marker.target = checkpoints[nextCPIndex];
     }
 }

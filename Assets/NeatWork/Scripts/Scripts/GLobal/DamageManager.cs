@@ -8,19 +8,21 @@ public class DamageManager : MonoBehaviour
     public static DamageManager Instance { get; private set; }
 
     [Header("Lap Settings")]
-    public int currentLap = 0; // start at 0 = no laps completed
+    public int currentLap = 0;
     public int lapsToWin = 3;
+
+    [Header("Race Spawning")]
+    [Tooltip("The object spawned at Checkpoint 0 when the player hits the final checkpoint.")]
+    public GameObject objectToSpawn;
 
     [Header("Game State")]
     public bool isGameOver = false;
-    // Read-only accessor for other systems
     public bool IsGameOver => isGameOver;
 
     [Header("Scene / End-level")]
-    [Tooltip("Seconds to wait on results screen before returning to MainMenu")]
     public float delayBeforeMenu = 5f;
-    [Tooltip("Scene name to load after race end")]
     public string mainMenuSceneName = "MainMenu";
+
     [Header("Audio")]
     public AudioSource applauseAudio;
 
@@ -47,7 +49,6 @@ public class DamageManager : MonoBehaviour
         else Destroy(gameObject);
     }
 
-    // --- NEW: Race end / declare winner handled here ---
     public void DeclareWinner(CarMovement.PlayerID winner)
     {
         if (isGameOver) return;
@@ -73,8 +74,6 @@ public class DamageManager : MonoBehaviour
             SceneManager.LoadScene(mainMenuSceneName);
     }
 
-    // --- EXISTING: registry, health, respawn helpers ---
-    // --- NEW: PURGE OLD DATA BEFORE RESPAWN ---
     public void PurgeAllRegistryData()
     {
         carHealthRegistry.Clear();
@@ -83,10 +82,8 @@ public class DamageManager : MonoBehaviour
         Debug.Log("[DamageManager] Registry Purged for fresh Respawn.");
     }
 
-    // --- NEW: SCAN NEW CAR PARTS ---
     public void RefreshNewPlayerCar(GameObject newCar)
     {
-        // Force every DamageablePart on the new car to register
         DamageablePart[] parts = newCar.GetComponentsInChildren<DamageablePart>();
         foreach (var part in parts)
         {
