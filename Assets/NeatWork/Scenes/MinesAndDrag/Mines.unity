@@ -78509,6 +78509,7 @@ GameObject:
   - component: {fileID: 1838238966}
   - component: {fileID: 1838238969}
   - component: {fileID: 1838238970}
+  - component: {fileID: 1838238971}
   m_Layer: 17
   m_Name: Jeep-AI
   m_TagString: AI
@@ -78654,6 +78655,28 @@ MonoBehaviour:
   enemyExplosionLifetime: 2
   bloodSplashVFX: {fileID: 0}
   bloodSplashDuration: 2
+--- !u!114 &1838238971
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1838238965}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42734448fd65f7144b51cf55ed73bf80, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  driveMode: 0
+  wheels: []
+  waypoints: []
+  waypointRadius: 10
+  motorTorque: 1500
+  maxSteerAngle: 30
+  brakeForce: 3000
+  maxSpeed: 120
+  slowDownAngle: 50
+  suspensionSmoothSpeed: 20
 --- !u!1 &1839731116
 GameObject:
   m_ObjectHideFlags: 0

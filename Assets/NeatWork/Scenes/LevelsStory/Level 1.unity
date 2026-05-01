@@ -152797,7 +152797,7 @@ Transform:
   m_GameObject: {fileID: 1422671932}
   serializedVersion: 2
   m_LocalRotation: {x: 0.06923545, y: -0.0000031274362, z: 0.00000021705031, w: 0.9976004}
-  m_LocalPosition: {x: 208.96, y: 13.383081, z: 231.129}
+  m_LocalPosition: {x: 209, y: 11.655, z: 231.119}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -155560,6 +155560,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   currentLap: 0
   lapsToWin: 1
+  objectToSpawn: {fileID: 0}
   isGameOver: 0
   delayBeforeMenu: 5
   mainMenuSceneName: MainMenu
@@ -176611,7 +176612,7 @@ Transform:
   m_GameObject: {fileID: 1782078994}
   serializedVersion: 2
   m_LocalRotation: {x: 0.07092735, y: -0.151231, z: 0.010879924, w: 0.9858905}
-  m_LocalPosition: {x: 209.56001, y: 13.250056, z: 232.36098}
+  m_LocalPosition: {x: 209.6, y: 11.521975, z: 232.35098}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

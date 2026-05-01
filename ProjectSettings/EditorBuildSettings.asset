@@ -6,24 +6,30 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/NeatWork/Scenes/Splash.unity
+    path: Assets/NeatWork/Scenes/LevelsStory/Splash.unity
     guid: 094c975c11940d64dbba07467690bdc5
   - enabled: 1
-    path: Assets/NeatWork/Scenes/MainMenu.unity
+    path: Assets/NeatWork/Scenes/LevelsStory/MainMenu.unity
     guid: 4769ad2be1dff6b4e999e882d0c83019
   - enabled: 1
-    path: Assets/NeatWork/Scenes/ModeSelection.unity
+    path: Assets/NeatWork/Scenes/LevelsStory/ModeSelection.unity
     guid: f6560d41e4186a24ab72ee389a60ecb9
   - enabled: 1
-    path: Assets/NeatWork/Scenes/LevelSelection.unity
+    path: Assets/NeatWork/Scenes/LevelsStory/LevelSelection.unity
     guid: 520434e35672c104ba32c441d0a82a43
   - enabled: 1
-    path: Assets/NeatWork/Scenes/Work.unity
-    guid: 99c9720ab356a0642a771bea13969a05
-  - enabled: 0
-    path: Assets/NeatWork/Scenes/Race.unity
-    guid: cc8b2c7ff10e4c14884b7a0d630820b0
-  - enabled: 0
-    path: Assets/NeatWork/Scenes/Mines.unity
-    guid: 535b1c6ce7ddfbb44b653522ec6c571a
+    path: Assets/NeatWork/Scenes/LevelsStory/Level 1.unity
+    guid: 7732689b5619bd6449ee28602c1d3fa0
+  - enabled: 1
+    path: Assets/NeatWork/Scenes/LevelsStory/Level 2.unity
+    guid: d55072241eea6e94d8a2e708673a005c
+  - enabled: 1
+    path: Assets/NeatWork/Scenes/LevelsStory/Level 3.unity
+    guid: e657083c1df05bc48ba9eb33a5a4cd98
+  - enabled: 1
+    path: Assets/NeatWork/Scenes/LevelsStory/Level 4.unity
+    guid: 56b51ee98b4e88542a8a962e7fcada65
+  - enabled: 1
+    path: Assets/NeatWork/Scenes/LevelsStory/Level 5.unity
+    guid: 840bf7594a1deee4fb3b7e4e90e84222
   m_configObjects: {}
