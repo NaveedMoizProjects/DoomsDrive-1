@@ -1,10 +1,12 @@
 ﻿using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
 
 public class DynamicCarAI : MonoBehaviour
 {
     public enum DriveType { AllWheelDrive, FrontWheelDrive, RearWheelDrive }
     public enum Axel { Front, Rear }
+    enum DriveState { Drive, Decision, ForceForward, ForceReverse, Recover }
 
     [System.Serializable]
     public struct Wheel
@@ -21,143 +23,263 @@ public class DynamicCarAI : MonoBehaviour
 
     [Header("AI Waypoints")]
     public Transform[] waypoints;
-    public float waypointRadius = 10f;
+    public float waypointRadius = 15f;
 
     [Header("Car Performance")]
-    public float motorTorque = 1500f;
-    public float maxSteerAngle = 30f;
-    public float brakeForce = 3000f;
-    public float maxSpeed = 120f;
-    public float slowDownAngle = 50f;
+    public float motorTorque = 2200f;
+    public float maxSteerAngle = 35f;
+    public float brakeForce = 4000f;
+    public float maxSpeedKmh = 60f;
+    public float accelerationSmoothing = 0.25f;
 
-    [Header("Wheel Visual Smoothing")]
-    [Tooltip("How fast the wheel visual position follows suspension. Lower = smoother but laggy")]
-    public float suspensionSmoothSpeed = 20f;
+    [Header("Stuck Timing Controls")]
+    [Tooltip("How slow the car must be to be considered 'stuck'")]
+    public float stuckSpeedThreshold = 0.8f;
+    [Tooltip("Initial time stuck before the AI starts the recovery sequence")]
+    public float stuckTimeLimit = 2.0f;
+    [Tooltip("The 1-second 'mood' pause before taking action")]
+    public float decisionWaitTime = 1.0f;
+    [Tooltip("Time spent forcing the car forward to overcome obstacles")]
+    public float forceForwardTime = 5.0f;
+    [Tooltip("Time spent forcing the car in reverse if forward failed")]
+    public float forceReverseTime = 4.0f;
 
-    private Rigidbody carRb;
-    private int currentWaypoint;
-    private bool isFinished = false;
+    [Header("Safe Spot Memory (Track Bound)")]
+    public string trackTag = "Track";
+    public float recordInterval = 0.5f;
+    private Vector3 lastSafePos;
+    private Quaternion lastSafeRot;
+    private float recordTimer = 0f;
+    private bool isOnTrack = true;
 
-    // Store individual wheel rotation angles for smooth spinning
-    private float[] wheelRotationAngles;
+    [Header("Recovery Settings")]
+    public float rbReactivateDelay = 1.5f;
+    public float sideRayDistance = 10f;
+    public float rayOriginHeight = 0.8f;
+    public LayerMask obstacleMask = ~0;
+
+    Rigidbody carRb;
+    int currentWaypoint;
+    DriveState state = DriveState.Drive;
+
+    float stuckTimer;
+    float stateTimer;
+    float reverseSteerDir;
+    float currentTorqueVelocity;
 
     void Start()
     {
         carRb = GetComponent<Rigidbody>();
-        carRb.centerOfMass = new Vector3(0, -1f, 0);
-
-        // Initialize rotation trackers for each wheel
-        wheelRotationAngles = new float[wheels.Count];
-        for (int i = 0; i < wheelRotationAngles.Length; i++)
-            wheelRotationAngles[i] = 0f;
+        carRb.centerOfMass = new Vector3(0, -0.8f, 0);
+        lastSafePos = transform.position;
+        lastSafeRot = transform.rotation;
     }
 
     void FixedUpdate()
     {
         if (waypoints.Length == 0) return;
 
-        if (isFinished)
-        {
-            ApplyToWheels(0, 0, brakeForce);
-            return;
-        }
+        UpdateTrackMemory();
+        UpdateStuckDetection();
+        RunStateMachine();
+    }
 
+    void Update() => UpdateAllWheelVisuals();
+
+    void UpdateTrackMemory()
+    {
+        if (isOnTrack)
+        {
+            recordTimer += Time.fixedDeltaTime;
+            if (recordTimer >= recordInterval)
+            {
+                lastSafePos = transform.position;
+                lastSafeRot = transform.rotation;
+                recordTimer = 0f;
+            }
+        }
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if (other.CompareTag(trackTag)) isOnTrack = true;
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag(trackTag)) isOnTrack = false;
+    }
+
+    void RunStateMachine()
+    {
+        switch (state)
+        {
+            case DriveState.Drive: StateDrive(); break;
+            case DriveState.Decision: StateDecision(); break;
+            case DriveState.ForceForward: StateForceForward(); break;
+            case DriveState.ForceReverse: StateForceReverse(); break;
+            case DriveState.Recover: StateRecover(); break;
+        }
+    }
+
+    void StateDrive()
+    {
         Transform target = waypoints[currentWaypoint];
-        Vector3 direction = target.position - transform.position;
+        Vector3 direction = (target.position - transform.position);
         direction.y = 0f;
         float distance = direction.magnitude;
         direction.Normalize();
 
         float angle = Vector3.SignedAngle(transform.forward, direction, Vector3.up);
-        float steerInput = Mathf.Clamp(angle / 45f, -1f, 1f);
-        float speed = carRb.velocity.magnitude * 3.6f; // km/h
+        float steerInput = Mathf.Clamp(angle / maxSteerAngle, -1f, 1f);
 
-        float targetTorque = motorTorque;
+        float smoothedTorque = Mathf.SmoothDamp(carRb.velocity.magnitude > 0.5f ? motorTorque : 0, motorTorque, ref currentTorqueVelocity, accelerationSmoothing);
+        ApplyToWheels(steerInput, smoothedTorque, 0);
 
-        if (Mathf.Abs(angle) > slowDownAngle)
-            targetTorque *= 0.5f;
+        if (distance < waypointRadius) currentWaypoint = (currentWaypoint + 1) % waypoints.Length;
+    }
 
-        if (speed > maxSpeed)
-            targetTorque = 0;
+    void StateDecision()
+    {
+        ApplyToWheels(0, 0, brakeForce * 0.5f);
+        stateTimer -= Time.fixedDeltaTime;
+        if (stateTimer <= 0) TransitionTo(DriveState.ForceForward);
+    }
 
-        ApplyToWheels(steerInput, targetTorque, 0f);
-
-        if (distance < waypointRadius)
+    void StateForceForward()
+    {
+        stateTimer -= Time.fixedDeltaTime;
+        // Exit if we successfully break free early
+        if (carRb.velocity.magnitude > stuckSpeedThreshold + 1.5f)
         {
-            if (currentWaypoint < waypoints.Length - 1)
-                currentWaypoint++;
-            else
-                isFinished = true;
+            TransitionTo(DriveState.Drive);
+            return;
+        }
+        ApplyToWheels(0, motorTorque * 1.5f, 0);
+        if (stateTimer <= 0) TransitionTo(DriveState.ForceReverse);
+    }
+
+    void StateForceReverse()
+    {
+        stateTimer -= Time.fixedDeltaTime;
+        // Exit if we gain good reverse speed
+        if (carRb.velocity.magnitude > 3.0f && stateTimer < forceReverseTime * 0.5f)
+        {
+            TransitionTo(DriveState.Recover);
+            return;
+        }
+        ApplyReverseToWheels(-reverseSteerDir, motorTorque);
+        if (stateTimer <= 0) TransitionTo(DriveState.Recover);
+    }
+
+    void StateRecover()
+    {
+        stateTimer -= Time.fixedDeltaTime;
+        // FINAL SAFETY: If after all that time we are still stuck, warp to track.
+        if (stateTimer <= 0 && carRb.velocity.magnitude < stuckSpeedThreshold)
+        {
+            PerformPlacementRecovery();
+            return;
+        }
+
+        ApplyToWheels(reverseSteerDir, motorTorque * 0.8f, 0f);
+        if (carRb.velocity.magnitude > 2.5f) TransitionTo(DriveState.Drive);
+    }
+
+    void PerformPlacementRecovery()
+    {
+        carRb.velocity = Vector3.zero;
+        carRb.angularVelocity = Vector3.zero;
+
+        transform.position = lastSafePos + Vector3.up * 1.5f;
+        transform.rotation = lastSafeRot;
+
+        StartCoroutine(TempKinematic());
+        TransitionTo(DriveState.Drive);
+    }
+
+    IEnumerator TempKinematic()
+    {
+        carRb.isKinematic = true;
+        yield return new WaitForSeconds(rbReactivateDelay);
+        carRb.isKinematic = false;
+    }
+
+    void TransitionTo(DriveState next)
+    {
+        if (state == next) return;
+        if (next == DriveState.Decision) stateTimer = decisionWaitTime;
+        if (next == DriveState.ForceForward) stateTimer = forceForwardTime;
+        if (next == DriveState.ForceReverse)
+        {
+            stateTimer = forceReverseTime;
+            reverseSteerDir = ChooseClearSide();
+        }
+        if (next == DriveState.Recover) stateTimer = 2.5f;
+        state = next;
+        stuckTimer = 0f;
+    }
+
+    void UpdateStuckDetection()
+    {
+        if (state != DriveState.Drive) return;
+        if (carRb.velocity.magnitude < stuckSpeedThreshold)
+        {
+            stuckTimer += Time.fixedDeltaTime;
+            if (stuckTimer >= stuckTimeLimit) TransitionTo(DriveState.Decision);
+        }
+        else
+        {
+            stuckTimer = 0f;
         }
     }
 
-    void Update()
+    float ChooseClearSide()
     {
-        // Visual update runs in Update (not FixedUpdate) for smoother rendering
-        UpdateAllWheelVisuals();
+        Vector3 origin = transform.position + Vector3.up * rayOriginHeight;
+        float leftSum = 0, rightSum = 0;
+        float[] angles = { 20f, 45f, 70f };
+        foreach (float a in angles)
+        {
+            Vector3 lDir = transform.rotation * Quaternion.Euler(0, -a, 0) * Vector3.forward;
+            Vector3 rDir = transform.rotation * Quaternion.Euler(0, a, 0) * Vector3.forward;
+            leftSum += Physics.Raycast(origin, lDir, out RaycastHit lh, sideRayDistance, obstacleMask) ? lh.distance : sideRayDistance;
+            rightSum += Physics.Raycast(origin, rDir, out RaycastHit rh, sideRayDistance, obstacleMask) ? rh.distance : sideRayDistance;
+        }
+        return (rightSum >= leftSum) ? 1f : -1f;
     }
 
-    void ApplyToWheels(float steerInput, float torque, float brake)
+    void ApplyToWheels(float steer, float torque, float brake)
     {
-        for (int i = 0; i < wheels.Count; i++)
+        foreach (var w in wheels)
         {
-            if (wheels[i].wheelCollider == null) continue;
+            if (w.wheelCollider == null) continue;
+            if (w.axel == Axel.Front) w.wheelCollider.steerAngle = steer * maxSteerAngle;
+            bool isPowered = driveMode == DriveType.AllWheelDrive || (driveMode == DriveType.FrontWheelDrive && w.axel == Axel.Front) || (driveMode == DriveType.RearWheelDrive && w.axel == Axel.Rear);
+            w.wheelCollider.motorTorque = isPowered ? torque : 0f;
+            w.wheelCollider.brakeTorque = brake;
+        }
+    }
 
-            if (wheels[i].axel == Axel.Front)
-                wheels[i].wheelCollider.steerAngle = steerInput * maxSteerAngle;
-
-            bool isPowered = false;
-            if (driveMode == DriveType.AllWheelDrive) isPowered = true;
-            else if (driveMode == DriveType.FrontWheelDrive && wheels[i].axel == Axel.Front) isPowered = true;
-            else if (driveMode == DriveType.RearWheelDrive && wheels[i].axel == Axel.Rear) isPowered = true;
-
-            wheels[i].wheelCollider.motorTorque = isPowered ? torque : 0f;
-            wheels[i].wheelCollider.brakeTorque = brake;
+    void ApplyReverseToWheels(float steer, float torque)
+    {
+        foreach (var w in wheels)
+        {
+            if (w.wheelCollider == null) continue;
+            if (w.axel == Axel.Front) w.wheelCollider.steerAngle = steer * maxSteerAngle;
+            w.wheelCollider.motorTorque = -torque;
+            w.wheelCollider.brakeTorque = 0f;
         }
     }
 
     void UpdateAllWheelVisuals()
     {
-        for (int i = 0; i < wheels.Count; i++)
+        foreach (var w in wheels)
         {
-            if (wheels[i].wheelModel == null || wheels[i].wheelCollider == null) continue;
-            UpdateWheelVisual(wheels[i], i);
+            if (w.wheelModel == null || w.wheelCollider == null) continue;
+            w.wheelCollider.GetWorldPose(out Vector3 pos, out Quaternion rot);
+            w.wheelModel.transform.position = pos;
+            w.wheelModel.transform.rotation = rot;
         }
-    }
-
-    void UpdateWheelVisual(Wheel wheel, int index)
-    {
-        WheelCollider col = wheel.wheelCollider;
-        GameObject model = wheel.wheelModel;
-
-        // --- POSITION: Follow suspension travel smoothly ---
-        // Get the collider's world pose (this has the correct suspension position)
-        Vector3 colliderWorldPos;
-        Quaternion colliderWorldRot;
-        col.GetWorldPose(out colliderWorldPos, out colliderWorldRot);
-
-        // Smoothly interpolate position to prevent jitter
-        model.transform.position = Vector3.Lerp(
-            model.transform.position,
-            colliderWorldPos,
-            Time.deltaTime * suspensionSmoothSpeed
-        );
-
-        // --- ROTATION: Calculate manually for clean spin & steer ---
-        // Step 1: Accumulate spin rotation from wheel's RPM
-        float rpm = col.rpm;
-        float degreesPerSecond = rpm * 6f; // 360 degrees / 60 seconds = 6
-        wheelRotationAngles[index] += degreesPerSecond * Time.deltaTime;
-        wheelRotationAngles[index] = Mathf.Repeat(wheelRotationAngles[index], 360f); // Keep in 0-360
-
-        // Step 2: Get steer angle
-        float steerAngle = col.steerAngle;
-
-        // Step 3: Build rotation — parent space:
-        // Start from the car's rotation, add steering on Y, then add spin on X
-        Quaternion steerRot = Quaternion.Euler(0f, steerAngle, 0f);
-        Quaternion spinRot = Quaternion.Euler(wheelRotationAngles[index], 0f, 0f);
-
-        model.transform.rotation = transform.rotation * steerRot * spinRot;
     }
 }
