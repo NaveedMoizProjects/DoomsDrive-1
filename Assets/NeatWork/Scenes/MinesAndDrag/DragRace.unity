@@ -67253,7 +67253,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   currentLap: 0
   lapsToWin: 1
-  objectToSpawn: {fileID: 0}
+  objectToSpawn: {fileID: 1705724035}
   isGameOver: 0
   delayBeforeMenu: 5
   mainMenuSceneName: MainMenu
@@ -76020,7 +76020,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1705724036
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -76115,7 +76115,7 @@ Transform:
   m_GameObject: {fileID: 1705724035}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0.5846266, z: -0, w: 0.8113025}
-  m_LocalPosition: {x: 383.81854, y: 15.22, z: 716.05786}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 21.296017, y: 13.446164, z: 1.2269555}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -78509,6 +78509,7 @@ GameObject:
   - component: {fileID: 1838238966}
   - component: {fileID: 1838238969}
   - component: {fileID: 1838238970}
+  - component: {fileID: 1838238971}
   m_Layer: 17
   m_Name: Jeep-AI
   m_TagString: AI
@@ -78523,7 +78524,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1838238965}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f1b76255e829761499675a885b5343e7, type: 3}
   m_Name: 
@@ -78654,6 +78655,93 @@ MonoBehaviour:
   enemyExplosionLifetime: 2
   bloodSplashVFX: {fileID: 0}
   bloodSplashDuration: 2
+--- !u!114 &1838238971
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1838238965}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42734448fd65f7144b51cf55ed73bf80, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  driveMode: 0
+  wheels:
+  - wheelName: FL
+    wheelCollider: {fileID: 1914662275}
+    wheelModel: {fileID: 1305944117}
+    axel: 0
+  - wheelName: FR
+    wheelCollider: {fileID: 182032108}
+    wheelModel: {fileID: 709244780}
+    axel: 0
+  - wheelName: RL
+    wheelCollider: {fileID: 2130429838}
+    wheelModel: {fileID: 482171239}
+    axel: 1
+  - wheelName: RR
+    wheelCollider: {fileID: 878532913}
+    wheelModel: {fileID: 1696424211}
+    axel: 1
+  waypoints:
+  - {fileID: 1872690539307017973}
+  - {fileID: 4906548868890786763}
+  - {fileID: 1771994158237688047}
+  - {fileID: 9156670597369811601}
+  - {fileID: 6426200678144078768}
+  - {fileID: 5829708880644922814}
+  - {fileID: 905290938788598855}
+  - {fileID: 4583407467357090794}
+  - {fileID: 6913156061137229444}
+  - {fileID: 5095480976077439570}
+  - {fileID: 5134506269344482857}
+  - {fileID: 6650588821691136338}
+  - {fileID: 3959412691451360177}
+  - {fileID: 1050489607485954529}
+  - {fileID: 3569126028879992605}
+  - {fileID: 3159531242714748099}
+  - {fileID: 6728279015507244473}
+  - {fileID: 1268407519392485935}
+  - {fileID: 8088919685301796801}
+  - {fileID: 5957241152317197198}
+  - {fileID: 219898186659906812}
+  - {fileID: 331813015848658258}
+  - {fileID: 1484300529709545296}
+  - {fileID: 5079590167639043610}
+  - {fileID: 5514704121071411432}
+  - {fileID: 3397019970599267843}
+  - {fileID: 8887830387435154596}
+  - {fileID: 3082856202160492752}
+  - {fileID: 4422036236865437749}
+  - {fileID: 1425967487802159792}
+  - {fileID: 9188516389913051757}
+  - {fileID: 4069575437371356976}
+  - {fileID: 2458036055042578475}
+  - {fileID: 8801328693892067254}
+  - {fileID: 3921705114453060060}
+  - {fileID: 5171182047109272155}
+  - {fileID: 4699042688302787807}
+  waypointRadius: 15
+  motorTorque: 1000
+  maxSteerAngle: 45
+  brakeForce: 3000
+  maxSpeedKmh: 40
+  accelerationSmoothing: 0.4
+  stuckSpeedThreshold: 0.4
+  stuckTimeLimit: 2
+  decisionWaitTime: 1
+  forceForwardTime: 3
+  forceReverseTime: 3
+  trackTag: Track
+  recordInterval: 0.3
+  rbReactivateDelay: 2
+  sideRayDistance: 8
+  rayOriginHeight: 1
+  obstacleMask:
+    serializedVersion: 2
+    m_Bits: 2523103
 --- !u!1 &1839731116
 GameObject:
   m_ObjectHideFlags: 0
