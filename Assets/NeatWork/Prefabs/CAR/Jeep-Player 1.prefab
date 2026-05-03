@@ -32814,7 +32814,7 @@ WheelCollider:
   m_SuspensionSpring:
     spring: 55000
     damper: 3500
-    targetPosition: 0.5
+    targetPosition: 0.6
   m_SuspensionDistance: 0.25
   m_ForceAppPointDistance: 0.15
   m_Mass: 40
@@ -34858,7 +34858,7 @@ WheelCollider:
   m_SuspensionSpring:
     spring: 55000
     damper: 3500
-    targetPosition: 0.5
+    targetPosition: 0.6
   m_SuspensionDistance: 0.25
   m_ForceAppPointDistance: 0.15
   m_Mass: 40
@@ -40020,7 +40020,7 @@ WheelCollider:
   m_SuspensionSpring:
     spring: 55000
     damper: 3500
-    targetPosition: 0.5
+    targetPosition: 0.6
   m_SuspensionDistance: 0.25
   m_ForceAppPointDistance: 0.15
   m_Mass: 40
@@ -46258,7 +46258,7 @@ WheelCollider:
   m_SuspensionSpring:
     spring: 55000
     damper: 3500
-    targetPosition: 0.5
+    targetPosition: 0.6
   m_SuspensionDistance: 0.25
   m_ForceAppPointDistance: 0.15
   m_Mass: 40
@@ -58840,6 +58840,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1685752955aca341b2075b94bba5fb8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  centerOfMassY: -1.5
+  extraGravity: 2
+  downforceAmount: 500
+  maxSteerAngle: 60
+  steeringSpeed: 5
+  forwardFrictionStiffness: 2
+  sidewaysFrictionStiffness: 2.5
   driveMode: 0
   wheels:
   - wheelName: FR
@@ -58867,7 +58874,6 @@ MonoBehaviour:
     health: 100
     sandParticles: {fileID: 5976683088841022049}
   baseMotorTorque: 800
-  maxSteerAngle: 60
   brakeForce: 8000
   scrapingFriction: 200
 --- !u!114 &1362747106816013495
