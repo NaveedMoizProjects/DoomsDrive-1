@@ -58844,9 +58844,9 @@ MonoBehaviour:
   extraGravity: 1.5
   downforceAmount: 100
   maxSteerAngle: 45
-  steeringSpeed: 5
-  forwardFrictionStiffness: 1.12
-  sidewaysFrictionStiffness: 1.29
+  steeringSpeed: 1
+  forwardFrictionStiffness: 3
+  sidewaysFrictionStiffness: 4
   driveMode: 0
   wheels:
   - wheelName: FR
@@ -58874,7 +58874,7 @@ MonoBehaviour:
     health: 100
     sandParticles: {fileID: 5976683088841022049}
   baseMotorTorque: 1400
-  brakeForce: 8000
+  brakeForce: 16000
   scrapingFriction: 200
 --- !u!114 &1362747106816013495
 MonoBehaviour:

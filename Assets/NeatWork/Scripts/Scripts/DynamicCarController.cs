@@ -25,8 +25,8 @@ public class DynamicCarController : MonoBehaviour
 
     [Header("Steering Smoothness")]
     public float maxSteerAngle = 30f;
+    [Tooltip("Higher = faster steering response. Recommended: 3 to 6")]
     public float steeringSpeed = 5f;
-    private float currentSteerInput;
 
     [Header("Friction Settings")]
     [Range(1f, 5f)] public float forwardFrictionStiffness = 2.0f;
@@ -39,8 +39,10 @@ public class DynamicCarController : MonoBehaviour
     public float brakeForce = 4000f;
     public float scrapingFriction = 500f;
 
+    // Private
     private Rigidbody carRb;
     private CarSettings carSettings;
+    private float currentSteerAngle = 0f; // Track actual angle, not normalized input
 
     void Start()
     {
@@ -65,12 +67,14 @@ public class DynamicCarController : MonoBehaviour
 
     void HandlePhysics()
     {
-        float moveInput = Input.GetAxis("Vertical");
-        float targetSteer = Input.GetAxis("Horizontal");
+        // ✅ FIX: Use GetAxisRaw to avoid Unity's built-in double-smoothing
+        float moveInput = Input.GetAxisRaw("Vertical");
+        float rawSteer = Input.GetAxisRaw("Horizontal");
         bool isBraking = Input.GetKey(KeyCode.Space);
 
-        currentSteerInput = Mathf.MoveTowards(currentSteerInput, targetSteer, Time.fixedDeltaTime * steeringSpeed);
-        float finalSteerAngle = currentSteerInput * maxSteerAngle;
+        // ✅ FIX: Smoothly interpolate the actual steer ANGLE directly
+        float targetAngle = rawSteer * maxSteerAngle;
+        currentSteerAngle = Mathf.Lerp(currentSteerAngle, targetAngle, Time.fixedDeltaTime * steeringSpeed);
 
         float accelMultiplier = carSettings != null ? carSettings.globalAccelerationMultiplier : 1f;
         float suspHeight = carSettings != null ? carSettings.suspensionHeight : 0.2f;
@@ -79,21 +83,34 @@ public class DynamicCarController : MonoBehaviour
         {
             if (wheels[i].wheelCollider == null) continue;
 
-            if (wheels[i].position == WheelPosition.FrontLeft || wheels[i].position == WheelPosition.FrontRight)
-                wheels[i].wheelCollider.steerAngle = finalSteerAngle;
+            // Apply smoothed steer angle to front wheels
+            if (wheels[i].position == WheelPosition.FrontLeft ||
+                wheels[i].position == WheelPosition.FrontRight)
+            {
+                wheels[i].wheelCollider.steerAngle = currentSteerAngle;
+            }
 
+            // Drive mode logic
             bool isPowered = false;
-            if (driveMode == DriveType.AllWheelDrive) isPowered = true;
-            else if (driveMode == DriveType.FrontWheelDrive && (wheels[i].position == WheelPosition.FrontLeft || wheels[i].position == WheelPosition.FrontRight)) isPowered = true;
-            else if (driveMode == DriveType.RearWheelDrive && (wheels[i].position == WheelPosition.RearLeft || wheels[i].position == WheelPosition.RearRight)) isPowered = true;
+            switch (driveMode)
+            {
+                case DriveType.AllWheelDrive:
+                    isPowered = true;
+                    break;
+                case DriveType.FrontWheelDrive:
+                    isPowered = wheels[i].position == WheelPosition.FrontLeft ||
+                                wheels[i].position == WheelPosition.FrontRight;
+                    break;
+                case DriveType.RearWheelDrive:
+                    isPowered = wheels[i].position == WheelPosition.RearLeft ||
+                                wheels[i].position == WheelPosition.RearRight;
+                    break;
+            }
 
-            if (isPowered)
-                wheels[i].wheelCollider.motorTorque = moveInput * baseMotorTorque * accelMultiplier;
-            else
-                wheels[i].wheelCollider.motorTorque = 0;
+            wheels[i].wheelCollider.motorTorque = isPowered ? moveInput * baseMotorTorque * accelMultiplier : 0f;
+            wheels[i].wheelCollider.brakeTorque = isBraking ? brakeForce : 0f;
 
-            wheels[i].wheelCollider.brakeTorque = isBraking ? brakeForce : 0;
-
+            // Suspension
             var spring = wheels[i].wheelCollider.suspensionSpring;
             spring.targetPosition = suspHeight;
             wheels[i].wheelCollider.suspensionSpring = spring;
@@ -102,29 +119,12 @@ public class DynamicCarController : MonoBehaviour
         }
     }
 
-    // --- RE-ADDED DAMAGE METHOD ---
-    public void ApplyDamageToWheel(string targetName, float amount)
-    {
-        for (int i = 0; i < wheels.Count; i++)
-        {
-            if (wheels[i].wheelName == targetName)
-            {
-                // We have to copy the struct, modify it, and put it back
-                Wheel wheel = wheels[i];
-                wheel.health -= amount;
-                wheels[i] = wheel;
-
-                Debug.Log($"Wheel {targetName} took damage. Current health: {wheel.health}");
-                return;
-            }
-        }
-    }
-
     void UpdateWheelFriction()
     {
         foreach (var wheel in wheels)
         {
             if (wheel.wheelCollider == null) continue;
+
             WheelFrictionCurve fF = wheel.wheelCollider.forwardFriction;
             fF.stiffness = forwardFrictionStiffness;
             wheel.wheelCollider.forwardFriction = fF;
@@ -135,19 +135,18 @@ public class DynamicCarController : MonoBehaviour
         }
     }
 
+    void UpdateVisuals(Wheel wheel)
+    {
+        if (wheel.wheelModel == null || wheel.wheelCollider == null) return;
+        wheel.wheelCollider.GetWorldPose(out Vector3 pos, out Quaternion rot);
+        wheel.wheelModel.transform.position = pos;
+        wheel.wheelModel.transform.rotation = rot;
+    }
+
     void ApplyDownforce()
     {
         float speed = carRb.velocity.magnitude;
         carRb.AddForce(-transform.up * downforceAmount * speed);
-    }
-
-    void UpdateVisuals(Wheel wheel)
-    {
-        if (wheel.wheelModel == null || wheel.wheelCollider == null) return;
-        Vector3 pos; Quaternion rot;
-        wheel.wheelCollider.GetWorldPose(out pos, out rot);
-        wheel.wheelModel.transform.position = pos;
-        wheel.wheelModel.transform.rotation = rot;
     }
 
     void ApplyAirDrag()
@@ -160,17 +159,33 @@ public class DynamicCarController : MonoBehaviour
     {
         foreach (var wheel in wheels)
         {
-            if (wheel.wheelCollider == null)
-            {
-                Vector3 offset = wheel.position == WheelPosition.FrontLeft ? new Vector3(-0.8f, 0, 1.5f) :
-                                 wheel.position == WheelPosition.FrontRight ? new Vector3(0.8f, 0, 1.5f) :
-                                 wheel.position == WheelPosition.RearLeft ? new Vector3(-0.8f, 0, -1.5f) :
-                                 new Vector3(0.8f, 0, -1.5f);
+            if (wheel.wheelCollider != null) continue; // Skip wheels that are intact
 
-                Vector3 dragPos = transform.TransformPoint(offset);
-                carRb.AddForceAtPosition(Vector3.down * 1000f, dragPos);
-                carRb.AddForceAtPosition(-carRb.velocity.normalized * (carRb.velocity.magnitude * scrapingFriction), dragPos);
-            }
+            Vector3 offset = wheel.position == WheelPosition.FrontLeft ? new Vector3(-0.8f, 0, 1.5f) :
+                             wheel.position == WheelPosition.FrontRight ? new Vector3(0.8f, 0, 1.5f) :
+                             wheel.position == WheelPosition.RearLeft ? new Vector3(-0.8f, 0, -1.5f) :
+                                                                           new Vector3(0.8f, 0, -1.5f);
+
+            Vector3 dragPos = transform.TransformPoint(offset);
+            carRb.AddForceAtPosition(Vector3.down * 1000f, dragPos);
+            carRb.AddForceAtPosition(-carRb.velocity.normalized * (carRb.velocity.magnitude * scrapingFriction), dragPos);
+        }
+    }
+
+    // ─── Damage & Wheel Disconnect ───────────────────────────────────────────
+
+    public void ApplyDamageToWheel(string targetName, float amount)
+    {
+        for (int i = 0; i < wheels.Count; i++)
+        {
+            if (wheels[i].wheelName != targetName) continue;
+
+            Wheel wheel = wheels[i];
+            wheel.health -= amount;
+            wheels[i] = wheel;
+
+            Debug.Log($"[Car] Wheel '{targetName}' took {amount} damage. Health: {wheel.health}");
+            return;
         }
     }
 
@@ -178,34 +193,38 @@ public class DynamicCarController : MonoBehaviour
     {
         for (int i = 0; i < wheels.Count; i++)
         {
-            if (wheels[i].wheelName == targetName)
+            if (wheels[i].wheelName != targetName) continue;
+
+            Wheel wheel = wheels[i];
+            if (wheel.wheelCollider == null) return;
+
+            wheel.wheelCollider.enabled = false;
+            wheel.wheelCollider.gameObject.SetActive(false);
+
+            if (wheel.wheelModel != null)
             {
-                Wheel wheel = wheels[i];
-                if (wheel.wheelCollider == null) return;
+                GameObject meshObj = wheel.wheelModel;
+                meshObj.transform.SetParent(null);
 
-                wheel.wheelCollider.enabled = false;
-                wheel.wheelCollider.gameObject.SetActive(false);
+                Rigidbody tireRb = meshObj.GetComponent<Rigidbody>() ?? meshObj.AddComponent<Rigidbody>();
+                tireRb.isKinematic = false;
+                tireRb.useGravity = true;
+                tireRb.mass = 20f;
+                tireRb.velocity = carRb.velocity;
 
-                if (wheel.wheelModel != null)
-                {
-                    GameObject meshObj = wheel.wheelModel;
-                    meshObj.transform.SetParent(null);
-                    Rigidbody tireRb = meshObj.GetComponent<Rigidbody>() ?? meshObj.AddComponent<Rigidbody>();
-                    tireRb.isKinematic = false;
-                    tireRb.useGravity = true;
-                    tireRb.mass = 20f;
-                    tireRb.velocity = carRb.velocity;
-                    MeshCollider tireCol = meshObj.GetComponent<MeshCollider>() ?? meshObj.AddComponent<MeshCollider>();
-                    tireCol.convex = true;
+                MeshCollider tireCol = meshObj.GetComponent<MeshCollider>() ?? meshObj.AddComponent<MeshCollider>();
+                tireCol.convex = true;
 
-                    Vector3 sideDir = (wheel.position == WheelPosition.FrontLeft || wheel.position == WheelPosition.RearLeft) ? -transform.right : transform.right;
-                    tireRb.AddForce(sideDir * 5f, ForceMode.Impulse);
-                }
+                Vector3 sideDir = (wheel.position == WheelPosition.FrontLeft ||
+                                   wheel.position == WheelPosition.RearLeft)
+                                   ? -transform.right : transform.right;
 
-                wheel.wheelCollider = null;
-                wheels[i] = wheel;
-                return;
+                tireRb.AddForce(sideDir * 5f, ForceMode.Impulse);
             }
+
+            wheel.wheelCollider = null;
+            wheels[i] = wheel;
+            return;
         }
     }
 }
