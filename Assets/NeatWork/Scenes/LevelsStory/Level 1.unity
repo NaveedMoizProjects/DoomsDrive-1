@@ -40268,6 +40268,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   levelCompletePanel: {fileID: 7826548158382986408}
   panelMessageText: {fileID: 6487867718332065923}
+  winTag: PlayerBullet
+  loseTag: AI
+  winMessage: You win
+  loseMessage: You lose
 --- !u!65 &1705724037
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -43568,7 +43572,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   type: 1
-  messageText: Checkpoint Reached
+  messageText: Checkpoint Reached!! Last Checkpoint
   duration: 2
   targetTag: Player
   triggerOnlyOnce: 0

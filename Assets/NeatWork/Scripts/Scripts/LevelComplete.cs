@@ -11,6 +11,21 @@ public class LevelComplete : MonoBehaviour
     [Header("Panel message (optional)")]
     public TextMeshProUGUI panelMessageText;
 
+    [Header("Trigger Tags")]
+    [Tooltip("Tag that triggers a Win when it enters the trigger (leave empty to disable).")]
+    public string winTag = "Player";
+    [Tooltip("Tag that triggers a Lose when it enters the trigger (leave empty to disable).")]
+    public string loseTag = "Enemy";
+
+    [Header("Custom messages (optional)")]
+    [Tooltip("Message shown on win. If empty, a default will be used.")]
+    public string winMessage = "You win";
+    [Tooltip("Message shown on lose. If empty, a default will be used.")]
+    public string loseMessage = "You lose";
+
+    // Prevent multiple triggers causing multiple panels / audio
+    private bool isFinished = false;
+
     void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(this.gameObject); return; }
@@ -30,14 +45,31 @@ public class LevelComplete : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        // Player car (tag: PlayerBullet), Player bullet, or AI (enemy) trigger
+        if (isFinished) return;
+
         string tag = other.tag;
         Debug.Log($"LevelComplete trigger hit by: {other.name} | Tag: {tag}");
 
+        // Priority: explicit win/lose tags from inspector
+        if (!string.IsNullOrEmpty(winTag) && other.CompareTag(winTag))
+        {
+            isFinished = true;
+            ShowLevelComplete(string.IsNullOrEmpty(winMessage) ? "You win" : winMessage);
+            return;
+        }
+
+        if (!string.IsNullOrEmpty(loseTag) && other.CompareTag(loseTag))
+        {
+            isFinished = true;
+            ShowLevelComplete(string.IsNullOrEmpty(loseMessage) ? "You lose" : loseMessage);
+            return;
+        }
+
+        // Fallback to the previous behavior (keeps existing triggers working)
         if (tag == "PlayerBullet" || tag == "AI" || tag == "Player")
         {
-            // level finished — use final panel with win message
-            ShowLevelComplete("You wins");
+            isFinished = true;
+            ShowLevelComplete(string.IsNullOrEmpty(winMessage) ? "You wins" : winMessage);
         }
     }
 
