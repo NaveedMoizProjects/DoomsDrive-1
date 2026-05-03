@@ -32,4 +32,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/NeatWork/Scenes/LevelsStory/Level 5.unity
     guid: 840bf7594a1deee4fb3b7e4e90e84222
+  - enabled: 1
+    path: Assets/NeatWork/Scenes/LevelsStory/Cutscene_level1.unity
+    guid: 7d7a9af14133a4c4ba06ea369c4d2f72
   m_configObjects: {}
