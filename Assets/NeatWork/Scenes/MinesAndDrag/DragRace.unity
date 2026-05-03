@@ -45944,6 +45944,112 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!1 &946999407
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 946999411}
+  - component: {fileID: 946999410}
+  - component: {fileID: 946999409}
+  - component: {fileID: 946999408}
+  m_Layer: 0
+  m_Name: Arch_01_free_obs (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!64 &946999408
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 946999407}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 8799704334434963231, guid: ee05a77639c729f448c842f5462f0b4b, type: 3}
+--- !u!23 &946999409
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 946999407}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: b191529dbda163843876d34008f8139a, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &946999410
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 946999407}
+  m_Mesh: {fileID: 8799704334434963231, guid: ee05a77639c729f448c842f5462f0b4b, type: 3}
+--- !u!4 &946999411
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 946999407}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.37157032, z: -0, w: 0.9284048}
+  m_LocalPosition: {x: 553.37, y: 8.93, z: 541.09}
+  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 43.625, z: 0}
 --- !u!1001 &947600181
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -76114,13 +76220,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1705724035}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0.5846266, z: -0, w: 0.8113025}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 21.296017, y: 13.446164, z: 1.2269555}
+  m_LocalRotation: {x: -0, y: -0.93284035, z: -0, w: 0.36029008}
+  m_LocalPosition: {x: 557.2, y: 23, z: 543.8}
+  m_LocalScale: {x: 37.700333, y: 29.648788, z: 1.2269555}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -137.764, z: 0}
 --- !u!1 &1707978125
 GameObject:
   m_ObjectHideFlags: 0
@@ -78727,13 +78833,13 @@ MonoBehaviour:
   motorTorque: 1000
   maxSteerAngle: 45
   brakeForce: 3000
-  maxSpeedKmh: 40
+  maxSpeedKmh: 30
   accelerationSmoothing: 0.4
   stuckSpeedThreshold: 0.4
-  stuckTimeLimit: 2
-  decisionWaitTime: 1
-  forceForwardTime: 3
-  forceReverseTime: 3
+  stuckTimeLimit: 1
+  decisionWaitTime: 0.5
+  forceForwardTime: 2
+  forceReverseTime: 2
   trackTag: Track
   recordInterval: 0.3
   rbReactivateDelay: 2
@@ -145839,7 +145945,6 @@ SceneRoots:
   - {fileID: 327029914}
   - {fileID: 173496913}
   - {fileID: 257728294}
-  - {fileID: 1705724040}
   - {fileID: 320302711}
   - {fileID: 2070412594}
   - {fileID: 1239760265}
@@ -145861,4 +145966,6 @@ SceneRoots:
   - {fileID: 1135552256}
   - {fileID: 1689065940279124305}
   - {fileID: 5092028521108845058}
+  - {fileID: 946999411}
+  - {fileID: 1705724040}
   - {fileID: 1973766572}
