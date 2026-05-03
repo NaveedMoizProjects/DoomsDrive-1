@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae544f6af7851b7448240f9d768658d0, type: 3}
+  m_Name: Level1CutsceneEnd
+  m_EditorClassIdentifier: 
+  lines:
+  - characterName: 'Original Tribe Leader:'
+    text: "You were never meant to outshine the tribe. You were meant to serve it.\r\nEvery
+      victory you claimed\u2026 the people cheered your name louder than mine.\r\nThat
+      is dangerous. In the desert, power doesn\u2019t belong to the fastest \u2014
+      it belongs to the one who controls the story."
+    backgroundSprite: {fileID: 21300000, guid: 546319bb43bc0aa4bb0ee2c997f2a8ea, type: 3}
+    PlayerSprite: {fileID: 21300000, guid: f8703fbdb47f9844282d8679cdc0be9f, type: 3}
+    typingSpeed: 0.1
+    showTextBox: 1
+  - characterName: 'Player 1:'
+    text: "I didn\u2019t race for glory. I raced for us."
+    backgroundSprite: {fileID: 21300000, guid: 546319bb43bc0aa4bb0ee2c997f2a8ea, type: 3}
+    PlayerSprite: {fileID: 21300000, guid: da130056469a1bb42b68127249aba7ae, type: 3}
+    typingSpeed: 0.1
+    showTextBox: 1
+  - characterName: 'Player 1:'
+    text: "For the tribe that raised me\u2026 fed me\u2026 taught me how to survive
+      in a world that eats the weak.\r\nIf my strength became a threat\u2026 then
+      maybe it was never loyalty you wanted from me.\r\nMaybe it was obedience."
+    backgroundSprite: {fileID: 21300000, guid: 0b9e74108f97b2a45b7b17122211c781, type: 3}
+    PlayerSprite: {fileID: 21300000, guid: da130056469a1bb42b68127249aba7ae, type: 3}
+    typingSpeed: 0.1
+    showTextBox: 1
+  - characterName: 'Leader:'
+    text: 'You mistake strength for importance.
+
+      You were a weapon.
+
+      And
+      weapons are discarded once they begin to think.'
+    backgroundSprite: {fileID: 21300000, guid: 0b9e74108f97b2a45b7b17122211c781, type: 3}
+    PlayerSprite: {fileID: 21300000, guid: f8703fbdb47f9844282d8679cdc0be9f, type: 3}
+    typingSpeed: 0.1
+    showTextBox: 1
+  - characterName: (.....)
+    text: (Car sabotaged. He is left in the storm.)
+    backgroundSprite: {fileID: 21300000, guid: 0b9e74108f97b2a45b7b17122211c781, type: 3}
+    PlayerSprite: {fileID: 0}
+    typingSpeed: 0.5
+    showTextBox: 1
+  - characterName: 'Player 1:'
+    text: "So this is how bonds break\u2026\r\nNot in battle. Not in betrayal shouted
+      to your face\u2026\r\nBut in quiet decisions made behind your back.\r\nIf I
+      survive this\u2026 I won\u2019t race for them again.\r\nI\u2019ll race to redefine
+      who I am."
+    backgroundSprite: {fileID: 21300000, guid: 0b9e74108f97b2a45b7b17122211c781, type: 3}
+    PlayerSprite: {fileID: 21300000, guid: da130056469a1bb42b68127249aba7ae, type: 3}
+    typingSpeed: 0.1
+    showTextBox: 1
+  - characterName: 'Player 1:'
+    text: (Fades out)...................
+    backgroundSprite: {fileID: 21300000, guid: 0b9e74108f97b2a45b7b17122211c781, type: 3}
+    PlayerSprite: {fileID: 21300000, guid: da130056469a1bb42b68127249aba7ae, type: 3}
+    typingSpeed: 0.1
+    showTextBox: 1
+  nextSceneName: Level 1

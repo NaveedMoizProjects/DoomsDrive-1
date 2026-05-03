@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae544f6af7851b7448240f9d768658d0, type: 3}
+  m_Name: Level1CutsceneStart
+  m_EditorClassIdentifier: 
+  lines:
+  - characterName: 'Girl:'
+    text: "When we found you, you were barely breathing.\r\nMost people abandoned
+      in that storm don\u2019t last an hour.\r\nYou lasted two days.\r\nThat tells
+      me something about you."
+    backgroundSprite: {fileID: 21300000, guid: 552312490d38f3445b19a2081ae38208, type: 3}
+    PlayerSprite: {fileID: 21300000, guid: ed71d1e379718bd43abd89d3d8dfc24b, type: 3}
+    typingSpeed: 0.1
+    showTextBox: 1
+  - characterName: 'Player 1:'
+    text: "It tells you I\u2019m too stubborn to die.\r\nOr too angry."
+    backgroundSprite: {fileID: 21300000, guid: 552312490d38f3445b19a2081ae38208, type: 3}
+    PlayerSprite: {fileID: 21300000, guid: da130056469a1bb42b68127249aba7ae, type: 3}
+    typingSpeed: 0.1
+    showTextBox: 1
+  - characterName: 'Girl:'
+    text: "Anger can keep you alive\u2026\r\nBut it can also turn you into the same
+      monster that left you in the sand.\r\nIf you\u2019re going to race with us,
+      understand something \u2014\r\nWe don\u2019t fight for dominance.\r\nWe fight
+      to protect what little we have."
+    backgroundSprite: {fileID: 21300000, guid: 552312490d38f3445b19a2081ae38208, type: 3}
+    PlayerSprite: {fileID: 21300000, guid: ed71d1e379718bd43abd89d3d8dfc24b, type: 3}
+    typingSpeed: 0.1
+    showTextBox: 1
+  - characterName: 'Player 1 (looking at car):'
+    text: "This machine\u2026 it\u2019s broken."
+    backgroundSprite: {fileID: 21300000, guid: 552312490d38f3445b19a2081ae38208, type: 3}
+    PlayerSprite: {fileID: 21300000, guid: da130056469a1bb42b68127249aba7ae, type: 3}
+    typingSpeed: 0.1
+    showTextBox: 1
+  - characterName: 'Girl:'
+    text: "So were you.\r\nBut broken things aren\u2019t useless.\r\nSometimes they\u2019re
+      just unfinished."
+    backgroundSprite: {fileID: 21300000, guid: 552312490d38f3445b19a2081ae38208, type: 3}
+    PlayerSprite: {fileID: 0}
+    typingSpeed: 0.5
+    showTextBox: 1
+  nextSceneName: Cutscene_level2_Start
