@@ -7,6 +7,7 @@ public class DialogueLine
     [TextArea(3, 10)]
     public string text;
     public Sprite backgroundSprite;
+    public Sprite PlayerSprite;
     public float typingSpeed = 0.02f; // Default speed
     public bool showTextBox = true;
 }

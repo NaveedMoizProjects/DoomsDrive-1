@@ -11,6 +11,7 @@ public class CutsceneManager : MonoBehaviour
     public TextMeshProUGUI dialogueText;
     public TextMeshProUGUI nameText; // Optional character name
     public Image backgroundImage;
+    public Image characterImage; // Optional character portrait
     public GameObject textBoxPanel;
 
     [Header("Settings")]
@@ -32,6 +33,7 @@ public class CutsceneManager : MonoBehaviour
         {
             Debug.LogError("No Cutscene Data assigned!");
         }
+        
     }
 
     // Logic for: Clicking Background OR pressing Space
@@ -86,15 +88,27 @@ public class CutsceneManager : MonoBehaviour
     void UpdateUI()
     {
         DialogueLine line = currentCutscene.lines[lineIndex];
-
+        if(line.PlayerSprite == null)
+        {
+            characterImage.gameObject.SetActive(false);
+        }
+        else
+        {
+            characterImage.gameObject.SetActive(true);
+        }
         // 1. Update Visuals
         if (line.backgroundSprite != null)
+        { 
             backgroundImage.sprite = line.backgroundSprite;
+            characterImage.sprite = line.PlayerSprite;
+        }
 
         textBoxPanel.SetActive(line.showTextBox);
 
         if (nameText != null)
-            nameText.text = line.characterName;
+        { 
+            nameText.text = line.characterName; 
+        }
 
         fullText = line.text;
 
