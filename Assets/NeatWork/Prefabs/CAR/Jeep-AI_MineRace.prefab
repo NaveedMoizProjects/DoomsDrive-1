@@ -35836,7 +35836,7 @@ GameObject:
   - component: {fileID: 6213504466335219999}
   - component: {fileID: 3707724922949847543}
   m_Layer: 8
-  m_Name: Jeep-AI
+  m_Name: Jeep-AI_MineRace
   m_TagString: AI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
