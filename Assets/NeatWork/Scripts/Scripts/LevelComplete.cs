@@ -1,4 +1,4 @@
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 
 public class LevelComplete : MonoBehaviour
@@ -14,16 +14,17 @@ public class LevelComplete : MonoBehaviour
     [Header("Trigger Tags")]
     [Tooltip("Tag that triggers a Win when it enters the trigger (leave empty to disable).")]
     public string winTag = "Player";
+
     [Tooltip("Tag that triggers a Lose when it enters the trigger (leave empty to disable).")]
     public string loseTag = "Enemy";
 
     [Header("Custom messages (optional)")]
     [Tooltip("Message shown on win. If empty, a default will be used.")]
     public string winMessage = "You win";
+
     [Tooltip("Message shown on lose. If empty, a default will be used.")]
     public string loseMessage = "You lose";
 
-    // Prevent multiple triggers causing multiple panels / audio
     private bool isFinished = false;
 
     void Awake()
@@ -50,31 +51,54 @@ public class LevelComplete : MonoBehaviour
         string tag = other.tag;
         Debug.Log($"LevelComplete trigger hit by: {other.name} | Tag: {tag}");
 
-        // Priority: explicit win/lose tags from inspector
         if (!string.IsNullOrEmpty(winTag) && other.CompareTag(winTag))
         {
             isFinished = true;
-            ShowLevelComplete(string.IsNullOrEmpty(winMessage) ? "You win" : winMessage);
+            TriggerWin();
             return;
         }
 
         if (!string.IsNullOrEmpty(loseTag) && other.CompareTag(loseTag))
         {
             isFinished = true;
-            ShowLevelComplete(string.IsNullOrEmpty(loseMessage) ? "You lose" : loseMessage);
+            TriggerLose();
             return;
         }
 
-        // Fallback to the previous behavior (keeps existing triggers working)
+        // Fallback
         if (tag == "PlayerBullet" || tag == "AI" || tag == "Player")
         {
             isFinished = true;
-            ShowLevelComplete(string.IsNullOrEmpty(winMessage) ? "You wins" : winMessage);
+            TriggerWin();
         }
     }
 
-    // Shows final panel (use for win / final lose screens)
-    public void ShowLevelComplete(string message)
+    // ── Player jeeta: cutscene par le jaao ──
+    public void TriggerWin()
+    {
+        string msg = string.IsNullOrEmpty(winMessage) ? "You win" : winMessage;
+        Debug.Log($"[LevelComplete] WIN — cutscene load ho raha hai.");
+
+        if (LevelTransitionManager.Instance != null)
+        {
+            LevelTransitionManager.Instance.GoToCutscene();
+        }
+        else
+        {
+            Debug.LogWarning("[LevelComplete] LevelTransitionManager nahi mila! Panel fallback.");
+            ShowPanel(msg);
+        }
+    }
+
+    // ── Player mara: sirf panel dikhao, cutscene nahi ──
+    public void TriggerLose()
+    {
+        string msg = string.IsNullOrEmpty(loseMessage) ? "You lose" : loseMessage;
+        Debug.Log($"[LevelComplete] LOSE — panel show ho raha hai.");
+        ShowPanel(msg);
+    }
+
+    private void ShowPanel(string message)
     {
         if (panelMessageText != null)
             panelMessageText.text = message;
@@ -87,16 +111,23 @@ public class LevelComplete : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
     }
 
-    // Transient message (does not open final panel) � uses MessageUIManager if available
+    // Backward compatibility: but now uses enums instead of fragile string check
+    public enum ResultType { Win, Lose }
+
+    public void ShowLevelComplete(ResultType result)
+    {
+        if (result == ResultType.Lose)
+            TriggerLose();
+        else
+            TriggerWin();
+    }
+
+    // Transient message
     public void ShowTransientMessage(string message, WorldTriggerMessage.MessageType msgType = WorldTriggerMessage.MessageType.Info, float duration = 2f)
     {
         if (MessageUIManager.Instance != null)
-        {
             MessageUIManager.Instance.ProcessMessage(message, msgType, duration);
-        }
         else
-        {
             Debug.Log($"[TransientMessage] {message}");
-        }
     }
 }

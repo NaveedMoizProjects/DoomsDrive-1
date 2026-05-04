@@ -32429,7 +32429,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   partName: Body
-  health: 100
+  health: 60
   maxHealth: 200
   type: 3
   damageThreshold: 1
@@ -46200,7 +46200,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   partName: Player
-  health: 100
+  health: 60
   maxHealth: 100
   type: 4
   damageThreshold: 1

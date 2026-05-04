@@ -76141,6 +76141,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   levelCompletePanel: {fileID: 7826548158382986408}
   panelMessageText: {fileID: 6487867718332065923}
+  winTag: PlayerBullet
+  loseTag: AI
+  winMessage: You win
+  loseMessage: You lose
 --- !u!65 &1705724037
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -78622,7 +78626,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1838238966
 MonoBehaviour:
   m_ObjectHideFlags: 0

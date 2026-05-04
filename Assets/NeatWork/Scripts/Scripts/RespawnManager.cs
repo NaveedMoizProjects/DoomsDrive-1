@@ -110,7 +110,7 @@ public class RespawnManager : MonoBehaviour
                 if (DamageManager.Instance != null) DamageManager.Instance.FinalizeGame("OUT OF LIVES");
 
                 // final screen (lose)
-                LevelComplete.Instance?.ShowLevelComplete("You lost");
+                LevelComplete.Instance?.ShowLevelComplete(LevelComplete.ResultType.Lose);
             }
         }
         else
@@ -136,6 +136,7 @@ public class RespawnManager : MonoBehaviour
         }
     }
 
+
     public void OnPlayerZero()
     {
         if (isDead || respawnInProgress) return;
@@ -144,12 +145,12 @@ public class RespawnManager : MonoBehaviour
         {
             if (respawnsRemaining > 0)
             {
-                respawnsRemaining = Mathf.Max(0, respawnsRemaining - 1);
+                respawnsRemaining--; // Aik life kam karein
                 TriggerDeath("PLAYER KILLED");
             }
             else
             {
-                // No respawns left — destroy player and show final fail screen
+                // --- NO LIVES LEFT LOGIC ---
                 if (currentCar != null)
                 {
                     DamageManager.Instance?.ClearOwnerEntries(currentCar);
@@ -160,15 +161,14 @@ public class RespawnManager : MonoBehaviour
 
                 if (DamageManager.Instance != null) DamageManager.Instance.FinalizeGame("OUT OF LIVES");
 
-                // final screen (lose)
-                LevelComplete.Instance?.ShowLevelComplete("You lost");
+                // YAHAN TABDEELI HAI: Enum use karein taake confusion na ho
+                LevelComplete.Instance?.ShowLevelComplete(LevelComplete.ResultType.Lose);
 
                 Time.timeScale = 0f;
             }
         }
         else
         {
-            // DragRace mode — regular death flow
             TriggerDeath("PLAYER KILLED");
         }
 

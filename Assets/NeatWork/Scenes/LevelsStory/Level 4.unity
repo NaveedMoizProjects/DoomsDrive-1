@@ -40300,6 +40300,7 @@ GameObject:
   - component: {fileID: 1705724038}
   - component: {fileID: 1705724037}
   - component: {fileID: 1705724036}
+  - component: {fileID: 1705724041}
   m_Layer: 0
   m_Name: LevelFinish
   m_TagString: Untagged
@@ -40321,6 +40322,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   levelCompletePanel: {fileID: 7826548158382986408}
   panelMessageText: {fileID: 6487867718332065923}
+  winTag: Player
+  loseTag: Enemy
+  winMessage: You win
+  loseMessage: You lose
 --- !u!65 &1705724037
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -40407,6 +40412,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1705724041
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1705724035}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d1576558d5004345a1e4c60f324a70b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cutsceneSceneName: Cutscene_level4_End
+  delayBeforeTransition: 0.5
 --- !u!1 &1707978125
 GameObject:
   m_ObjectHideFlags: 0

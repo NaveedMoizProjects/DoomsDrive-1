@@ -49,4 +49,4 @@ MonoBehaviour:
     PlayerSprite: {fileID: 0}
     typingSpeed: 0.5
     showTextBox: 1
-  nextSceneName: Cutscene_level2_Start
+  nextSceneName: Level 1

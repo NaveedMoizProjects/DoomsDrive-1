@@ -138,19 +138,37 @@ public class CutsceneManager : MonoBehaviour
         }
     }
 
+
+    [Header("End of Cutscene UI")]
+    public GameObject levelCompleteUIPanel; // Inspector mein Level Complete Panel yahan drag karein
+
     void EndCutscene()
     {
-        Debug.Log("Cutscene Finished. Loading: " + currentCutscene.nextSceneName);
+        Debug.Log("Cutscene Finished.");
 
-        if (!string.IsNullOrEmpty(currentCutscene.nextSceneName))
+        // Agar humne panel assign kiya hai, to usay show karein
+        if (levelCompleteUIPanel != null)
         {
+            levelCompleteUIPanel.SetActive(true);
+
+            // Mouse cursor dikhane ke liye (agar gameplay mein hidden tha)
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+
+            // TextBox aur characters ko hide kar dein taake piche sirf background dikhay
+            if (textBoxPanel != null) textBoxPanel.SetActive(false);
+            if (characterImage != null) characterImage.gameObject.SetActive(false);
+        }
+        else if (!string.IsNullOrEmpty(currentCutscene.nextSceneName))
+        {
+            // Agar panel nahi hai, to purana scene loading logic chale
             SceneManager.LoadScene(currentCutscene.nextSceneName);
         }
         else
         {
-            Debug.LogWarning("Next Scene Name is empty in CutsceneData!");
-            // Alternatively, deactivate the UI if you stay in the same scene
+            Debug.LogWarning("Na Panel assign hai na Next Scene Name!");
             gameObject.SetActive(false);
         }
     }
+
 }
